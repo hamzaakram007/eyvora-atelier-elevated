@@ -24,7 +24,7 @@ function SidePicker({
 }: {
   label: string;
   product: ShopifyProduct;
-  selected?: Variant;
+  selected: Variant | undefined;
   onSelect: (v: Variant) => void;
 }) {
   const node = product.node;
