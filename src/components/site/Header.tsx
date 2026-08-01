@@ -35,27 +35,27 @@ const megaColumns = [
   {
     heading: "Collections",
     items: [
-      { label: "New Arrivals", search: { sort: "newest" } },
-      { label: "Best Sellers", search: { sort: "popular" } },
-      { label: "Winter 26", search: { collection: "winter" } },
-      { label: "Couple Collection", search: { collection: "couple" } },
-      { label: "All Pieces", search: {} },
+      { label: "New Arrivals", to: "/shop", search: { sort: "newest" } },
+      { label: "Best Sellers", to: "/shop", search: { sort: "popular" } },
+      { label: "Winter 26", to: "/shop", search: { collection: "winter" } },
+      { label: "Couple Collection", to: "/couple", search: undefined },
+      { label: "All Pieces", to: "/shop", search: {} },
     ],
   },
   {
     heading: "Men",
     items: [
-      { label: "Hoodies", search: { gender: "men", category: "hoodies" } },
-      { label: "Trousers", search: { gender: "men", category: "trousers" } },
-      { label: "Full Sets", search: { gender: "men" } },
+      { label: "Hoodies", to: "/shop", search: { gender: "men", category: "hoodies" } },
+      { label: "Trousers", to: "/shop", search: { gender: "men", category: "trousers" } },
+      { label: "Full Sets", to: "/shop", search: { gender: "men" } },
     ],
   },
   {
     heading: "Women",
     items: [
-      { label: "Hoodies", search: { gender: "women", category: "hoodies" } },
-      { label: "Trousers", search: { gender: "women", category: "trousers" } },
-      { label: "Full Sets", search: { gender: "women" } },
+      { label: "Hoodies", to: "/shop", search: { gender: "women", category: "hoodies" } },
+      { label: "Trousers", to: "/shop", search: { gender: "women", category: "trousers" } },
+      { label: "Full Sets", to: "/shop", search: { gender: "women" } },
     ],
   },
 ];
@@ -70,8 +70,8 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
             {col.items.map((item) => (
               <li key={item.label}>
                 <Link
-                  to="/shop"
-                  search={item.search}
+                  to={item.to}
+                  search={item.search ?? {}}
                   onClick={onNavigate}
                   className="rule-link text-[0.95rem] font-light"
                 >
@@ -84,16 +84,16 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
       ))}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { img: menHoodie, label: "Men" },
-          { img: womenHoodie, label: "Women" },
-          { img: couple, label: "Couple" },
+          { img: menHoodie, label: "Men", to: "/shop" as const },
+          { img: womenHoodie, label: "Women", to: "/shop" as const },
+          { img: couple, label: "Couple", to: "/couple" as const },
         ].map((tile) => (
           <Link
             key={tile.label}
-            to="/shop"
+            to={tile.to}
             search={
               tile.label === "Couple"
-                ? { collection: "couple" }
+                ? {}
                 : { gender: tile.label.toLowerCase() }
             }
             onClick={onNavigate}

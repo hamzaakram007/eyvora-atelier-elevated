@@ -64,7 +64,7 @@ export const navLinks = [
   { label: "Women", to: "/shop" as const, search: { gender: "women" } },
   { label: "Hoodies", to: "/shop" as const, search: { category: "hoodies" } },
   { label: "Trousers", to: "/shop" as const, search: { category: "trousers" } },
-  { label: "Couple", to: "/shop" as const, search: { collection: "couple" } },
+  { label: "Couple", to: "/couple" as const },
   { label: "About", to: "/about" as const },
   { label: "Visit Us", to: "/visit" as const },
   { label: "Contact", to: "/contact" as const },
