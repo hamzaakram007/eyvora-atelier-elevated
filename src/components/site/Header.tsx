@@ -71,7 +71,7 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
               <li key={item.label}>
                 <Link
                   to={item.to}
-                  search={item.search}
+                  search={item.search ?? {}}
                   onClick={onNavigate}
                   className="rule-link text-[0.95rem] font-light"
                 >
@@ -93,7 +93,7 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
             to={tile.to}
             search={
               tile.label === "Couple"
-                ? undefined
+                ? {}
                 : { gender: tile.label.toLowerCase() }
             }
             onClick={onNavigate}
