@@ -84,16 +84,16 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
       ))}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { img: menHoodie, label: "Men" },
-          { img: womenHoodie, label: "Women" },
-          { img: couple, label: "Couple" },
+          { img: menHoodie, label: "Men", to: "/shop" as const },
+          { img: womenHoodie, label: "Women", to: "/shop" as const },
+          { img: couple, label: "Couple", to: "/couple" as const },
         ].map((tile) => (
           <Link
             key={tile.label}
-            to="/shop"
+            to={tile.to}
             search={
               tile.label === "Couple"
-                ? { collection: "couple" }
+                ? undefined
                 : { gender: tile.label.toLowerCase() }
             }
             onClick={onNavigate}
