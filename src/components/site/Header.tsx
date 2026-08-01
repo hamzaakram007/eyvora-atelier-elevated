@@ -45,17 +45,17 @@ const megaColumns = [
   {
     heading: "Men",
     items: [
-      { label: "Hoodies", search: { gender: "men", category: "hoodies" } },
-      { label: "Trousers", search: { gender: "men", category: "trousers" } },
-      { label: "Full Sets", search: { gender: "men" } },
+      { label: "Hoodies", to: "/shop", search: { gender: "men", category: "hoodies" } },
+      { label: "Trousers", to: "/shop", search: { gender: "men", category: "trousers" } },
+      { label: "Full Sets", to: "/shop", search: { gender: "men" } },
     ],
   },
   {
     heading: "Women",
     items: [
-      { label: "Hoodies", search: { gender: "women", category: "hoodies" } },
-      { label: "Trousers", search: { gender: "women", category: "trousers" } },
-      { label: "Full Sets", search: { gender: "women" } },
+      { label: "Hoodies", to: "/shop", search: { gender: "women", category: "hoodies" } },
+      { label: "Trousers", to: "/shop", search: { gender: "women", category: "trousers" } },
+      { label: "Full Sets", to: "/shop", search: { gender: "women" } },
     ],
   },
 ];
