@@ -70,7 +70,7 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
             {col.items.map((item) => (
               <li key={item.label}>
                 <Link
-                  to="/shop"
+                  to={item.to}
                   search={item.search}
                   onClick={onNavigate}
                   className="rule-link text-[0.95rem] font-light"
