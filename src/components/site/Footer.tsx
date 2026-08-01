@@ -10,7 +10,7 @@ const columns = [
       { label: "Best Sellers", to: "/shop", search: { sort: "popular" } },
       { label: "Hoodies", to: "/shop", search: { category: "hoodies" } },
       { label: "Trousers", to: "/shop", search: { category: "trousers" } },
-      { label: "Couple Collection", to: "/shop", search: { collection: "couple" } },
+      { label: "Couple Collection", to: "/couple", search: undefined },
     ],
   },
   {

@@ -35,11 +35,11 @@ const megaColumns = [
   {
     heading: "Collections",
     items: [
-      { label: "New Arrivals", search: { sort: "newest" } },
-      { label: "Best Sellers", search: { sort: "popular" } },
-      { label: "Winter 26", search: { collection: "winter" } },
-      { label: "Couple Collection", search: { collection: "couple" } },
-      { label: "All Pieces", search: {} },
+      { label: "New Arrivals", to: "/shop", search: { sort: "newest" } },
+      { label: "Best Sellers", to: "/shop", search: { sort: "popular" } },
+      { label: "Winter 26", to: "/shop", search: { collection: "winter" } },
+      { label: "Couple Collection", to: "/couple", search: undefined },
+      { label: "All Pieces", to: "/shop", search: {} },
     ],
   },
   {
