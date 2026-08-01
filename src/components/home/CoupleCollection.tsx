@@ -34,8 +34,7 @@ export function CoupleCollection() {
             <li>— Gift packaging on request</li>
           </ul>
           <Link
-            to="/shop"
-            search={{ collection: "couple" }}
+            to="/couple"
             className="mt-11 inline-block bg-[var(--ink)] px-10 py-4 text-[0.625rem] tracking-[0.3em] text-[var(--ivory)] uppercase transition-opacity hover:opacity-85"
           >
             Shop Together
