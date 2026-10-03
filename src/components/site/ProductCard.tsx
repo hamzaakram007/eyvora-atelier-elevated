@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Heart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -23,31 +23,46 @@ export function ProductCard({
   const wishlisted = useWishlist((s) => s.handles.includes(node.handle));
   const toggleWishlist = useWishlist((s) => s.toggle);
   const [adding, setAdding] = useState(false);
+  const [size, setSize] = useState<string>("");
 
   const colorOption = node.options?.find((o) =>
     ["color", "colour"].includes(o.name.toLowerCase()),
   );
+  const sizeOption = node.options?.find((o) => o.name.toLowerCase() === "size");
   const variants = node.variants.edges;
-  const firstAvailable = variants.find((v) => v.node.availableForSale)?.node;
-  const soldOut = variants.length > 0 && !firstAvailable;
+  const soldOut = variants.length > 0 && !variants.some((v) => v.node.availableForSale);
   const price = node.priceRange.minVariantPrice;
-  const compareAt = node.compareAtPriceRange?.minVariantPrice;
-  const onSale =
-    compareAt && parseFloat(compareAt.amount) > parseFloat(price.amount);
+
+  const selectedVariant = useMemo(() => {
+    if (!size) return null;
+    return (
+      variants.find((v) =>
+        v.node.selectedOptions.some(
+          (o) => o.name.toLowerCase() === "size" && o.value === size,
+        ),
+      )?.node ?? null
+    );
+  }, [size, variants]);
 
   const quickAdd = async () => {
-    if (!firstAvailable) return;
+    if (!size || !selectedVariant) {
+      toast.message("Select a size", {
+        description: "Choose S, M or L before adding to bag.",
+      });
+      return;
+    }
+    if (!selectedVariant.availableForSale) return;
     setAdding(true);
     await addItem({
       product,
-      variantId: firstAvailable.id,
-      variantTitle: firstAvailable.title,
-      price: firstAvailable.price,
+      variantId: selectedVariant.id,
+      variantTitle: selectedVariant.title,
+      price: selectedVariant.price,
       quantity: 1,
-      selectedOptions: firstAvailable.selectedOptions || [],
+      selectedOptions: selectedVariant.selectedOptions || [],
     });
     setAdding(false);
-    toast.success("Added to your bag", { description: node.title });
+    toast.success("Added to your bag", { description: `${node.title} / ${size}` });
     setCartOpen(true);
   };
 
@@ -59,7 +74,7 @@ export function ProductCard({
       <Link
         to="/product/$handle"
         params={{ handle: node.handle }}
-        className="block overflow-hidden bg-[var(--sand)]"
+        className="block overflow-hidden bg-[var(--soft-grey)]"
       >
         <div className="relative aspect-[4/5] overflow-hidden">
           {primary && (
@@ -67,7 +82,7 @@ export function ProductCard({
               src={primary}
               alt={images[0]?.node.altText ?? node.title}
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04] group-hover:opacity-0"
+              className="absolute inset-0 h-full w-full object-cover transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-hover:opacity-0"
             />
           )}
           {secondary && (
@@ -78,18 +93,11 @@ export function ProductCard({
               className="absolute inset-0 h-full w-full scale-105 object-cover opacity-0 transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-100 group-hover:opacity-100"
             />
           )}
-          <div className="absolute top-4 left-4 flex flex-col gap-2">
-            {soldOut && (
-              <span className="bg-background/90 px-2.5 py-1 text-[0.5625rem] tracking-[0.24em] uppercase">
-                Sold out
-              </span>
-            )}
-            {onSale && !soldOut && (
-              <span className="bg-[var(--ink)] px-2.5 py-1 text-[0.5625rem] tracking-[0.24em] text-[var(--ivory)] uppercase">
-                Reduced
-              </span>
-            )}
-          </div>
+          {soldOut && (
+            <span className="absolute top-4 left-4 bg-background/90 px-2.5 py-1 text-[0.5625rem] tracking-[0.24em] uppercase">
+              Sold out
+            </span>
+          )}
         </div>
       </Link>
 
@@ -97,7 +105,7 @@ export function ProductCard({
         type="button"
         aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
         onClick={() => toggleWishlist(node.handle)}
-        className="absolute top-4 right-4 grid h-8 w-8 place-items-center bg-background/85 opacity-0 transition-opacity duration-500 group-hover:opacity-100 focus-visible:opacity-100"
+        className="absolute top-4 right-4 grid h-9 w-9 place-items-center bg-background/90 opacity-100 transition-opacity duration-500 md:opacity-0 md:group-hover:opacity-100"
       >
         <Heart
           className={cn("h-3.5 w-3.5", wishlisted && "fill-current")}
@@ -105,69 +113,74 @@ export function ProductCard({
         />
       </button>
 
-      {!soldOut && (
-        <button
-          type="button"
-          onClick={quickAdd}
-          disabled={adding}
-          className="absolute right-3 bottom-[7.5rem] left-3 hidden translate-y-2 bg-background/95 py-3 text-[0.625rem] tracking-[0.28em] uppercase opacity-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0 group-hover:opacity-100 lg:block"
-        >
-          {adding ? (
-            <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin" />
-          ) : (
-            "Quick add"
-          )}
-        </button>
-      )}
-
       <div className="pt-5">
-        <div className="flex items-baseline justify-between gap-4">
-          <Link
-            to="/product/$handle"
-            params={{ handle: node.handle }}
-            className="text-[0.9rem] leading-snug"
-          >
-            {node.title}
-          </Link>
-          <span className="shrink-0 text-[0.85rem] text-muted-foreground">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <Link
+              to="/product/$handle"
+              params={{ handle: node.handle }}
+              className="block text-[0.92rem] leading-snug"
+            >
+              {node.title}
+            </Link>
+            {colorOption && (
+              <p className="mt-1.5 text-[0.7rem] tracking-[0.14em] text-muted-foreground uppercase">
+                {colorOption.values[0]}
+              </p>
+            )}
+          </div>
+          <span className="shrink-0 text-[0.88rem] tabular-nums">
             {formatPrice(price.amount, price.currencyCode)}
           </span>
         </div>
-        {colorOption && (
-          <div className="mt-3 flex items-center gap-2">
-            {colorOption.values.slice(0, 5).map((value) => (
-              <span
-                key={value}
-                title={value}
-                className="h-2.5 w-2.5 rounded-full border border-border"
-                style={{ background: swatch(value) }}
-              />
-            ))}
+
+        {sizeOption && !soldOut && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {sizeOption.values.map((value) => {
+              const variant = variants.find((v) =>
+                v.node.selectedOptions.some(
+                  (o) => o.name.toLowerCase() === "size" && o.value === value,
+                ),
+              )?.node;
+              const unavailable = variant ? !variant.availableForSale : true;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  disabled={unavailable}
+                  onClick={() => setSize(value)}
+                  className={cn(
+                    "min-w-10 border px-2.5 py-2 text-[0.625rem] tracking-[0.18em] uppercase transition-colors",
+                    size === value
+                      ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                      : "border-border hover:border-[var(--ink)]",
+                    unavailable && "cursor-not-allowed opacity-30 line-through",
+                  )}
+                >
+                  {value}
+                </button>
+              );
+            })}
           </div>
         )}
-        <button
-          type="button"
-          onClick={quickAdd}
-          disabled={adding || soldOut}
-          className="mt-4 w-full border border-border py-3 text-[0.625rem] tracking-[0.28em] uppercase transition-colors hover:bg-[var(--ink)] hover:text-[var(--ivory)] disabled:opacity-40 lg:hidden"
-        >
-          {soldOut ? "Sold out" : adding ? "Adding…" : "Add to bag"}
-        </button>
+
+        {!soldOut && (
+          <button
+            type="button"
+            onClick={quickAdd}
+            disabled={adding}
+            className="mt-4 w-full border border-border py-3 text-[0.625rem] tracking-[0.28em] uppercase transition-colors hover:bg-[var(--ink)] hover:text-[var(--ivory)] disabled:opacity-40"
+          >
+            {adding ? (
+              <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin" />
+            ) : size ? (
+              "Add to bag"
+            ) : (
+              "Select size"
+            )}
+          </button>
+        )}
       </div>
     </article>
   );
-}
-
-function swatch(value: string) {
-  const key = value.toLowerCase();
-  if (key.includes("black")) return "#151515";
-  if (key.includes("ivory") || key.includes("cream")) return "#F0EBE1";
-  if (key.includes("white")) return "#FCFCFA";
-  if (key.includes("stone") || key.includes("grey") || key.includes("gray"))
-    return "#B7B2AB";
-  if (key.includes("taupe")) return "#CFC4B6";
-  if (key.includes("beige") || key.includes("sand")) return "#E3D9C8";
-  if (key.includes("olive")) return "#6B6C55";
-  if (key.includes("navy")) return "#232A38";
-  return "#C9C3BA";
 }

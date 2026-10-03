@@ -48,14 +48,14 @@ export const Route = createFileRoute("/shop")({
 });
 
 const sorts = [
+  { key: "featured", label: "Featured" },
   { key: "newest", label: "Newest" },
-  { key: "popular", label: "Popular" },
-  { key: "price-asc", label: "Price low" },
-  { key: "price-desc", label: "Price high" },
+  { key: "price-asc", label: "Price low–high" },
+  { key: "price-desc", label: "Price high–low" },
 ];
 
-const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
-const colours = ["Black", "Ivory", "Stone", "Beige", "Taupe"];
+const sizes = ["S", "M", "L"];
+const colours = ["Olive", "Black", "Grey"];
 
 function textOf(p: ShopifyProduct) {
   return `${p.node.title} ${p.node.productType ?? ""} ${(p.node.tags ?? []).join(" ")}`.toLowerCase();
@@ -138,18 +138,6 @@ function Shop() {
 
         <div className="grid gap-12 py-12 lg:grid-cols-[210px_1fr] lg:gap-16">
           <aside className="space-y-9">
-            <FilterBlock label="Gender">
-              {["men", "women", "couple"].map((g) => (
-                <Chip
-                  key={g}
-                  active={search.gender === g}
-                  onClick={() => set({ gender: search.gender === g ? undefined : g })}
-                >
-                  {g}
-                </Chip>
-              ))}
-            </FilterBlock>
-
             <FilterBlock label="Category">
               {["hoodies", "trousers"].map((c) => (
                 <Chip
@@ -200,18 +188,18 @@ function Shop() {
             </FilterBlock>
 
             <div>
-              <p className="eyebrow mb-4">Max price</p>
+              <p className="eyebrow mb-4">Price</p>
               <input
                 type="range"
                 min={2000}
-                max={30000}
-                step={1000}
-                value={maxPrice ?? 30000}
+                max={5000}
+                step={100}
+                value={maxPrice ?? 5000}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
                 className="w-full accent-[var(--ink)]"
               />
               <p className="mt-2 text-xs text-muted-foreground">
-                Up to {(maxPrice ?? 30000).toLocaleString()} PKR
+                Up to PKR {(maxPrice ?? 5000).toLocaleString("en-PK")}
               </p>
             </div>
           </aside>

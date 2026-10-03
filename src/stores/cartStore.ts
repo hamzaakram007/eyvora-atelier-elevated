@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { toast } from "sonner";
+import { isShopifySyncedVariantId } from "@/lib/catalog";
 import { storefrontApiRequest, type ShopifyProduct } from "@/lib/shopify";
+import { whatsappConfigured, whatsappLink } from "@/lib/site";
 
 export interface CartItem {
   lineId: string | null;
@@ -190,9 +193,36 @@ export const useCartStore = create<CartStore>()(
       addItem: async (item) => {
         const { items, cartId, clearCart } = get();
         const existingItem = items.find((i) => i.variantId === item.variantId);
+        const synced = isShopifySyncedVariantId(item.variantId);
 
         set({ isLoading: true });
         try {
+          // Launch catalogue not yet published to Shopify Admin — keep a local bag only.
+          if (!synced) {
+            if (existingItem) {
+              set({
+                items: items.map((i) =>
+                  i.variantId === item.variantId
+                    ? { ...i, quantity: i.quantity + item.quantity }
+                    : i,
+                ),
+              });
+            } else {
+              set({ items: [...items, { ...item, lineId: null }] });
+            }
+            if (whatsappConfigured()) {
+              toast.message("Saved to bag", {
+                description: "Checkout will open WhatsApp until Shopify products are synced.",
+              });
+            } else {
+              toast.message("Saved to bag", {
+                description:
+                  "Shopify product sync is required before native checkout is available.",
+              });
+            }
+            return;
+          }
+
           if (!cartId) {
             const result = await createShopifyCart({ ...item, lineId: null });
             if (result) {
@@ -244,7 +274,16 @@ export const useCartStore = create<CartStore>()(
 
         const { items, cartId, clearCart } = get();
         const item = items.find((i) => i.variantId === variantId);
-        if (!item?.lineId || !cartId) return;
+        if (!item) return;
+
+        if (!isShopifySyncedVariantId(variantId) || !item.lineId || !cartId) {
+          set({
+            items: items.map((i) =>
+              i.variantId === variantId ? { ...i, quantity } : i,
+            ),
+          });
+          return;
+        }
 
         set({ isLoading: true });
         try {
@@ -269,7 +308,14 @@ export const useCartStore = create<CartStore>()(
       removeItem: async (variantId) => {
         const { items, cartId, clearCart } = get();
         const item = items.find((i) => i.variantId === variantId);
-        if (!item?.lineId || !cartId) return;
+        if (!item) return;
+
+        if (!isShopifySyncedVariantId(variantId) || !item.lineId || !cartId) {
+          const newItems = items.filter((i) => i.variantId !== variantId);
+          if (newItems.length === 0) clearCart();
+          else set({ items: newItems });
+          return;
+        }
 
         set({ isLoading: true });
         try {
@@ -293,7 +339,26 @@ export const useCartStore = create<CartStore>()(
       },
 
       clearCart: () => set({ items: [], cartId: null, checkoutUrl: null }),
-      getCheckoutUrl: () => get().checkoutUrl,
+      getCheckoutUrl: () => {
+        const { checkoutUrl, items } = get();
+        if (checkoutUrl) return checkoutUrl;
+        if (items.length === 0) return null;
+        if (items.every((i) => !isShopifySyncedVariantId(i.variantId))) {
+          if (!whatsappConfigured()) return null;
+          const summary = items
+            .map((i) => {
+              const size =
+                i.selectedOptions.find((o) => o.name.toLowerCase() === "size")
+                  ?.value ?? i.variantTitle;
+              return `• ${i.product.node.title} — Size ${size} × ${i.quantity}`;
+            })
+            .join("\n");
+          return whatsappLink(
+            `Hello EYVORA, I would like to order:\n${summary}`,
+          );
+        }
+        return null;
+      },
 
       syncCart: async () => {
         const { cartId, isSyncing, clearCart } = get();

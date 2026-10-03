@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * EYVORA design system — quiet luxury.
- * Matte black, warm ivory, stone, taupe, muted gold.
+ * EYVORA design system — quiet editorial luxury.
+ * Warm Ivory #F7F5F0 · White #FFFFFF · Deep Charcoal #1E1E1E
+ * Soft Grey #E8E7E3 · Stone #B7B0A5 · optional muted olive accent.
  */
 
 @theme inline {
@@ -37,44 +38,50 @@
   --color-stone: var(--stone);
   --color-taupe: var(--taupe);
   --color-sand: var(--sand);
+  --color-soft-grey: var(--soft-grey);
   --color-gold: var(--gold);
+  --color-olive: var(--olive);
   --color-ink: var(--ink);
-  --font-display: "Bodoni Moda", "Times New Roman", serif;
-  --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --radius: 0.125rem;
-  --background: oklch(0.985 0.006 85);
-  --foreground: oklch(0.19 0.004 60);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.004 60);
-  --popover: oklch(0.99 0.004 85);
-  --popover-foreground: oklch(0.19 0.004 60);
-  --primary: oklch(0.19 0.004 60);
-  --primary-foreground: oklch(0.98 0.006 85);
-  --secondary: oklch(0.945 0.008 80);
-  --secondary-foreground: oklch(0.24 0.004 60);
-  --muted: oklch(0.955 0.007 82);
-  --muted-foreground: oklch(0.52 0.008 70);
-  --accent: oklch(0.92 0.012 78);
-  --accent-foreground: oklch(0.22 0.004 60);
-  --destructive: oklch(0.52 0.16 27);
-  --destructive-foreground: oklch(0.98 0.006 85);
-  --border: oklch(0.9 0.008 80);
-  --input: oklch(0.9 0.008 80);
-  --ring: oklch(0.72 0.05 80);
+  --radius: 0.05rem;
+  --background: #f7f5f0;
+  --foreground: #1e1e1e;
+  --card: #ffffff;
+  --card-foreground: #1e1e1e;
+  --popover: #ffffff;
+  --popover-foreground: #1e1e1e;
+  --primary: #1e1e1e;
+  --primary-foreground: #f7f5f0;
+  --secondary: #e8e7e3;
+  --secondary-foreground: #1e1e1e;
+  --muted: #e8e7e3;
+  --muted-foreground: #6f6a63;
+  --accent: #e8e7e3;
+  --accent-foreground: #1e1e1e;
+  --destructive: #8a3a32;
+  --destructive-foreground: #f7f5f0;
+  --border: #ddd9d1;
+  --input: #ddd9d1;
+  --ring: #b7b0a5;
 
-  --ivory: oklch(0.965 0.012 85);
-  --stone: oklch(0.78 0.008 75);
-  --taupe: oklch(0.85 0.014 75);
-  --sand: oklch(0.925 0.017 82);
-  --gold: oklch(0.72 0.062 82);
-  --ink: oklch(0.16 0.003 60);
+  --ivory: #f7f5f0;
+  --stone: #b7b0a5;
+  --taupe: #cfc6b8;
+  --sand: #efebe3;
+  --soft-grey: #e8e7e3;
+  --gold: #b7b0a5;
+  --olive: #5f6448;
+  --ink: #1e1e1e;
 
-  --shadow-soft: 0 1px 2px oklch(0.19 0.004 60 / 0.04), 0 18px 50px -28px oklch(0.19 0.004 60 / 0.28);
-  --shadow-lift: 0 2px 6px oklch(0.19 0.004 60 / 0.05), 0 34px 70px -32px oklch(0.19 0.004 60 / 0.35);
+  --shadow-soft: 0 1px 2px rgb(30 30 30 / 0.04), 0 18px 50px -28px rgb(30 30 30 / 0.22);
+  --shadow-lift: 0 2px 6px rgb(30 30 30 / 0.05), 0 34px 70px -32px rgb(30 30 30 / 0.28);
   --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+  --section-space: clamp(4.5rem, 8vw, 7.5rem);
+  --container: 1600px;
 }
 
 .dark {
@@ -110,14 +117,30 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-weight: 300;
+    font-weight: 400;
     letter-spacing: 0.01em;
     -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
   }
 
   ::selection {
     background: var(--ink);
     color: var(--ivory);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 

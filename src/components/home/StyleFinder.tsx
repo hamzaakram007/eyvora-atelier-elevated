@@ -1,42 +1,66 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Reveal } from "@/components/site/Reveal";
+import { COUPLE_OUTFITS, findCatalogProduct } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
 type Answers = {
-  gender: string;
-  height: string;
-  weight: string;
+  preference: string;
   fit: string;
-  style: string;
+  size: string;
   colour: string;
   occasion: string;
-  budget: string;
+  piece: string;
 };
 
 const steps: Array<{ key: keyof Answers; label: string; options: string[] }> = [
-  { key: "gender", label: "Who are we styling?", options: ["Men", "Women", "Couple"] },
-  { key: "height", label: "Height", options: ["Under 5'5\"", "5'5\" – 5'9\"", "5'10\" – 6'1\"", "Over 6'1\""] },
-  { key: "weight", label: "Weight", options: ["Under 60kg", "60 – 75kg", "76 – 90kg", "Over 90kg"] },
-  { key: "fit", label: "Preferred fit", options: ["Close", "True to size", "Relaxed", "Oversized"] },
-  { key: "style", label: "Style language", options: ["Minimal", "Street", "Tailored", "Sport"] },
-  { key: "colour", label: "Colour preference", options: ["Matte Black", "Warm Ivory", "Stone Grey", "Soft Beige"] },
-  { key: "occasion", label: "Mostly worn for", options: ["Work", "Casual", "Travel", "Gym", "Date Night"] },
-  { key: "budget", label: "Budget per piece", options: ["Under 8k", "8k – 14k", "14k – 22k", "Open"] },
+  {
+    key: "preference",
+    label: "Style preference",
+    options: ["Men", "Women", "Shared / Couple"],
+  },
+  {
+    key: "fit",
+    label: "Preferred fit",
+    options: ["Close", "True to size", "Relaxed"],
+  },
+  {
+    key: "size",
+    label: "Your size",
+    options: ["S", "M", "L"],
+  },
+  {
+    key: "colour",
+    label: "Colour preference",
+    options: ["Olive", "Black", "Grey", "No preference"],
+  },
+  {
+    key: "occasion",
+    label: "Occasion",
+    options: ["Everyday", "Travel", "Weekend", "Evening"],
+  },
+  {
+    key: "piece",
+    label: "Looking for",
+    options: ["Hoodie", "Trousers", "Full outfit"],
+  },
 ];
 
-function recommendSize(a: Answers) {
-  const h = steps[1]!.options.indexOf(a.height);
-  const w = steps[2]!.options.indexOf(a.weight);
-  const base = Math.round((h + w) / 2);
-  const scale = ["XS", "S", "M", "L", "XL"];
-  let index = base + 1;
-  if (a.fit === "Oversized") index += 1;
-  if (a.fit === "Relaxed") index += 0.5;
-  if (a.fit === "Close") index -= 1;
-  return scale[Math.max(0, Math.min(scale.length - 1, Math.round(index)))] ?? "M";
+function scoreProduct(product: ShopifyProduct, answers: Answers) {
+  const hay =
+    `${product.node.title} ${(product.node.tags ?? []).join(" ")} ${product.node.productType ?? ""}`.toLowerCase();
+  let score = 0;
+  if (answers.piece === "Hoodie" && hay.includes("hoodie")) score += 4;
+  if (answers.piece === "Trousers" && hay.includes("trouser")) score += 4;
+  if (answers.piece === "Full outfit") score += 1;
+  if (answers.colour !== "No preference" && hay.includes(answers.colour.toLowerCase())) {
+    score += 3;
+  }
+  if (answers.occasion && hay.includes("essentials")) score += 1;
+  if (answers.preference === "Shared / Couple" && hay.includes("couple")) score += 1;
+  return score;
 }
 
 export function StyleFinder() {
@@ -51,43 +75,63 @@ export function StyleFinder() {
   });
 
   const products = data ?? [];
-  const matches = (keyword: string): ShopifyProduct[] =>
-    products.filter((p) => {
-      const hay = `${p.node.title} ${p.node.productType ?? ""} ${(p.node.tags ?? []).join(" ")}`.toLowerCase();
-      return hay.includes(keyword);
-    });
+  const ranked = useMemo(() => {
+    if (!done) return [] as ShopifyProduct[];
+    const a = answers as Answers;
+    return [...products]
+      .map((p) => ({ p, score: scoreProduct(p, a) }))
+      .sort((x, y) => y.score - x.score)
+      .map((x) => x.p);
+  }, [answers, done, products]);
 
-  const hoodie = matches("hood")[0] ?? products[0];
-  const trouser = matches("trouser")[0] ?? matches("pant")[0] ?? products[1];
-  const cross = products.filter((p) => p !== hoodie && p !== trouser).slice(0, 2);
+  const recommendedSize = (answers.size as string) || "M";
+  const primary = ranked[0];
+  const secondary = ranked[1];
+  const outfit = useMemo(() => {
+    if (!done) return null;
+    const colour = (answers.colour || "").toLowerCase();
+    if (colour.includes("olive")) return COUPLE_OUTFITS[0];
+    if (colour.includes("grey")) return COUPLE_OUTFITS[1];
+    return COUPLE_OUTFITS[2];
+  }, [answers.colour, done]);
+
+  const outfitProducts = outfit
+    ? [
+        findCatalogProduct(products, outfit.hoodieHandle),
+        findCatalogProduct(products, outfit.trousersHandle),
+      ].filter(Boolean) as ShopifyProduct[]
+    : [];
 
   const current = steps[step];
   const progress = Math.round((Math.min(step, steps.length) / steps.length) * 100);
 
   return (
     <section className="border-t border-border bg-[var(--ink)] text-[var(--ivory)]">
-      <div className="mx-auto max-w-[1600px] px-5 py-24 lg:px-10 lg:py-32">
+      <div className="mx-auto max-w-[1600px] px-5 py-20 lg:px-10 lg:py-28">
         <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
           <Reveal>
-            <p className="eyebrow text-[var(--ivory)]/45">12 — Styling Desk</p>
-            <h2 className="font-display mt-4 text-[clamp(2rem,4vw,3.25rem)] leading-[1.05]">
-              Find your
+            <p className="eyebrow text-[var(--ivory)]/45">Find your EYVORA fit</p>
+            <h2 className="font-display mt-4 text-[clamp(2rem,4vw,3.1rem)] leading-[1.05]">
+              A simple guide
               <br />
-              exact pieces.
+              to your essentials.
             </h2>
             <p className="mt-7 max-w-sm text-[0.95rem] leading-relaxed text-[var(--ivory)]/55">
-              Eight questions. One tailored recommendation — silhouette, size and the
-              pieces that work together.
+              Rule-based recommendations from the launch catalogue. Not medical, biometric,
+              or scientifically predictive — just a clearer starting point.
             </p>
             <div className="mt-10 h-px w-full max-w-xs bg-[var(--ivory)]/15">
               <div
-                className="h-px bg-[var(--gold)] transition-[width] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                className="h-px bg-[var(--ivory)] transition-[width] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </Reveal>
 
-          <Reveal delay={120} className="border border-[var(--ivory)]/15 px-6 py-10 lg:px-12 lg:py-14">
+          <Reveal
+            delay={120}
+            className="border border-[var(--ivory)]/15 px-6 py-10 lg:px-12 lg:py-14"
+          >
             {!done && current ? (
               <div>
                 <p className="text-[0.625rem] tracking-[0.3em] text-[var(--ivory)]/45 uppercase">
@@ -100,12 +144,13 @@ export function StyleFinder() {
                       key={opt}
                       type="button"
                       onClick={() => {
-                        setAnswers((a) => ({ ...a, [current.key]: opt }));
+                        setAnswers((prev) => ({ ...prev, [current.key]: opt }));
                         setStep((s) => s + 1);
                       }}
                       className={cn(
-                        "border border-[var(--ivory)]/25 px-5 py-3 text-[0.75rem] tracking-[0.1em] transition-colors duration-400",
-                        "hover:bg-[var(--ivory)] hover:text-[var(--ink)]",
+                        "border border-[var(--ivory)]/25 px-5 py-3 text-[0.7rem] tracking-[0.18em] uppercase transition-colors hover:bg-[var(--ivory)] hover:text-[var(--ink)]",
+                        answers[current.key] === opt &&
+                          "bg-[var(--ivory)] text-[var(--ink)]",
                       )}
                     >
                       {opt}
@@ -115,52 +160,43 @@ export function StyleFinder() {
                 {step > 0 && (
                   <button
                     type="button"
-                    onClick={() => setStep((s) => s - 1)}
-                    className="mt-10 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)]/45 uppercase"
+                    onClick={() => setStep((s) => Math.max(0, s - 1))}
+                    className="mt-8 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)]/55 uppercase"
                   >
-                    ← Back
+                    Back
                   </button>
                 )}
               </div>
             ) : (
               <div>
                 <p className="text-[0.625rem] tracking-[0.3em] text-[var(--ivory)]/45 uppercase">
-                  Your edit
+                  Your recommendation
                 </p>
-                <h3 className="font-display mt-4 text-3xl">
-                  Recommended size {recommendSize(answers as Answers)}
-                </h3>
-                <p className="mt-4 max-w-md text-sm text-[var(--ivory)]/55">
-                  {answers.style ?? "Minimal"} silhouette in {answers.colour ?? "Matte Black"},
-                  cut {(answers.fit ?? "true to size").toLowerCase()} for {(answers.occasion ?? "everyday").toLowerCase()}.
+                <h3 className="font-display mt-4 text-3xl">Suggested size: {recommendedSize}</h3>
+                <p className="mt-4 max-w-lg text-sm leading-relaxed text-[var(--ivory)]/60">
+                  Based on your preference for a {String(answers.fit || "relaxed").toLowerCase()} fit
+                  {answers.colour && answers.colour !== "No preference"
+                    ? ` in ${answers.colour.toLowerCase()}`
+                    : ""}
+                  . Review the pieces below and confirm sizing on the product page.
                 </p>
 
-                {products.length === 0 ? (
-                  <p className="mt-10 border border-dashed border-[var(--ivory)]/25 px-6 py-10 text-sm text-[var(--ivory)]/55">
-                    No products found. Once the EYVORA catalogue is live, your
-                    recommendation will appear here.
-                  </p>
-                ) : (
-                  <div className="mt-10 grid gap-6 sm:grid-cols-2">
-                    {[hoodie, trouser].filter(Boolean).map((p, i) => (
-                      <div key={p!.node.id}>
-                        <p className="mb-4 text-[0.625rem] tracking-[0.26em] text-[var(--ivory)]/45 uppercase">
-                          {i === 0 ? "Your hoodie" : "Your trouser"}
-                        </p>
-                        <ProductCard product={p!} />
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="mt-10 grid gap-6 text-[var(--ink)] sm:grid-cols-2">
+                  {[primary, secondary].filter(Boolean).map((p, i) => (
+                    <ProductCard key={p!.node.id} product={p!} index={i} />
+                  ))}
+                </div>
 
-                {cross.length > 0 && (
-                  <div className="mt-12">
-                    <p className="mb-5 text-[0.625rem] tracking-[0.26em] text-[var(--ivory)]/45 uppercase">
-                      Completes the look
+                {outfit && outfitProducts.length === 2 && (
+                  <div className="mt-12 border-t border-[var(--ivory)]/15 pt-10">
+                    <p className="text-[0.625rem] tracking-[0.28em] text-[var(--ivory)]/45 uppercase">
+                      Suggested outfit
                     </p>
-                    <div className="grid gap-6 sm:grid-cols-2">
-                      {cross.map((p) => (
-                        <ProductCard key={p.node.id} product={p} />
+                    <p className="font-display mt-3 text-2xl">{outfit.title}</p>
+                    <p className="mt-2 text-sm text-[var(--ivory)]/55">{outfit.note}</p>
+                    <div className="mt-8 grid gap-6 text-[var(--ink)] sm:grid-cols-2">
+                      {outfitProducts.map((p, i) => (
+                        <ProductCard key={p.node.id} product={p} index={i} />
                       ))}
                     </div>
                   </div>
@@ -169,12 +205,12 @@ export function StyleFinder() {
                 <button
                   type="button"
                   onClick={() => {
-                    setAnswers({});
                     setStep(0);
+                    setAnswers({});
                   }}
-                  className="mt-12 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)]/45 uppercase"
+                  className="mt-10 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)]/55 uppercase"
                 >
-                  ← Start again
+                  Start again
                 </button>
               </div>
             )}

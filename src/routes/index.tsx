@@ -2,32 +2,30 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "@/components/home/Hero";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { BestSellers } from "@/components/home/BestSellers";
-import { NewArrivals } from "@/components/home/NewArrivals";
-import { Occasions } from "@/components/home/Occasions";
 import { CoupleCollection } from "@/components/home/CoupleCollection";
 import { WhyEyvora } from "@/components/home/WhyEyvora";
-import { FabricExperience } from "@/components/home/FabricExperience";
 import { AboutStory } from "@/components/home/AboutStory";
 import { Testimonials } from "@/components/home/Testimonials";
-import { InstagramFeed } from "@/components/home/InstagramFeed";
 import { StyleFinder } from "@/components/home/StyleFinder";
 import { Faq } from "@/components/home/Faq";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "EYVORA — Premium Hoodies & Trousers | Elevate Everyday Wear" },
+      { title: "EYVORA — Everyday Essentials. Elevated." },
       {
         name: "description",
         content:
-          "Heavyweight cotton hoodies and tailored trousers for men and women. Minimal, timeless, built for comfort. Free delivery nationwide.",
+          "EYVORA premium hoodies and trousers for modern everyday wear. Olive and black hoodies, grey and black trousers. Priced in PKR.",
       },
-      { property: "og:title", content: "EYVORA — Elevate Everyday Wear" },
+      { property: "og:title", content: "EYVORA — Everyday Essentials. Elevated." },
       {
         property: "og:description",
         content:
-          "Premium hoodies and trousers in matte black, warm ivory and stone. Made in small runs.",
+          "Thoughtfully designed hoodies and trousers. Launch essentials in olive, black and grey.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     scripts: [
       {
@@ -36,9 +34,11 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "ClothingStore",
           name: "EYVORA",
+          url: "https://eyvora.pk",
           description:
-            "Premium hoodies and trousers for men and women. Minimal, timeless, built for comfort.",
+            "Premium hoodies and trousers for modern everyday wear.",
           address: { "@type": "PostalAddress", addressCountry: "PK" },
+          currenciesAccepted: "PKR",
         }),
       },
     ],
@@ -52,15 +52,11 @@ function Home() {
       <Hero />
       <CategoryGrid />
       <BestSellers />
-      <NewArrivals />
-      <Occasions />
       <CoupleCollection />
       <WhyEyvora />
-      <FabricExperience />
       <AboutStory />
-      <Testimonials />
-      <InstagramFeed />
       <StyleFinder />
+      <Testimonials />
       <Faq />
     </>
   );

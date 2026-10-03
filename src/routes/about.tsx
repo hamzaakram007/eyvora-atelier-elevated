@@ -1,50 +1,63 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AboutStory } from "@/components/home/AboutStory";
 import { WhyEyvora } from "@/components/home/WhyEyvora";
-import { FabricExperience } from "@/components/home/FabricExperience";
 import { Reveal } from "@/components/site/Reveal";
-import hero from "@/assets/hero.jpg";
+import hero from "@/assets/products/hero/hero-mobile.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About EYVORA — Premium Cotton, Made in Small Runs" },
+      { title: "About Us — EYVORA" },
       {
         name: "description",
         content:
-          "EYVORA makes fewer things in better cotton. Read how our hoodies and trousers are developed with a small Pakistani atelier.",
+          "EYVORA is a premium clothing brand focused on hoodies, trousers and coordinated everyday outfits.",
       },
-      { property: "og:title", content: "About EYVORA" },
+      { property: "og:title", content: "About Us — EYVORA" },
       {
         property: "og:description",
-        content: "Fewer things, better cotton, more time on the pattern table.",
+        content: "Everyday essentials. Elevated.",
       },
     ],
   }),
   component: About,
 });
 
-const timeline = [
-  { year: "2021", title: "One hoodie", note: "A single heavyweight prototype, made for ourselves." },
-  { year: "2023", title: "The atelier", note: "A direct partnership with a small cutting house." },
-  { year: "2024", title: "Trousers", note: "The tailored straight leg completes the wardrobe." },
-  { year: "2026", title: "Limited runs", note: "Colourways released in fixed quantities only." },
+const sections = [
+  {
+    title: "Brand Story",
+    body: "Share the verified EYVORA origin story here. Until final client copy is provided, this remains an editable placeholder.",
+  },
+  {
+    title: "Design Philosophy",
+    body: "Quiet silhouettes, considered proportion, and photography-led presentation. Luxury through restraint rather than excess.",
+  },
+  {
+    title: "Our Approach",
+    body: "A focused launch wardrobe — hoodies and trousers that work alone or as coordinated outfits — built to scale as the catalogue grows.",
+  },
+  {
+    title: "EYVORA Identity",
+    body: "Warm ivory, deep charcoal, soft grey and stone. Editorial serif headings with a clean modern sans for product information.",
+  },
 ];
 
 function About() {
   return (
     <div>
-      <section className="relative flex min-h-[60vh] items-end overflow-hidden">
+      <section className="relative flex min-h-[58vh] items-end overflow-hidden">
         <img
           src={hero}
           alt="EYVORA campaign photography"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover object-[50%_18%]"
         />
-        <div className="absolute inset-0 bg-[var(--ink)]/45" />
+        <div className="absolute inset-0 bg-[var(--ink)]/40" />
         <div className="relative mx-auto w-full max-w-[1600px] px-5 pb-16 lg:px-10 lg:pb-24">
-          <p className="eyebrow text-[var(--ivory)]/60">The House</p>
+          <p className="eyebrow text-[var(--ivory)]/60">About Us</p>
           <h1 className="font-display mt-4 max-w-3xl text-[clamp(2.5rem,6vw,5rem)] leading-[1] text-[var(--ivory)]">
-            Considered clothing, quietly made.
+            Everyday essentials.
+            <br />
+            Elevated.
           </h1>
         </div>
       </section>
@@ -52,21 +65,18 @@ function About() {
       <AboutStory />
 
       <section className="border-y border-border bg-[var(--ivory)]">
-        <div className="mx-auto max-w-[1600px] px-5 py-24 lg:px-10">
-          <p className="eyebrow mb-12">Milestones</p>
-          <div className="grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-            {timeline.map((t, i) => (
-              <Reveal key={t.year} delay={i * 90} className="border-t border-border pt-6">
-                <p className="font-display text-4xl">{t.year}</p>
-                <h3 className="mt-4 text-[0.95rem] tracking-[0.05em]">{t.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.note}</p>
+        <div className="mx-auto max-w-[1600px] px-5 py-20 lg:px-10 lg:py-28">
+          <div className="grid gap-10 md:grid-cols-2">
+            {sections.map((s, i) => (
+              <Reveal key={s.title} delay={i * 80} className="border-t border-border pt-6">
+                <h2 className="font-display text-3xl">{s.title}</h2>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
               </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <FabricExperience />
       <WhyEyvora />
     </div>
   );

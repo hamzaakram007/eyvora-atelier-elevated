@@ -1,43 +1,41 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Facebook, Youtube } from "lucide-react";
-import { whatsappLink } from "@/lib/site";
+import { Instagram, Facebook } from "lucide-react";
+import { whatsappConfigured, whatsappLink } from "@/lib/site";
 
 const columns = [
   {
-    heading: "Collections",
+    heading: "Shop",
     links: [
-      { label: "New Arrivals", to: "/shop", search: { sort: "newest" } },
-      { label: "Best Sellers", to: "/shop", search: { sort: "popular" } },
       { label: "Hoodies", to: "/shop", search: { category: "hoodies" } },
       { label: "Trousers", to: "/shop", search: { category: "trousers" } },
       { label: "Couple Collection", to: "/couple", search: undefined },
+      { label: "All Products", to: "/shop", search: {} },
     ],
   },
   {
     heading: "Company",
     links: [
-      { label: "About EYVORA", to: "/about", search: undefined },
-      { label: "Visit Us", to: "/visit", search: undefined },
+      { label: "About Us", to: "/about", search: undefined },
       { label: "Contact", to: "/contact", search: undefined },
-      { label: "Wishlist", to: "/wishlist", search: undefined },
+      { label: "Visit Us", to: "/visit", search: undefined },
     ],
   },
   {
     heading: "Customer Care",
     links: [
-      { label: "Shipping", to: "/policies/shipping", search: undefined },
-      { label: "Exchange", to: "/policies/exchange", search: undefined },
-      { label: "Refunds", to: "/policies/refund", search: undefined },
-      { label: "Size Guide", to: "/policies/shipping", search: undefined },
+      { label: "FAQ", to: "/", hash: "faq" },
+      { label: "Shipping", to: "/contact", search: undefined },
+      { label: "Returns", to: "/contact", search: undefined },
+      { label: "Exchange", to: "/contact", search: undefined },
     ],
   },
   {
     heading: "Policies",
     links: [
-      { label: "Privacy Policy", to: "/policies/privacy", search: undefined },
-      { label: "Terms of Service", to: "/policies/terms", search: undefined },
-      { label: "Refund Policy", to: "/policies/refund", search: undefined },
-      { label: "Shipping Policy", to: "/policies/shipping", search: undefined },
+      { label: "Privacy", to: "/contact", search: undefined },
+      { label: "Terms", to: "/contact", search: undefined },
+      { label: "Refund", to: "/contact", search: undefined },
+      { label: "Shipping Policy", to: "/contact", search: undefined },
     ],
   },
 ];
@@ -48,10 +46,10 @@ export function Footer() {
       <div className="mx-auto max-w-[1600px] px-5 pt-20 pb-10 lg:px-10">
         <div className="grid gap-14 lg:grid-cols-[1.4fr_2fr]">
           <div className="max-w-md">
-            <p className="font-display text-3xl tracking-[0.34em]">EYVORA</p>
+            <p className="font-display text-3xl tracking-[0.28em]">EYVORA</p>
             <p className="mt-6 text-sm leading-relaxed text-[var(--ivory)]/60">
-              Premium hoodies and trousers, cut for the way you actually live.
-              Considered fabric, quiet colour, built to outlast the season.
+              Premium hoodies and trousers for modern everyday wear. Quiet, editorial, and built
+              around authentic product photography.
             </p>
             <form
               className="mt-10 flex max-w-sm items-center gap-4 border-b border-[var(--ivory)]/25 pb-3"
@@ -61,7 +59,7 @@ export function Footer() {
                 type="email"
                 required
                 placeholder="Email address"
-                aria-label="Email address"
+                aria-label="Email address for newsletter"
                 className="w-full bg-transparent text-sm placeholder:text-[var(--ivory)]/40 focus:outline-none"
               />
               <button
@@ -72,7 +70,7 @@ export function Footer() {
               </button>
             </form>
             <p className="mt-3 text-[0.6875rem] text-[var(--ivory)]/40">
-              Early access to drops. No noise.
+              Newsletter signup can be connected to Shopify customer accounts or email.
             </p>
           </div>
 
@@ -85,13 +83,22 @@ export function Footer() {
                 <ul className="space-y-3">
                   {col.links.map((l) => (
                     <li key={l.label}>
-                      <Link
-                        to={l.to}
-                        search={l.search as never}
-                        className="rule-link text-[0.85rem] text-[var(--ivory)]/75"
-                      >
-                        {l.label}
-                      </Link>
+                      {"hash" in l && l.hash ? (
+                        <a
+                          href={`/#${l.hash}`}
+                          className="rule-link text-[0.85rem] text-[var(--ivory)]/75"
+                        >
+                          {l.label}
+                        </a>
+                      ) : (
+                        <Link
+                          to={l.to}
+                          search={l.search as never}
+                          className="rule-link text-[0.85rem] text-[var(--ivory)]/75"
+                        >
+                          {l.label}
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -105,25 +112,37 @@ export function Footer() {
             © {new Date().getFullYear()} EYVORA. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-[var(--ivory)]/60">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
-              <Instagram className="h-4 w-4" strokeWidth={1.2} />
-            </a>
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
-              <Facebook className="h-4 w-4" strokeWidth={1.2} />
-            </a>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube">
-              <Youtube className="h-4 w-4" strokeWidth={1.2} />
-            </a>
             <a
-              href={whatsappLink()}
+              href="https://instagram.com"
               target="_blank"
               rel="noreferrer"
-              className="text-[0.6875rem] tracking-[0.2em] uppercase"
+              aria-label="Instagram"
             >
-              WhatsApp
+              <Instagram className="h-4 w-4" strokeWidth={1.2} />
             </a>
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Facebook"
+            >
+              <Facebook className="h-4 w-4" strokeWidth={1.2} />
+            </a>
+            {whatsappConfigured() && (
+              <a
+                href={whatsappLink()}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[0.625rem] tracking-[0.22em] uppercase"
+              >
+                WhatsApp
+              </a>
+            )}
           </div>
         </div>
+        <p className="mt-6 text-[0.65rem] text-[var(--ivory)]/35">
+          Payment methods appear at Shopify checkout only when configured by the merchant.
+        </p>
       </div>
     </footer>
   );

@@ -1,150 +1,216 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
-import { BundleCard, BUNDLE_CODE } from "@/components/site/BundleCard";
+import { toast } from "sonner";
+import { fetchProducts, formatPrice } from "@/lib/shopify";
+import { COUPLE_OUTFITS, findCatalogProduct } from "@/lib/catalog";
+import { useCartStore } from "@/stores/cartStore";
 import { Reveal } from "@/components/site/Reveal";
-import couple from "@/assets/couple.jpg";
+import { cn } from "@/lib/utils";
+import coupleHero from "@/assets/products/hero/hero-desktop.jpg";
 
 export const Route = createFileRoute("/couple")({
   head: () => ({
     meta: [
-      { title: "Couple Collection — Matching Sets | EYVORA" },
+      { title: "Couple Collection — Coordinated Outfits | EYVORA" },
       {
         name: "description",
         content:
-          "Matching EYVORA hoodies and trousers cut in the same dye lot, sized separately. Add a bundle to your cart and save 10% on the pair.",
+          "Build coordinated EYVORA outfits from the launch essentials. Choose hoodie and trouser sizes independently — no invented bundle discounts.",
       },
-      { property: "og:title", content: "Couple Collection — Matching Sets | EYVORA" },
+      { property: "og:title", content: "Couple Collection — EYVORA" },
       {
         property: "og:description",
         content:
-          "Two of a kind. Matching hoodies and trousers in one dye lot, with bundle pricing on every pair.",
+          "Olive and black hoodies with grey and black trousers. Select sizes for each piece and add both to bag.",
       },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: CouplePage,
-  errorComponent: ({ error }) => (
-    <div role="alert" className="mx-auto max-w-2xl px-5 py-40 text-center">
-      <p className="font-display text-2xl">Something went wrong.</p>
-      <p className="mt-3 text-sm text-muted-foreground">{error.message}</p>
-    </div>
-  ),
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-2xl px-5 py-40 text-center">
-      <p className="font-display text-2xl">Nothing here yet.</p>
-    </div>
-  ),
 });
 
-const PAIRS = [
-  {
-    title: "The Essential Pair",
-    note: "Our foundation hoodie in the same matte black dye lot — his relaxed, hers shaped through the shoulder.",
-    men: "essential hoodie",
-    women: "essential hoodie",
-  },
-  {
-    title: "The Signature Pair",
-    note: "Heavyweight oversized fleece in warm neutrals. The widest silhouette we cut, for both of you.",
-    men: "signature oversized",
-    women: "signature oversized",
-  },
-  {
-    title: "The Tailored Pair",
-    note: "Compact twill trousers with a pressed crease — quietly formal, cut for two different lines.",
-    men: "classic trousers",
-    women: "classic trousers",
-  },
-  {
-    title: "The Weekend Pair",
-    note: "Brushed cotton-linen in a full leg. Soft, fluid, and built for long days out of the city.",
-    men: "premium relaxed",
-    women: "premium relaxed",
-  },
-];
-
-function match(products: ShopifyProduct[], key: string, gender: "men" | "women") {
-  return products.find((p) => {
-    const title = p.node.title.toLowerCase();
-    return title.includes(key) && title.includes(gender === "men" ? "men" : "women")
-      ? gender === "women"
-        ? title.includes("women")
-        : !title.includes("women")
-      : false;
+function OutfitBuilder({
+  title,
+  note,
+  hoodieHandle,
+  trousersHandle,
+}: {
+  title: string;
+  note: string;
+  hoodieHandle: string;
+  trousersHandle: string;
+}) {
+  const { data } = useQuery({
+    queryKey: ["products", "couple-page"],
+    queryFn: () => fetchProducts(12),
   });
+  const products = data ?? [];
+  const hoodie = findCatalogProduct(products, hoodieHandle);
+  const trousers = findCatalogProduct(products, trousersHandle);
+  const addItem = useCartStore((s) => s.addItem);
+  const setOpen = useCartStore((s) => s.setOpen);
+  const [hoodieSize, setHoodieSize] = useState("");
+  const [trouserSize, setTrouserSize] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  if (!hoodie || !trousers) return null;
+
+  const addBoth = async () => {
+    if (!hoodieSize || !trouserSize) {
+      toast.message("Select both sizes", {
+        description: "Choose a hoodie size and a trouser size.",
+      });
+      return;
+    }
+    const hoodieVariant = hoodie.node.variants.edges.find((v) =>
+      v.node.selectedOptions.some((o) => o.name === "Size" && o.value === hoodieSize),
+    )?.node;
+    const trouserVariant = trousers.node.variants.edges.find((v) =>
+      v.node.selectedOptions.some((o) => o.name === "Size" && o.value === trouserSize),
+    )?.node;
+    if (!hoodieVariant || !trouserVariant) return;
+
+    setLoading(true);
+    await addItem({
+      product: hoodie,
+      variantId: hoodieVariant.id,
+      variantTitle: hoodieVariant.title,
+      price: hoodieVariant.price,
+      quantity: 1,
+      selectedOptions: hoodieVariant.selectedOptions,
+    });
+    await addItem({
+      product: trousers,
+      variantId: trouserVariant.id,
+      variantTitle: trouserVariant.title,
+      price: trouserVariant.price,
+      quantity: 1,
+      selectedOptions: trouserVariant.selectedOptions,
+    });
+    setLoading(false);
+    toast.success("Outfit added to bag");
+    setOpen(true);
+  };
+
+  const total =
+    parseFloat(hoodie.node.priceRange.minVariantPrice.amount) +
+    parseFloat(trousers.node.priceRange.minVariantPrice.amount);
+
+  return (
+    <Reveal className="grid gap-8 border-t border-border py-14 lg:grid-cols-2 lg:gap-12">
+      <div className="grid grid-cols-2 gap-3">
+        {[hoodie, trousers].map((p) => (
+          <Link
+            key={p.node.id}
+            to="/product/$handle"
+            params={{ handle: p.node.handle }}
+            className="overflow-hidden bg-[var(--soft-grey)]"
+          >
+            {p.node.images.edges[0] && (
+              <img
+                src={p.node.images.edges[0].node.url}
+                alt={p.node.title}
+                className="aspect-[4/5] w-full object-cover"
+                loading="lazy"
+              />
+            )}
+          </Link>
+        ))}
+      </div>
+      <div>
+        <p className="eyebrow">Outfit</p>
+        <h2 className="font-display mt-3 text-3xl">{title}</h2>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{note}</p>
+        <p className="mt-5 text-sm">
+          Combined {formatPrice(total, "PKR")} — no bundle discount applied.
+        </p>
+
+        <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          <div>
+            <p className="eyebrow mb-3">Hoodie size</p>
+            <div className="flex flex-wrap gap-2">
+              {["S", "M", "L"].map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => setHoodieSize(size)}
+                  className={cn(
+                    "min-w-11 border px-3 py-2 text-[0.625rem] tracking-[0.18em] uppercase",
+                    hoodieSize === size
+                      ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                      : "border-border",
+                  )}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-sm">{hoodie.node.title}</p>
+          </div>
+          <div>
+            <p className="eyebrow mb-3">Trouser size</p>
+            <div className="flex flex-wrap gap-2">
+              {["S", "M", "L"].map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => setTrouserSize(size)}
+                  className={cn(
+                    "min-w-11 border px-3 py-2 text-[0.625rem] tracking-[0.18em] uppercase",
+                    trouserSize === size
+                      ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                      : "border-border",
+                  )}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-sm">{trousers.node.title}</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={addBoth}
+          disabled={loading}
+          className="mt-8 bg-[var(--ink)] px-8 py-4 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)] uppercase disabled:opacity-40"
+        >
+          {loading ? "Adding…" : "Add both to bag"}
+        </button>
+      </div>
+    </Reveal>
+  );
 }
 
 function CouplePage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["products", "couple"],
-    queryFn: () => fetchProducts(50, "tag:couple"),
-  });
-
-  const products = data ?? [];
-  const bundles = PAIRS.map((pair) => ({
-    ...pair,
-    menProduct: match(products, pair.men, "men"),
-    womenProduct: match(products, pair.women, "women"),
-  })).filter((b) => b.menProduct && b.womenProduct);
-
   return (
     <main>
       <section className="relative">
         <img
-          src={couple}
-          alt="A couple wearing matching EYVORA pieces"
+          src={coupleHero}
+          alt="Couple wearing coordinated EYVORA pieces"
           width={1600}
-          height={1104}
-          className="h-[62vh] w-full object-cover lg:h-[74vh]"
+          height={2000}
+          className="h-[62vh] w-full object-cover object-[50%_20%] lg:h-[74vh]"
         />
         <div className="absolute inset-0 bg-[var(--ink)]/35" />
         <div className="absolute inset-0 mx-auto flex max-w-[1600px] flex-col justify-end px-5 pb-16 text-[var(--ivory)] lg:px-10 lg:pb-24">
-          <p className="eyebrow text-[var(--ivory)]/60">Two Of A Kind</p>
+          <p className="eyebrow text-[var(--ivory)]/60">Couple Collection</p>
           <h1 className="font-display mt-5 max-w-2xl text-[clamp(2.5rem,6vw,5rem)] leading-[1.02]">
-            The Couple Collection
+            Dress together.
           </h1>
           <p className="mt-6 max-w-lg text-[0.95rem] leading-relaxed text-[var(--ivory)]/75">
-            Same tone. Different fit. Every pair is cut from a single garment-dye
-            batch and sized separately — add both to your cart in one move and take
-            10% off with code {BUNDLE_CODE}.
+            Choose an outfit from the launch essentials, select each size independently, and add
+            both pieces to your bag.
           </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1600px] px-5 py-24 lg:px-10 lg:py-32">
-        {isLoading ? (
-          <div className="space-y-24">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="grid animate-pulse gap-8 sm:grid-cols-2">
-                <div className="aspect-[4/5] bg-[var(--sand)]" />
-                <div className="aspect-[4/5] bg-[var(--sand)]" />
-              </div>
-            ))}
-          </div>
-        ) : bundles.length === 0 ? (
-          <div className="border border-dashed border-border px-8 py-24 text-center">
-            <p className="font-display text-2xl">No matching sets yet.</p>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Pairs tagged “couple” in the EYVORA catalogue appear here automatically.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-24 lg:space-y-32">
-            {bundles.map((bundle, i) => (
-              <Reveal key={bundle.title} as="div">
-                <BundleCard
-                  index={i}
-                  title={bundle.title}
-                  note={bundle.note}
-                  men={bundle.menProduct!}
-                  women={bundle.womenProduct!}
-                />
-              </Reveal>
-            ))}
-          </div>
-        )}
+      <section className="mx-auto max-w-[1600px] px-5 lg:px-10">
+        {COUPLE_OUTFITS.map((outfit) => (
+          <OutfitBuilder key={outfit.id} {...outfit} />
+        ))}
       </section>
     </main>
   );

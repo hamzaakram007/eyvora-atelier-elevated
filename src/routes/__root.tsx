@@ -86,19 +86,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "EYVORA crafts premium heavyweight hoodies and tailored trousers for men and women. Minimal, timeless, built for comfort.",
+          "EYVORA — premium hoodies and trousers for modern everyday wear. Launch essentials in olive, black and grey. Pakistan / PKR.",
       },
       { property: "og:site_name", content: "EYVORA" },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://eyvora.pk" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#F7F5F0" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "canonical", href: "https://eyvora.pk/" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Jost:wght@200;300;400;500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@300;400;500;600&display=swap",
       },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
     ],

@@ -1,0 +1,643 @@
+{
+  "meta": {
+    "source_dir": "/home/ubuntu/.cursor/projects/workspace/assets",
+    "destination_dir": "/workspace/src/assets/products",
+    "total_source_files": 58,
+    "unique_by_md5": 54,
+    "duplicates": [
+      {
+        "md5": "0d019d4c180c0608dbc0ba8fa93f3c5a",
+        "filenames": [
+          "01a100d9-cb93-7c1d-a2b9-383c8028dce3.jpg",
+          "01a100d9-d3e8-7ae6-882e-e3c6e270bd27.jpg"
+        ]
+      },
+      {
+        "md5": "5d7cc1b07ddbd5b1872bb93fbc119e56",
+        "filenames": [
+          "01a100d9-cbd0-76ee-a818-8e23a42b1452.jpg",
+          "01a100d9-d3c2-7f76-96cb-ccaf208a3455.jpg"
+        ]
+      },
+      {
+        "md5": "714d0bd5da3d687809c38e6723940d93",
+        "filenames": [
+          "01a100d9-cbf5-7781-bfdc-0102fd4f7cd1.jpg",
+          "01a100d9-d39c-7261-b237-71b32d655ed6.jpg"
+        ]
+      },
+      {
+        "md5": "bd0471c1d93fa5e24f531e4518bf5175",
+        "filenames": [
+          "01a100d9-d139-7bb6-a519-cb2e829b5a29.jpg",
+          "01a100d9-d1f0-7c37-b6f7-40283944a2a2.jpg"
+        ]
+      }
+    ],
+    "copied_count": 39,
+    "folder_counts": {
+      "olive-hoodie": 6,
+      "black-hoodie": 6,
+      "grey-trousers": 7,
+      "black-trousers": 7,
+      "couple": 9,
+      "hero": 2,
+      "category": 2
+    },
+    "hero_picks": {
+      "hero-desktop.jpg": "01a100d9-d356-7a81-ae3e-47ca0d19f68b.jpg",
+      "hero-mobile.jpg": "01a100d9-cb93-7c1d-a2b9-383c8028dce3.jpg"
+    },
+    "category_picks": {
+      "hoodies.jpg": "01a100d9-d116-7233-8fd1-3d368a85e8c7.jpg",
+      "trousers.jpg": "01a100d9-cbf5-7781-bfdc-0102fd4f7cd1.jpg"
+    }
+  },
+  "folders": {
+    "olive-hoodie": [
+      "primary.jpg",
+      "secondary.jpg",
+      "front.jpg",
+      "back.jpg",
+      "lifestyle.jpg",
+      "detail.jpg"
+    ],
+    "black-hoodie": [
+      "primary.jpg",
+      "secondary.jpg",
+      "front.jpg",
+      "back.jpg",
+      "lifestyle.jpg",
+      "detail.jpg"
+    ],
+    "grey-trousers": [
+      "primary.jpg",
+      "secondary.jpg",
+      "front.jpg",
+      "back.jpg",
+      "lifestyle.jpg",
+      "detail.jpg",
+      "closeup.jpg"
+    ],
+    "black-trousers": [
+      "primary.jpg",
+      "secondary.jpg",
+      "front.jpg",
+      "back.jpg",
+      "lifestyle.jpg",
+      "detail.jpg",
+      "closeup.jpg"
+    ],
+    "couple": [
+      "couple-1.jpg",
+      "couple-2.jpg",
+      "couple-3.jpg",
+      "couple-4.jpg",
+      "couple-5.jpg",
+      "couple-6.jpg",
+      "couple-7.jpg",
+      "couple-8.jpg",
+      "couple-9.jpg"
+    ],
+    "hero": [
+      "hero-desktop.jpg",
+      "hero-mobile.jpg"
+    ],
+    "category": [
+      "hoodies.jpg",
+      "trousers.jpg"
+    ]
+  },
+  "files": [
+    {
+      "destination": "src/assets/products/olive-hoodie/primary.jpg",
+      "folder": "olive-hoodie",
+      "filename": "primary.jpg",
+      "source_filename": "01a100d9-d27f-71f0-b004-6213f58159c7.jpg",
+      "source_md5": "850bf3c2b4a20903e26efb8429da8e2c",
+      "duplicate_sources": [],
+      "products_shown": [
+        "olive-hoodie"
+      ],
+      "role": "primary"
+    },
+    {
+      "destination": "src/assets/products/olive-hoodie/secondary.jpg",
+      "folder": "olive-hoodie",
+      "filename": "secondary.jpg",
+      "source_filename": "01a100d9-cea9-737a-befd-a9304d567919.jpg",
+      "source_md5": "32a4e8938febc8a7997f333b157fca35",
+      "duplicate_sources": [],
+      "products_shown": [
+        "olive-hoodie",
+        "black-trousers"
+      ],
+      "role": "secondary"
+    },
+    {
+      "destination": "src/assets/products/olive-hoodie/front.jpg",
+      "folder": "olive-hoodie",
+      "filename": "front.jpg",
+      "source_filename": "01a100d9-d2e9-791b-98a8-1f4f7df92803.jpg",
+      "source_md5": "2ebb935e4e41ffdd894cc8afd66ef4c1",
+      "duplicate_sources": [],
+      "products_shown": [
+        "olive-hoodie",
+        "black-trousers"
+      ],
+      "role": "front"
+    },
+    {
+      "destination": "src/assets/products/olive-hoodie/back.jpg",
+      "folder": "olive-hoodie",
+      "filename": "back.jpg",
+      "source_filename": "01a100d9-d30f-7887-807b-b4ab5392c701.jpg",
+      "source_md5": "02c86f858891524605fca8c30a310c0d",
+      "duplicate_sources": [],
+      "products_shown": [
+        "olive-hoodie",
+        "black-trousers"
+      ],
+      "role": "back"
+    },
+    {
+      "destination": "src/assets/products/olive-hoodie/lifestyle.jpg",
+      "folder": "olive-hoodie",
+      "filename": "lifestyle.jpg",
+      "source_filename": "01a100d9-cf3f-7e4d-93a0-740ed9532086.jpg",
+      "source_md5": "f2d6aea62f03e9385d4ab15290d6e593",
+      "duplicate_sources": [],
+      "products_shown": [
+        "olive-hoodie",
+        "black-trousers"
+      ],
+      "role": "lifestyle"
+    },
+    {
+      "destination": "src/assets/products/olive-hoodie/detail.jpg",
+      "folder": "olive-hoodie",
+      "filename": "detail.jpg",
+      "source_filename": "01a100d9-cf63-75ce-9c23-2e0a11e601cb.jpg",
+      "source_md5": "577a0666d78c3de3160f9d39861f756a",
+      "duplicate_sources": [],
+      "products_shown": [
+        "olive-hoodie",
+        "black-trousers"
+      ],
+      "role": "detail"
+    },
+    {
+      "destination": "src/assets/products/black-hoodie/primary.jpg",
+      "folder": "black-hoodie",
+      "filename": "primary.jpg",
+      "source_filename": "01a100d9-d116-7233-8fd1-3d368a85e8c7.jpg",
+      "source_md5": "019bbd69217f9872ede93ac5192c0a32",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-hoodie",
+        "grey-trousers"
+      ],
+      "role": "primary"
+    },
+    {
+      "destination": "src/assets/products/black-hoodie/secondary.jpg",
+      "folder": "black-hoodie",
+      "filename": "secondary.jpg",
+      "source_filename": "01a100d9-cd83-799b-8b68-9e815827634e.jpg",
+      "source_md5": "17e637b603498708b846be8170adbb81",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-hoodie",
+        "black-trousers"
+      ],
+      "role": "secondary"
+    },
+    {
+      "destination": "src/assets/products/black-hoodie/front.jpg",
+      "folder": "black-hoodie",
+      "filename": "front.jpg",
+      "source_filename": "01a100d9-d0a8-744e-a2ca-4a8d48c7ded6.jpg",
+      "source_md5": "2d776b5d64d389a38d9fb1ebb0a7396a",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-hoodie",
+        "grey-trousers"
+      ],
+      "role": "front"
+    },
+    {
+      "destination": "src/assets/products/black-hoodie/back.jpg",
+      "folder": "black-hoodie",
+      "filename": "back.jpg",
+      "source_filename": "01a100d9-d0cc-7248-85b1-1ec2e6ed632b.jpg",
+      "source_md5": "0c91fb35fcd4acecce02974b7d6e8f2b",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-hoodie",
+        "grey-trousers"
+      ],
+      "role": "back"
+    },
+    {
+      "destination": "src/assets/products/black-hoodie/lifestyle.jpg",
+      "folder": "black-hoodie",
+      "filename": "lifestyle.jpg",
+      "source_filename": "01a100d9-d086-7dd0-a36c-8e4ee3a8f743.jpg",
+      "source_md5": "3c06159e3ac5ceb6dbcc953c8f6fc637",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-hoodie",
+        "grey-trousers"
+      ],
+      "role": "lifestyle"
+    },
+    {
+      "destination": "src/assets/products/black-hoodie/detail.jpg",
+      "folder": "black-hoodie",
+      "filename": "detail.jpg",
+      "source_filename": "01a100d9-d0f1-72a7-9467-b8cc2695618c.jpg",
+      "source_md5": "75cd9639a3af79f46d3cd7c7276c0b2d",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-hoodie",
+        "grey-trousers"
+      ],
+      "role": "detail"
+    },
+    {
+      "destination": "src/assets/products/grey-trousers/primary.jpg",
+      "folder": "grey-trousers",
+      "filename": "primary.jpg",
+      "source_filename": "01a100d9-d212-7231-8167-37ee7dd318dd.jpg",
+      "source_md5": "e5497e0c0ddcba45ecf4ce5f59723b0b",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers"
+      ],
+      "role": "primary"
+    },
+    {
+      "destination": "src/assets/products/grey-trousers/secondary.jpg",
+      "folder": "grey-trousers",
+      "filename": "secondary.jpg",
+      "source_filename": "01a100d9-cdcc-77c7-9dca-818e74830e8d.jpg",
+      "source_md5": "dd84cb0a82568604cead316e4a313dae",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers"
+      ],
+      "role": "secondary"
+    },
+    {
+      "destination": "src/assets/products/grey-trousers/front.jpg",
+      "folder": "grey-trousers",
+      "filename": "front.jpg",
+      "source_filename": "01a100d9-d236-7fa7-825c-d2a28ec03f62.jpg",
+      "source_md5": "1c00f0be68338d34f539f70ea00b276a",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers"
+      ],
+      "role": "front"
+    },
+    {
+      "destination": "src/assets/products/grey-trousers/back.jpg",
+      "folder": "grey-trousers",
+      "filename": "back.jpg",
+      "source_filename": "01a100d9-d25b-771d-8fe9-ca5bd02d8b7d.jpg",
+      "source_md5": "ca02f1ce5d6abf8865fbf77f77990744",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers"
+      ],
+      "role": "back"
+    },
+    {
+      "destination": "src/assets/products/grey-trousers/lifestyle.jpg",
+      "folder": "grey-trousers",
+      "filename": "lifestyle.jpg",
+      "source_filename": "01a100d9-cdf3-7f86-9069-33a5c0fffab3.jpg",
+      "source_md5": "47456b11ba024a282cf075de623d6b4d",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers"
+      ],
+      "role": "lifestyle"
+    },
+    {
+      "destination": "src/assets/products/grey-trousers/detail.jpg",
+      "folder": "grey-trousers",
+      "filename": "detail.jpg",
+      "source_filename": "01a100d9-ce85-7ba6-b4d5-ef28bba64b83.jpg",
+      "source_md5": "3293525ed032f7b1383e100a2e12b5b8",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers"
+      ],
+      "role": "detail"
+    },
+    {
+      "destination": "src/assets/products/grey-trousers/closeup.jpg",
+      "folder": "grey-trousers",
+      "filename": "closeup.jpg",
+      "source_filename": "01a100d9-d2c8-74f0-b72f-2aa7e41fd999.jpg",
+      "source_md5": "f47f90b8c62644c278e7d479a37b9969",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers"
+      ],
+      "role": "closeup"
+    },
+    {
+      "destination": "src/assets/products/black-trousers/primary.jpg",
+      "folder": "black-trousers",
+      "filename": "primary.jpg",
+      "source_filename": "01a100d9-d1a8-71f1-99f8-e3640e2d3ab5.jpg",
+      "source_md5": "7441710234b05ea7de0ec6a449321531",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-trousers"
+      ],
+      "role": "primary"
+    },
+    {
+      "destination": "src/assets/products/black-trousers/secondary.jpg",
+      "folder": "black-trousers",
+      "filename": "secondary.jpg",
+      "source_filename": "01a100d9-cf86-718b-a097-2baf8b9224ce.jpg",
+      "source_md5": "d56ee804dc46363353bb9ad2604948b3",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-trousers"
+      ],
+      "role": "secondary"
+    },
+    {
+      "destination": "src/assets/products/black-trousers/front.jpg",
+      "folder": "black-trousers",
+      "filename": "front.jpg",
+      "source_filename": "01a100d9-d1ce-7fc7-a523-460c7fbd950c.jpg",
+      "source_md5": "d088274d5b460cf8f993af7aa555596f",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-trousers"
+      ],
+      "role": "front"
+    },
+    {
+      "destination": "src/assets/products/black-trousers/back.jpg",
+      "folder": "black-trousers",
+      "filename": "back.jpg",
+      "source_filename": "01a100d9-d139-7bb6-a519-cb2e829b5a29.jpg",
+      "source_md5": "bd0471c1d93fa5e24f531e4518bf5175",
+      "duplicate_sources": [
+        "01a100d9-d1f0-7c37-b6f7-40283944a2a2.jpg"
+      ],
+      "products_shown": [
+        "black-trousers"
+      ],
+      "role": "back"
+    },
+    {
+      "destination": "src/assets/products/black-trousers/lifestyle.jpg",
+      "folder": "black-trousers",
+      "filename": "lifestyle.jpg",
+      "source_filename": "01a100d9-cf17-7307-8dd4-acab09234ece.jpg",
+      "source_md5": "f8f4cf64276fcdb6ad0d86b18295ec42",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-trousers"
+      ],
+      "role": "lifestyle"
+    },
+    {
+      "destination": "src/assets/products/black-trousers/detail.jpg",
+      "folder": "black-trousers",
+      "filename": "detail.jpg",
+      "source_filename": "01a100d9-cfce-795c-b10f-254497b7352f.jpg",
+      "source_md5": "b3c8927adb039c5cb35948be60b755f3",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-trousers"
+      ],
+      "role": "detail"
+    },
+    {
+      "destination": "src/assets/products/black-trousers/closeup.jpg",
+      "folder": "black-trousers",
+      "filename": "closeup.jpg",
+      "source_filename": "01a100d9-d03d-7a22-85d8-3d34d4fcf3a9.jpg",
+      "source_md5": "3344deffea2edb72cf9d5b6aa41b873e",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-trousers"
+      ],
+      "role": "closeup"
+    },
+    {
+      "destination": "src/assets/products/couple/couple-1.jpg",
+      "folder": "couple",
+      "filename": "couple-1.jpg",
+      "source_filename": "01a100d9-cb69-71d9-ba4a-4c941803c907.jpg",
+      "source_md5": "04c4b69bdcda54391420ad6ff89c5277",
+      "duplicate_sources": [],
+      "products_shown": [
+        "olive-hoodie",
+        "black-hoodie",
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "couple-1"
+    },
+    {
+      "destination": "src/assets/products/couple/couple-2.jpg",
+      "folder": "couple",
+      "filename": "couple-2.jpg",
+      "source_filename": "01a100d9-cb93-7c1d-a2b9-383c8028dce3.jpg",
+      "source_md5": "0d019d4c180c0608dbc0ba8fa93f3c5a",
+      "duplicate_sources": [
+        "01a100d9-d3e8-7ae6-882e-e3c6e270bd27.jpg"
+      ],
+      "products_shown": [
+        "olive-hoodie",
+        "black-hoodie",
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "couple-2"
+    },
+    {
+      "destination": "src/assets/products/couple/couple-3.jpg",
+      "folder": "couple",
+      "filename": "couple-3.jpg",
+      "source_filename": "01a100d9-d356-7a81-ae3e-47ca0d19f68b.jpg",
+      "source_md5": "30dc9070041209f0341ad0e375510de4",
+      "duplicate_sources": [],
+      "products_shown": [
+        "olive-hoodie",
+        "black-hoodie",
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "couple-3"
+    },
+    {
+      "destination": "src/assets/products/couple/couple-4.jpg",
+      "folder": "couple",
+      "filename": "couple-4.jpg",
+      "source_filename": "01a100d9-cbf5-7781-bfdc-0102fd4f7cd1.jpg",
+      "source_md5": "714d0bd5da3d687809c38e6723940d93",
+      "duplicate_sources": [
+        "01a100d9-d39c-7261-b237-71b32d655ed6.jpg"
+      ],
+      "products_shown": [
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "couple-4"
+    },
+    {
+      "destination": "src/assets/products/couple/couple-5.jpg",
+      "folder": "couple",
+      "filename": "couple-5.jpg",
+      "source_filename": "01a100d9-cc47-799d-b4df-7361dd6f1b48.jpg",
+      "source_md5": "d3b56bab758340af2136d691f73bdf7d",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "couple-5"
+    },
+    {
+      "destination": "src/assets/products/couple/couple-6.jpg",
+      "folder": "couple",
+      "filename": "couple-6.jpg",
+      "source_filename": "01a100d9-cbd0-76ee-a818-8e23a42b1452.jpg",
+      "source_md5": "5d7cc1b07ddbd5b1872bb93fbc119e56",
+      "duplicate_sources": [
+        "01a100d9-d3c2-7f76-96cb-ccaf208a3455.jpg"
+      ],
+      "products_shown": [
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "couple-6"
+    },
+    {
+      "destination": "src/assets/products/couple/couple-7.jpg",
+      "folder": "couple",
+      "filename": "couple-7.jpg",
+      "source_filename": "01a100d9-cc1b-7f35-94f1-e053617f38d1.jpg",
+      "source_md5": "4b54d6ed2ff55933a8c14a3206375dc9",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "couple-7"
+    },
+    {
+      "destination": "src/assets/products/couple/couple-8.jpg",
+      "folder": "couple",
+      "filename": "couple-8.jpg",
+      "source_filename": "01a100d9-cc9b-7833-9f5a-b2fa037a4e8d.jpg",
+      "source_md5": "12f419a9197676ebb9f353d8c983d1c1",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "couple-8"
+    },
+    {
+      "destination": "src/assets/products/couple/couple-9.jpg",
+      "folder": "couple",
+      "filename": "couple-9.jpg",
+      "source_filename": "01a100d9-cc71-73b5-aee2-4136ff2c43d4.jpg",
+      "source_md5": "cbaac287c08a3c854fc47d95c01dc98d",
+      "duplicate_sources": [],
+      "products_shown": [
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "couple-9"
+    },
+    {
+      "destination": "src/assets/products/hero/hero-desktop.jpg",
+      "folder": "hero",
+      "filename": "hero-desktop.jpg",
+      "source_filename": "01a100d9-d356-7a81-ae3e-47ca0d19f68b.jpg",
+      "source_md5": "30dc9070041209f0341ad0e375510de4",
+      "duplicate_sources": [],
+      "products_shown": [
+        "olive-hoodie",
+        "black-hoodie",
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "hero-desktop",
+      "note": "Full couple with olive+black hoodies \u2014 best cinematic brand hero (941x1672)"
+    },
+    {
+      "destination": "src/assets/products/hero/hero-mobile.jpg",
+      "folder": "hero",
+      "filename": "hero-mobile.jpg",
+      "source_filename": "01a100d9-cb93-7c1d-a2b9-383c8028dce3.jpg",
+      "source_md5": "0d019d4c180c0608dbc0ba8fa93f3c5a",
+      "duplicate_sources": [
+        "01a100d9-d3e8-7ae6-882e-e3c6e270bd27.jpg"
+      ],
+      "products_shown": [
+        "olive-hoodie",
+        "black-hoodie",
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "hero-mobile",
+      "note": "Vertical couple with olive+black hoodies \u2014 man on stool"
+    },
+    {
+      "destination": "src/assets/products/category/hoodies.jpg",
+      "folder": "category",
+      "filename": "hoodies.jpg",
+      "source_filename": "01a100d9-d116-7233-8fd1-3d368a85e8c7.jpg",
+      "source_md5": "019bbd69217f9872ede93ac5192c0a32",
+      "duplicate_sources": [],
+      "products_shown": [
+        "black-hoodie",
+        "grey-trousers"
+      ],
+      "role": "hoodies",
+      "note": "Black hoodie front with EYVORA chest logo, male model"
+    },
+    {
+      "destination": "src/assets/products/category/trousers.jpg",
+      "folder": "category",
+      "filename": "trousers.jpg",
+      "source_filename": "01a100d9-cbf5-7781-bfdc-0102fd4f7cd1.jpg",
+      "source_md5": "714d0bd5da3d687809c38e6723940d93",
+      "duplicate_sources": [
+        "01a100d9-d39c-7261-b237-71b32d655ed6.jpg"
+      ],
+      "products_shown": [
+        "grey-trousers",
+        "black-trousers",
+        "couple"
+      ],
+      "role": "trousers",
+      "note": "Couple trousers shot showing grey + black with thigh logo"
+    }
+  ]
+}
