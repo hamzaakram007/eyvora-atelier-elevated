@@ -27,6 +27,12 @@ import greyBack from "@/assets/products/grey-trousers/back.jpg";
 import greyLifestyle from "@/assets/products/grey-trousers/lifestyle.jpg";
 import greyDetail from "@/assets/products/grey-trousers/detail.jpg";
 import greyCloseup from "@/assets/products/grey-trousers/closeup.jpg";
+import greyWomenFront from "@/assets/products/grey-trousers/women/front.jpg";
+import greyWomenLifestyle from "@/assets/products/grey-trousers/women/lifestyle.jpg";
+import greyWomenLogo from "@/assets/products/grey-trousers/women/logo.jpg";
+import greyWomenPocketBack from "@/assets/products/grey-trousers/women/pocket-back.jpg";
+import greyWomenPocketSide from "@/assets/products/grey-trousers/women/pocket-side.jpg";
+import greyWomenPhonePocket from "@/assets/products/grey-trousers/women/phone-pocket.jpg";
 
 import blackTrousersPrimary from "@/assets/products/black-trousers/primary.jpg";
 import blackTrousersSecondary from "@/assets/products/black-trousers/secondary.jpg";
@@ -102,7 +108,12 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
       { url: blackHoodieDetail, altText: "EYVORA Black Hoodie — men close-up" },
     ],
     imagesWomen: [
-      { url: blackHoodieSecondary, altText: "EYVORA Black Hoodie — women front view" },
+      { url: blackHoodieWomenFront, altText: "EYVORA Black Hoodie — women front view" },
+      { url: blackHoodieWomenFrontAlt, altText: "EYVORA Black Hoodie — women chest detail" },
+      { url: blackHoodieWomenDetail, altText: "EYVORA Black Hoodie — women pocket detail" },
+      { url: blackHoodieWomenBackLook, altText: "EYVORA Black Hoodie — women back look" },
+      { url: blackHoodieWomenBackDetail, altText: "EYVORA Black Hoodie — women back detail" },
+      { url: blackHoodieWomenBack, altText: "EYVORA Black Hoodie — women back view" },
     ],
     images: [
       { url: blackHoodiePrimary, altText: "EYVORA Black Hoodie — front view" },
@@ -130,10 +141,12 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
       { url: greyCloseup, altText: "EYVORA Grey Trousers — close-up" },
     ],
     imagesWomen: [
-      { url: greySecondary, altText: "EYVORA Grey Trousers — women front view" },
-      { url: greyLifestyle, altText: "EYVORA Grey Trousers — women lifestyle" },
-      { url: greyDetail, altText: "EYVORA Grey Trousers — detail" },
-      { url: greyCloseup, altText: "EYVORA Grey Trousers — close-up" },
+      { url: greyWomenFront, altText: "EYVORA Grey Trousers — women front view" },
+      { url: greyWomenLifestyle, altText: "EYVORA Grey Trousers — women walking" },
+      { url: greyWomenLogo, altText: "EYVORA Grey Trousers — women logo detail" },
+      { url: greyWomenPocketBack, altText: "EYVORA Grey Trousers — women pocket detail" },
+      { url: greyWomenPocketSide, altText: "EYVORA Grey Trousers — women side pocket" },
+      { url: greyWomenPhonePocket, altText: "EYVORA Grey Trousers — women phone pocket" },
     ],
     images: [
       { url: greyPrimary, altText: "EYVORA Grey Trousers — front view" },
