@@ -55,6 +55,55 @@ export const orderChannelLabel = () =>
  */
 export const SHOPIFY_CHECKOUT_LOCKED = false;
 
+/** Manual bank transfer details shown on Payments page + checkout guidance. */
+export const BANK_TRANSFER = {
+  bankName: "United Bank Limited (UBL)",
+  accountNumber: "321342838",
+  accountTitle: "Muhammad Hamza",
+  iban: "PK02UNIL0109000321342838",
+} as const;
+
+/** Payment methods EYVORA offers (enable matching methods in Shopify Admin too). */
+export const PAYMENT_METHODS = [
+  {
+    id: "cod",
+    title: "Cash on Delivery (COD)",
+    summary: "Pay in cash when your order is delivered in Pakistan.",
+    details:
+      "Select Cash on Delivery at Shopify checkout. Keep the exact amount ready for the courier.",
+  },
+  {
+    id: "bank",
+    title: "Bank transfer (manual payment)",
+    summary: "Transfer to our UBL account, then share payment proof with your order number.",
+    details:
+      "Select Bank deposit / manual payment at checkout (once enabled in Shopify Admin). After transfer, email or WhatsApp your order number and screenshot so we can confirm and dispatch.",
+  },
+] as const;
+
+/**
+ * Other gateways suitable for Pakistan once you’re ready to connect cards / wallets.
+ * Shopify Payments is not available in PK — use apps or local processors instead.
+ */
+export const RECOMMENDED_PAYMENT_OPTIONS = [
+  {
+    title: "JazzCash / Easypaisa",
+    note: "Popular mobile wallets in Pakistan. Usually connected via a Shopify payment app (for example PayFast or a JazzCash/Easypaisa connector).",
+  },
+  {
+    title: "PayFast (Pakistan)",
+    note: "Local payment gateway supporting cards, JazzCash, Easypaisa and bank options through a Shopify app.",
+  },
+  {
+    title: "Debit / credit cards",
+    note: "Via a Pakistan-ready gateway app (PayFast or similar). Shopify Payments is not offered for PK stores.",
+  },
+  {
+    title: "Raast / IBFT bank apps",
+    note: "Customers can already pay with any bank app using the UBL IBAN above; you confirm manually from your banking app.",
+  },
+] as const;
+
 export const announcements = [
   {
     text: "EYVORA Essentials — hoodies PKR 4,399 · trousers PKR 2,499. Free-feeling delivery from PKR 250.",
@@ -81,11 +130,15 @@ export const faqs = [
   },
   {
     q: "Which payment methods are available?",
-    a: "Available payment methods are shown at Shopify checkout and depend on what is enabled in Admin (for example Cash on Delivery, bank transfer, or a local gateway).",
+    a: "EYVORA accepts Cash on Delivery and bank transfer to United Bank Limited (UBL). Full account details are on the Payments page. Other options such as JazzCash, Easypaisa or cards can be added later via a Pakistan payment app.",
   },
   {
     q: "Do you offer Cash on Delivery?",
-    a: "Cash on Delivery appears at checkout when it has been enabled in the Shopify admin for your region.",
+    a: "Yes. Choose Cash on Delivery at checkout and pay the courier in cash when your order arrives.",
+  },
+  {
+    q: "How do I pay by bank transfer?",
+    a: `Transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}). Then send your order number and payment screenshot to EYVORA so we can confirm the order.`,
   },
   {
     q: "How can I track my order?",
@@ -135,6 +188,7 @@ export const navLinks = [
   { label: "Women", to: "/shop" as const, search: { gender: "women" } },
   { label: "Couple", to: "/couple" as const },
   { label: "About Us", to: "/about" as const },
+  { label: "Payments", to: "/payments" as const },
   { label: "Contact", to: "/contact" as const },
   { label: "Visit Us", to: "/visit" as const },
 ];

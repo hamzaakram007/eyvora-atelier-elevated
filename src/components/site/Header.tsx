@@ -215,6 +215,9 @@ export function Header() {
               <Link to="/about" className="rule-link">
                 About Us
               </Link>
+              <Link to="/payments" className="rule-link">
+                Payments
+              </Link>
               <Link to="/contact" className="rule-link">
                 Contact
               </Link>
@@ -347,6 +350,7 @@ export function Header() {
               },
               { label: "Wishlist", to: "/wishlist", search: undefined },
               { label: "About Us", to: "/about", search: undefined },
+              { label: "Payments", to: "/payments", search: undefined },
               { label: "Contact", to: "/contact", search: undefined },
               { label: "Visit Us", to: "/visit", search: undefined },
             ].map((l) => (

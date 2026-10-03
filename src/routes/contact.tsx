@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Reveal } from "@/components/site/Reveal";
@@ -38,7 +38,11 @@ function Contact() {
           <Reveal>
             <p className="max-w-md text-[0.95rem] leading-relaxed text-muted-foreground">
               Reach EYVORA for product questions, sizing guidance and order help. For purchases,
-              use Checkout in your bag — or message us here if you need assistance.
+              use Checkout in your bag — Cash on Delivery or UBL bank transfer. See{" "}
+              <a href="/payments" className="underline underline-offset-2">
+                Payment methods
+              </a>{" "}
+              for account details, or message us here if you need assistance.
             </p>
 
             <ul className="mt-12 space-y-8">

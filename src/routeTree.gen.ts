@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoupleRouteImport } from './routes/couple'
+import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as VisitRouteImport } from './routes/visit'
 import { Route as WishlistRouteImport } from './routes/wishlist'
@@ -36,6 +37,11 @@ const ContactRoute = ContactRouteImport.update({
 const CoupleRoute = CoupleRouteImport.update({
   id: '/couple',
   path: '/couple',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentsRoute = PaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/couple': typeof CoupleRoute
+  '/payments': typeof PaymentsRoute
   '/shop': typeof ShopRoute
   '/visit': typeof VisitRoute
   '/wishlist': typeof WishlistRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/couple': typeof CoupleRoute
+  '/payments': typeof PaymentsRoute
   '/shop': typeof ShopRoute
   '/visit': typeof VisitRoute
   '/wishlist': typeof WishlistRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/couple': typeof CoupleRoute
+  '/payments': typeof PaymentsRoute
   '/shop': typeof ShopRoute
   '/visit': typeof VisitRoute
   '/wishlist': typeof WishlistRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/couple'
+    | '/payments'
     | '/shop'
     | '/visit'
     | '/wishlist'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/couple'
+    | '/payments'
     | '/shop'
     | '/visit'
     | '/wishlist'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/couple'
+    | '/payments'
     | '/shop'
     | '/visit'
     | '/wishlist'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   CoupleRoute: typeof CoupleRoute
+  PaymentsRoute: typeof PaymentsRoute
   ShopRoute: typeof ShopRoute
   VisitRoute: typeof VisitRoute
   WishlistRoute: typeof WishlistRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/couple'
       fullPath: '/couple'
       preLoaderRoute: typeof CoupleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payments': {
+      id: '/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof PaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   CoupleRoute: CoupleRoute,
+  PaymentsRoute: PaymentsRoute,
   ShopRoute: ShopRoute,
   VisitRoute: VisitRoute,
   WishlistRoute: WishlistRoute,

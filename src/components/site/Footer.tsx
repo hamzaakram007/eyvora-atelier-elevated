@@ -24,6 +24,7 @@ const columns = [
     heading: "Customer Care",
     links: [
       { label: "FAQ", to: "/", hash: "faq" },
+      { label: "Payments", to: "/payments", search: undefined },
       { label: "Shipping", to: "/contact", search: undefined },
       { label: "Returns", to: "/contact", search: undefined },
       { label: "Exchange", to: "/contact", search: undefined },
@@ -141,7 +142,10 @@ export function Footer() {
           </div>
         </div>
         <p className="mt-6 text-[0.65rem] text-[var(--ivory)]/35">
-          Payment methods appear at Shopify checkout only when configured by the merchant.
+          Payments: Cash on Delivery · Bank transfer (UBL).{" "}
+          <Link to="/payments" className="underline underline-offset-2">
+            View details
+          </Link>
         </p>
       </div>
     </footer>

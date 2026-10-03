@@ -194,8 +194,11 @@ export function CartDrawer() {
               </div>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                 {allSynced && !SHOPIFY_CHECKOUT_LOCKED
-                  ? "Shipping (from PKR 250) and payment methods are confirmed at secure Shopify checkout."
-                  : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}.`}
+                  ? "Shipping from PKR 250. Pay with Cash on Delivery or UBL bank transfer at checkout."
+                  : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}.`}{" "}
+                <Link to="/payments" onClick={() => setOpen(false)} className="underline underline-offset-2">
+                  Payment details
+                </Link>
               </p>
               <button
                 type="button"

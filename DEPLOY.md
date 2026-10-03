@@ -78,9 +78,31 @@ node scripts/seed-shopify-launch.mjs
 - [x] Bag → Shopify checkout works (password off, plan active)
 - [x] Domestic shipping PKR 250
 - [ ] `eyvora.pk` Cloudflare DNS → Vercel (still on Shopify `23.227.38.65`)
-- [ ] Enable COD / payments in Shopify Admin → Settings → Payments
+- [ ] Enable COD + Bank deposit in Shopify Admin (required for checkout buttons)
 - [ ] Optional: `VITE_WHATSAPP_NUMBER` on Vercel
 - [ ] Rotate Client secret (shared in chat)
+
+### Enable Cash on Delivery + UBL bank transfer (Shopify Admin)
+
+These cannot be activated via API — do this once in Admin:
+
+1. Open **Shopify Admin → Settings → Payments**
+2. Under **Manual payment methods**, click **Add manual payment method**
+3. Add **Cash on Delivery (COD)** and save
+4. Add **Bank deposit** (or “Bank transfer”) and paste these instructions:
+
+```
+Bank Name: United Bank Limited (UBL)
+Account Number: 321342838
+Account Title: Muhammad Hamza
+IBAN: PK02UNIL0109000321342838
+
+After payment, send your order number + screenshot to EYVORA.
+```
+
+5. Save. COD and bank transfer then appear on Shopify checkout.
+
+Storefront page with the same details: `/payments` (also published in Shopify as Online Store page `payment-methods`).
 
 ### Cloudflare DNS for eyvora.pk → Vercel
 
