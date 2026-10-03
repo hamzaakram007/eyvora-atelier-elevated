@@ -148,6 +148,15 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
   const solid = scrolled || megaOpen || mobileOpen;
 
   return (
@@ -277,53 +286,83 @@ export function Header() {
           </div>
         </div>
 
+        {/* High-contrast mobile drawer — charcoal panel so links stay readable over light pages */}
         <div
           className={cn(
-            "fixed inset-0 z-50 bg-background transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden",
-            mobileOpen ? "translate-x-0" : "-translate-x-full",
+            "fixed inset-0 z-[60] lg:hidden",
+            mobileOpen ? "pointer-events-auto" : "pointer-events-none",
           )}
+          aria-hidden={!mobileOpen}
         >
-          <div className="flex items-center justify-between border-b border-border px-5 py-5">
-            <span className="font-display text-lg tracking-[0.34em]">EYVORA</span>
-            <button type="button" aria-label="Close menu" onClick={() => setMobileOpen(false)}>
-              <X className="h-5 w-5" strokeWidth={1.2} />
-            </button>
-          </div>
-          <nav className="flex flex-col px-5 py-8">
-            {[
-              { label: "Home", to: "/", search: undefined },
-              { label: "Collections", to: "/shop", search: {} },
-              { label: "Men", to: "/shop", search: { gender: "men" } },
-              { label: "Women", to: "/shop", search: { gender: "women" } },
-              { label: "Hoodies", to: "/shop", search: { category: "hoodies" } },
-              { label: "Trousers", to: "/shop", search: { category: "trousers" } },
-              { label: "Couple Collection", to: "/couple", search: undefined },
-              { label: "Wishlist", to: "/wishlist", search: undefined },
-              { label: "About Us", to: "/about", search: undefined },
-              { label: "Contact", to: "/contact", search: undefined },
-              { label: "Visit Us", to: "/visit", search: undefined },
-            ].map((l) => (
-              <Link
-                key={l.label}
-                to={l.to}
-                search={l.search as never}
+          <button
+            type="button"
+            aria-label="Close menu backdrop"
+            onClick={() => setMobileOpen(false)}
+            className={cn(
+              "absolute inset-0 bg-[var(--ink)]/55 transition-opacity duration-400",
+              mobileOpen ? "opacity-100" : "opacity-0",
+            )}
+          />
+          <div
+            className={cn(
+              "absolute inset-y-0 left-0 flex w-[min(100%,22rem)] flex-col bg-[var(--ink)] text-[var(--ivory)] shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+              mobileOpen ? "translate-x-0" : "-translate-x-full",
+            )}
+          >
+            <div className="flex items-center justify-between border-b border-white/15 px-5 py-5">
+              <span className="font-display text-lg tracking-[0.34em] text-[var(--ivory)]">
+                EYVORA
+              </span>
+              <button
+                type="button"
+                aria-label="Close menu"
                 onClick={() => setMobileOpen(false)}
-                className="border-b border-border/60 py-4 font-display text-2xl"
+                className="grid h-10 w-10 place-items-center text-[var(--ivory)]"
               >
-                {l.label}
-              </Link>
-            ))}
-            <button
-              type="button"
-              onClick={() => {
-                setMobileOpen(false);
-                setSearchOpen(true);
-              }}
-              className="border-b border-border/60 py-4 text-left font-display text-2xl"
-            >
-              Search
-            </button>
-          </nav>
+                <X className="h-5 w-5" strokeWidth={1.4} />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-5 py-6">
+              {[
+                { label: "Home", to: "/", search: undefined },
+                { label: "Shop All", to: "/shop", search: {} },
+                { label: "Men", to: "/shop", search: { gender: "men" } },
+                { label: "Women", to: "/shop", search: { gender: "women" } },
+                { label: "Couple", to: "/couple", search: undefined },
+                { label: "Hoodies", to: "/shop", search: { category: "hoodies" } },
+                { label: "Trousers", to: "/shop", search: { category: "trousers" } },
+                { label: "Wishlist", to: "/wishlist", search: undefined },
+                { label: "About Us", to: "/about", search: undefined },
+                { label: "Contact", to: "/contact", search: undefined },
+                { label: "Visit Us", to: "/visit", search: undefined },
+              ].map((l) => (
+                <Link
+                  key={l.label}
+                  to={l.to}
+                  search={l.search as never}
+                  onClick={() => setMobileOpen(false)}
+                  className="block border-b border-white/12 py-4 font-display text-[1.65rem] tracking-[0.04em] text-[var(--ivory)] transition-opacity hover:opacity-75"
+                >
+                  {l.label}
+                </Link>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileOpen(false);
+                  setSearchOpen(true);
+                }}
+                className="block w-full border-b border-white/12 py-4 text-left font-display text-[1.65rem] tracking-[0.04em] text-[var(--ivory)]"
+              >
+                Search
+              </button>
+            </nav>
+            <div className="border-t border-white/15 px-5 py-5">
+              <p className="text-[0.625rem] tracking-[0.28em] text-[var(--ivory)]/55 uppercase">
+                Everyday essentials. Elevated.
+              </p>
+            </div>
+          </div>
         </div>
       </header>
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
