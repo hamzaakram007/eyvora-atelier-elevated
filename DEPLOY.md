@@ -40,8 +40,8 @@ Env vars:
 ```bash
 VITE_SHOPIFY_STORE_DOMAIN=eyvora-premium-essentials-bv3bk-uwdagguc.myshopify.com
 VITE_SHOPIFY_STOREFRONT_TOKEN=YOUR_STOREFRONT_TOKEN
-VITE_CONTACT_EMAIL=hamzaakram090909@gmail.com
-VITE_WHATSAPP_NUMBER=92XXXXXXXXXX
+VITE_CONTACT_EMAIL=eyvorapk@gmail.com
+VITE_WHATSAPP_NUMBER=923161609389
 VITE_WHATSAPP_MESSAGE=Hello EYVORA, I need help with your products.
 ```
 
@@ -79,7 +79,7 @@ node scripts/seed-shopify-launch.mjs
 - [x] Domestic shipping PKR 250
 - [ ] `eyvora.pk` Cloudflare DNS → Vercel (still on Shopify `23.227.38.65`)
 - [ ] Enable COD + Bank deposit in Shopify Admin (required for checkout buttons)
-- [ ] Optional: `VITE_WHATSAPP_NUMBER` on Vercel
+- [x] Contact: `eyvorapk@gmail.com` + WhatsApp `923161609389` (`03161609389`)
 - [ ] Rotate Client secret (shared in chat)
 
 ### Enable Cash on Delivery + UBL bank transfer (Shopify Admin)

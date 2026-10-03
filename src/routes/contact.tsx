@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Reveal } from "@/components/site/Reveal";
 import {
   CONTACT_EMAIL,
+  WHATSAPP_DISPLAY,
   emailLink,
   whatsappConfigured,
   whatsappLink,
@@ -51,17 +52,22 @@ function Contact() {
                 <div>
                   <p className="text-[0.95rem]">WhatsApp</p>
                   {whatsappConfigured() ? (
-                    <a
-                      href={whatsappLink()}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rule-link mt-1 inline-block text-sm text-muted-foreground"
-                    >
-                      Message EYVORA
-                    </a>
+                    <>
+                      <a
+                        href={whatsappLink()}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rule-link mt-1 inline-block text-sm text-muted-foreground"
+                      >
+                        {WHATSAPP_DISPLAY}
+                      </a>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Tap to chat on WhatsApp
+                      </p>
+                    </>
                   ) : (
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Optional — set VITE_WHATSAPP_NUMBER on Vercel when ready.
+                      WhatsApp number coming soon.
                     </p>
                   )}
                 </div>

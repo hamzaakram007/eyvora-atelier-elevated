@@ -1,6 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Facebook } from "lucide-react";
-import { whatsappConfigured, whatsappLink } from "@/lib/site";
+import {
+  CONTACT_EMAIL,
+  WHATSAPP_DISPLAY,
+  whatsappConfigured,
+  whatsappLink,
+} from "@/lib/site";
 
 const columns = [
   {
@@ -136,13 +141,22 @@ export function Footer() {
                 rel="noreferrer"
                 className="text-[0.625rem] tracking-[0.22em] uppercase"
               >
-                WhatsApp
+                WhatsApp {WHATSAPP_DISPLAY}
               </a>
             )}
+            {CONTACT_EMAIL ? (
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="text-[0.625rem] tracking-[0.22em] uppercase"
+              >
+                {CONTACT_EMAIL}
+              </a>
+            ) : null}
           </div>
         </div>
         <p className="mt-6 text-[0.65rem] text-[var(--ivory)]/35">
-          Payments: Cash on Delivery · Bank transfer (UBL).{" "}
+          WhatsApp {WHATSAPP_DISPLAY} · {CONTACT_EMAIL} · Payments: COD &amp; UBL bank
+          transfer.{" "}
           <Link to="/payments" className="underline underline-offset-2">
             View details
           </Link>

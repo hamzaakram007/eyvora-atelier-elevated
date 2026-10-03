@@ -24,7 +24,8 @@ Required `.env` values:
 ```bash
 VITE_SHOPIFY_STORE_DOMAIN=eyvora-premium-essentials-bv3bk-uwdagguc.myshopify.com
 VITE_SHOPIFY_STOREFRONT_TOKEN=your_storefront_token
-VITE_WHATSAPP_NUMBER=
+VITE_CONTACT_EMAIL=eyvorapk@gmail.com
+VITE_WHATSAPP_NUMBER=923161609389
 VITE_WHATSAPP_MESSAGE=Hello EYVORA, I need help with your products.
 ```
 

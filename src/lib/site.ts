@@ -12,21 +12,24 @@ export const BRAND = {
   market: "Pakistan",
 } as const;
 
-/** Set VITE_WHATSAPP_NUMBER (digits only, country code included) when provided by the client. */
+/** Digits only with country code (Pakistan: 92…). Env overrides the default. */
 export const WHATSAPP_NUMBER =
   (import.meta.env.VITE_WHATSAPP_NUMBER as string | undefined)?.replace(
     /\D/g,
     "",
-  ) || "";
+  ) || "923161609389";
 
 export const WHATSAPP_MESSAGE =
   (import.meta.env.VITE_WHATSAPP_MESSAGE as string | undefined) ||
   "Hello EYVORA, I need help with your products.";
 
-/** Official support inbox — defaults to the Shopify shop contact email when set in env. */
+/** Official support inbox — env overrides the default. */
 export const CONTACT_EMAIL =
   (import.meta.env.VITE_CONTACT_EMAIL as string | undefined)?.trim() ||
-  "hamzaakram090909@gmail.com";
+  "eyvorapk@gmail.com";
+
+/** Display-friendly WhatsApp number for Pakistan. */
+export const WHATSAPP_DISPLAY = "0316 1609389";
 
 export const whatsappConfigured = () => WHATSAPP_NUMBER.length >= 10;
 
@@ -150,7 +153,7 @@ export const faqs = [
   },
   {
     q: "How do I contact EYVORA?",
-    a: "Use the Contact page or the WhatsApp button when a number has been configured in the store settings.",
+    a: "WhatsApp 03161609389 or email eyvorapk@gmail.com — also linked from the Contact and Payments pages.",
   },
 ];
 
