@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
 import { isShopifySyncedVariantId } from "@/lib/catalog";
 import { storefrontApiRequest, type ShopifyProduct } from "@/lib/shopify";
-import { whatsappConfigured, whatsappLink } from "@/lib/site";
+import { orderChannelLabel, orderLink } from "@/lib/site";
 
 export interface CartItem {
   lineId: string | null;
@@ -197,7 +197,7 @@ export const useCartStore = create<CartStore>()(
 
         set({ isLoading: true });
         try {
-          // Launch catalogue not yet published to Shopify Admin — keep a local bag only.
+          // Local launch catalogue (Storefront locked on Shopify trial) — bag only, no Storefront cart.
           if (!synced) {
             if (existingItem) {
               set({
@@ -210,16 +210,12 @@ export const useCartStore = create<CartStore>()(
             } else {
               set({ items: [...items, { ...item, lineId: null }] });
             }
-            if (whatsappConfigured()) {
-              toast.message("Saved to bag", {
-                description: "Checkout will open WhatsApp until Shopify products are synced.",
-              });
-            } else {
-              toast.message("Saved to bag", {
-                description:
-                  "Shopify product sync is required before native checkout is available.",
-              });
-            }
+            const channel = orderChannelLabel();
+            toast.message("Saved to bag", {
+              description: channel
+                ? `Checkout opens ${channel} until the Shopify plan unlocks native checkout.`
+                : "Add a WhatsApp number or contact email to enable order checkout.",
+            });
             return;
           }
 
@@ -344,17 +340,24 @@ export const useCartStore = create<CartStore>()(
         if (checkoutUrl) return checkoutUrl;
         if (items.length === 0) return null;
         if (items.every((i) => !isShopifySyncedVariantId(i.variantId))) {
-          if (!whatsappConfigured()) return null;
           const summary = items
             .map((i) => {
               const size =
                 i.selectedOptions.find((o) => o.name.toLowerCase() === "size")
                   ?.value ?? i.variantTitle;
-              return `• ${i.product.node.title} — Size ${size} × ${i.quantity}`;
+              const lineTotal =
+                parseFloat(i.price.amount) * i.quantity;
+              return `• ${i.product.node.title} — Size ${size} × ${i.quantity} (PKR ${Math.round(lineTotal).toLocaleString("en-PK")})`;
             })
             .join("\n");
-          return whatsappLink(
-            `Hello EYVORA, I would like to order:\n${summary}`,
+          const subtotal = items.reduce(
+            (sum, i) => sum + parseFloat(i.price.amount) * i.quantity,
+            0,
+          );
+          return (
+            orderLink(
+              `Hello EYVORA, I would like to order:\n${summary}\n\nSubtotal: PKR ${Math.round(subtotal).toLocaleString("en-PK")}\n(Please confirm delivery city & payment method.)`,
+            ) || null
           );
         }
         return null;

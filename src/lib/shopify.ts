@@ -13,7 +13,7 @@ export const SHOPIFY_STORE_PERMANENT_DOMAIN =
 export const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
 export const SHOPIFY_STOREFRONT_TOKEN =
   import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN ||
-  "f0b3a9c2276107f0a76757ebf0cd2e98";
+  "47b5ed97d3036975d1521c07a7b2af0a";
 
 export interface ShopifyProduct {
   node: {
@@ -120,12 +120,9 @@ export async function storefrontApiRequest(
     body: JSON.stringify({ query, variables }),
   });
 
-  if (response.status === 402) {
-    toast.error("Shopify: Payment required", {
-      description:
-        "Shopify API access requires an active Shopify billing plan. Visit admin.shopify.com to upgrade.",
-    });
-    return;
+  // Trial / unpaid stores lock the Online Store channel — fall back to local catalogue quietly.
+  if (response.status === 402 || response.status === 400 || response.status === 423) {
+    throw new Error(`Shopify Storefront unavailable (HTTP ${response.status})`);
   }
 
   if (!response.ok) {
@@ -135,9 +132,14 @@ export async function storefrontApiRequest(
   const data = await response.json();
 
   if (data.errors) {
-    throw new Error(
-      `Error calling Shopify: ${data.errors.map((e: { message: string }) => e.message).join(", ")}`,
-    );
+    const message = data.errors
+      .map((e: { message: string }) => e.message)
+      .join(", ");
+    if (/locked|payment required|unavailable/i.test(message)) {
+      throw new Error(`Shopify Storefront unavailable: ${message}`);
+    }
+    toast.error("Shopify storefront error", { description: message });
+    throw new Error(`Error calling Shopify: ${message}`);
   }
 
   return data;

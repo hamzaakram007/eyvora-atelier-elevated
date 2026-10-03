@@ -23,6 +23,11 @@ export const WHATSAPP_MESSAGE =
   (import.meta.env.VITE_WHATSAPP_MESSAGE as string | undefined) ||
   "Hello EYVORA, I need help with your products.";
 
+/** Official support inbox — defaults to the Shopify shop contact email when set in env. */
+export const CONTACT_EMAIL =
+  (import.meta.env.VITE_CONTACT_EMAIL as string | undefined)?.trim() ||
+  "hamzaakram090909@gmail.com";
+
 export const whatsappConfigured = () => WHATSAPP_NUMBER.length >= 10;
 
 export const whatsappLink = (message = WHATSAPP_MESSAGE) => {
@@ -30,9 +35,31 @@ export const whatsappLink = (message = WHATSAPP_MESSAGE) => {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 };
 
+export const emailLink = (subject: string, body: string) => {
+  if (!CONTACT_EMAIL) return "";
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+};
+
+/** Prefer WhatsApp; fall back to email so orders work before Shopify plan / Storefront unlock. */
+export const orderLink = (message: string) => {
+  if (whatsappConfigured()) return whatsappLink(message);
+  return emailLink("EYVORA order request", message);
+};
+
+export const orderChannelLabel = () =>
+  whatsappConfigured() ? "WhatsApp" : CONTACT_EMAIL ? "Email" : null;
+
+/**
+ * Shopify trial keeps the Online Store password on, which locks Storefront API checkout.
+ * The Vercel site still sells via local catalogue + WhatsApp/email until a paid plan is active.
+ */
+export const SHOPIFY_CHECKOUT_LOCKED = true;
+
 export const announcements = [
   {
-    text: "Discover the EYVORA Essentials Collection.",
+    text: SHOPIFY_CHECKOUT_LOCKED
+      ? "EYVORA Essentials are live — order via bag checkout while Shopify plan unlocks."
+      : "Discover the EYVORA Essentials Collection.",
     href: "/shop",
   },
 ];
@@ -56,11 +83,11 @@ export const faqs = [
   },
   {
     q: "Which payment methods are available?",
-    a: "Available payment methods are shown at Shopify checkout and depend on what the merchant has enabled (for example Cash on Delivery, bank transfer, or a local gateway).",
+    a: "While the Shopify plan is pending, orders are confirmed by email (or WhatsApp). After the plan is active, payment methods shown at Shopify checkout apply (for example Cash on Delivery, bank transfer, or a local gateway).",
   },
   {
     q: "Do you offer Cash on Delivery?",
-    a: "Cash on Delivery appears at checkout only when it has been enabled in the Shopify admin for your region.",
+    a: "Yes — mention COD when you send your order request. Once Shopify checkout is unlocked, COD appears there if enabled in Admin.",
   },
   {
     q: "How can I track my order?",

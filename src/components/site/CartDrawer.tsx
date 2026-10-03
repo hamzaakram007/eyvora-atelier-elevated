@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { useCartStore } from "@/stores/cartStore";
 import { fetchProducts, formatPrice } from "@/lib/shopify";
 import { isShopifySyncedVariantId } from "@/lib/catalog";
+import { orderChannelLabel, SHOPIFY_CHECKOUT_LOCKED } from "@/lib/site";
 
 export function CartDrawer() {
   const {
@@ -192,15 +193,10 @@ export function CartDrawer() {
                 <span>{formatPrice(subtotal, currency)}</span>
               </div>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                Shipping and payment methods are confirmed at Shopify checkout once configured
-                by the merchant.
+                {SHOPIFY_CHECKOUT_LOCKED || !allSynced
+                  ? `Shopify checkout unlocks after a paid plan removes the store password. Until then, place your order via ${orderChannelLabel() ?? "contact"}.`
+                  : "Shipping and payment methods are confirmed at Shopify checkout."}
               </p>
-              {!allSynced && (
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  Native Shopify checkout activates after the launch products are imported into
-                  Shopify Admin. Until then, checkout may open WhatsApp if configured.
-                </p>
-              )}
               <button
                 type="button"
                 onClick={handleCheckout}
@@ -209,10 +205,10 @@ export function CartDrawer() {
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
-                ) : allSynced ? (
+                ) : allSynced && !SHOPIFY_CHECKOUT_LOCKED ? (
                   "Checkout"
                 ) : getCheckoutUrl() ? (
-                  "Continue to order"
+                  `Order via ${orderChannelLabel()}`
                 ) : (
                   "Checkout unavailable"
                 )}

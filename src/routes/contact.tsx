@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Reveal } from "@/components/site/Reveal";
-import { whatsappConfigured, whatsappLink } from "@/lib/site";
+import {
+  CONTACT_EMAIL,
+  emailLink,
+  whatsappConfigured,
+  whatsappLink,
+} from "@/lib/site";
 import { Faq } from "@/components/home/Faq";
 
 export const Route = createFileRoute("/contact")({
@@ -32,8 +37,9 @@ function Contact() {
         <div className="grid gap-14 py-16 lg:grid-cols-[1fr_1fr] lg:gap-24">
           <Reveal>
             <p className="max-w-md text-[0.95rem] leading-relaxed text-muted-foreground">
-              Reach EYVORA for product questions, sizing guidance and order help. Contact details
-              below remain editable until the client confirms final channels.
+              Reach EYVORA for product questions, sizing guidance and order help. While the Shopify
+              plan is pending, bag checkout sends your order request by email
+              {whatsappConfigured() ? " or WhatsApp" : ""}.
             </p>
 
             <ul className="mt-12 space-y-8">
@@ -52,7 +58,7 @@ function Contact() {
                     </a>
                   ) : (
                     <p className="mt-1 text-sm text-muted-foreground">
-                      WhatsApp number pending client configuration.
+                      Optional — set VITE_WHATSAPP_NUMBER on Vercel when ready.
                     </p>
                   )}
                 </div>
@@ -61,9 +67,18 @@ function Contact() {
                 <Mail className="mt-1 h-4 w-4 shrink-0" strokeWidth={1} />
                 <div>
                   <p className="text-[0.95rem]">Email</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Add the official support email once confirmed.
-                  </p>
+                  {CONTACT_EMAIL ? (
+                    <a
+                      href={`mailto:${CONTACT_EMAIL}`}
+                      className="rule-link mt-1 inline-block text-sm text-muted-foreground"
+                    >
+                      {CONTACT_EMAIL}
+                    </a>
+                  ) : (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Add the official support email once confirmed.
+                    </p>
+                  )}
                 </div>
               </li>
             </ul>
@@ -74,10 +89,25 @@ function Contact() {
               className="space-y-6 border border-border px-6 py-8 lg:px-8"
               onSubmit={(e) => {
                 e.preventDefault();
-                toast.success("Message ready", {
-                  description:
-                    "Connect this form to Shopify / email once the client provides the inbox.",
-                });
+                const form = e.currentTarget;
+                const name = (form.elements.namedItem("name") as HTMLInputElement)
+                  .value;
+                const email = (
+                  form.elements.namedItem("email") as HTMLInputElement
+                ).value;
+                const message = (
+                  form.elements.namedItem("message") as HTMLTextAreaElement
+                ).value;
+                const href = emailLink(
+                  `EYVORA contact from ${name}`,
+                  `From: ${name} <${email}>\n\n${message}`,
+                );
+                if (!href) {
+                  toast.error("Contact email is not configured yet.");
+                  return;
+                }
+                window.location.href = href;
+                toast.success("Opening your email app");
               }}
             >
               <div>
@@ -86,6 +116,7 @@ function Contact() {
                 </label>
                 <input
                   id="name"
+                  name="name"
                   required
                   className="mt-3 w-full border-b border-border bg-transparent py-3 text-sm outline-none"
                 />
@@ -96,6 +127,7 @@ function Contact() {
                 </label>
                 <input
                   id="email"
+                  name="email"
                   type="email"
                   required
                   className="mt-3 w-full border-b border-border bg-transparent py-3 text-sm outline-none"
@@ -107,6 +139,7 @@ function Contact() {
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   required
                   rows={5}
                   className="mt-3 w-full resize-none border-b border-border bg-transparent py-3 text-sm outline-none"
