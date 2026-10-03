@@ -77,18 +77,24 @@ const CART_BUYER_IDENTITY_UPDATE = `
   }
 `;
 
+const SHOPIFY_CHECKOUT_HOST =
+  (
+    import.meta.env.VITE_SHOPIFY_STORE_DOMAIN ||
+    "eyvora-premium-essentials-bv3bk-uwdagguc.myshopify.com"
+  )
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "");
+
+/**
+ * Shopify returns checkout on the shop primary domain (eyvora.pk), but that host
+ * points at Vercel for the headless storefront — /cart/c/... 404s there.
+ * Always send checkout to the *.myshopify.com host instead.
+ */
 function formatCheckoutUrl(checkoutUrl: string): string {
   try {
     const url = new URL(checkoutUrl);
-    // Keep checkout on the Shopify shop domain so eyvora.pk can point at Vercel
-    // without breaking /cart/c/... hosted checkout routes.
-    const shopDomain =
-      import.meta.env.VITE_SHOPIFY_STORE_DOMAIN ||
-      "eyvora-premium-essentials-bv3bk-uwdagguc.myshopify.com";
-    if (shopDomain) {
-      url.host = shopDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
-      url.protocol = "https:";
-    }
+    url.protocol = "https:";
+    url.host = SHOPIFY_CHECKOUT_HOST;
     url.searchParams.set("channel", "online_store");
     return url.toString();
   } catch {
@@ -413,7 +419,7 @@ export const useCartStore = create<CartStore>()(
       clearCart: () => set({ items: [], cartId: null, checkoutUrl: null }),
       getCheckoutUrl: () => {
         const { checkoutUrl, items, customerPhone, customerName, customerEmail } = get();
-        if (checkoutUrl) return checkoutUrl;
+        if (checkoutUrl) return formatCheckoutUrl(checkoutUrl);
         if (items.length === 0) return null;
         if (items.every((i) => !isShopifySyncedVariantId(i.variantId))) {
           const phone = normalizePakistanPhone(customerPhone);

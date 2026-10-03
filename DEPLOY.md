@@ -124,6 +124,14 @@ https://admin.shopify.com/store/eyvora-premium-essentials-bv3bk/settings/checkou
 If you still don’t see it: you are already covered by the storefront bag phone field.
 Shopify does not expose this setting via API, and the wording in Admin is “Shipping address phone number”.
 
+### Checkout DNS note (headless + Vercel)
+
+- `eyvora.pk` → **Vercel** (storefront) — keep this
+- `account.eyvora.pk` → **Shopify** (`shops.myshopify.com`) — customer accounts / order status only
+- Checkout must open on `*.myshopify.com` (the storefront rewrites Shopify’s checkout URL automatically)
+
+Do **not** point the apex `eyvora.pk` A/CNAME at Shopify if you want the Vercel site to stay live.
+
 ### Cloudflare DNS for eyvora.pk → Vercel
 
 | Type | Name | Value |

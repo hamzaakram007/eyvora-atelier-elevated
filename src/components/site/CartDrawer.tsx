@@ -64,10 +64,11 @@ export function CartDrawer() {
     setPhoneTouched(true);
     if (!phoneValid) return;
     const checkoutUrl = await prepareCheckout();
-    if (checkoutUrl) {
-      window.open(checkoutUrl, "_blank");
-      setOpen(false);
-    }
+    if (!checkoutUrl) return;
+
+    // Prefer same-tab navigation — popup blockers often block window.open from async handlers.
+    setOpen(false);
+    window.location.assign(checkoutUrl);
   };
 
   return (
