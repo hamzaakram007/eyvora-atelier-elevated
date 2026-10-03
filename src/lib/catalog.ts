@@ -13,6 +13,12 @@ import blackHoodieFront from "@/assets/products/black-hoodie/front.jpg";
 import blackHoodieBack from "@/assets/products/black-hoodie/back.jpg";
 import blackHoodieLifestyle from "@/assets/products/black-hoodie/lifestyle.jpg";
 import blackHoodieDetail from "@/assets/products/black-hoodie/detail.jpg";
+import blackHoodieWomenFront from "@/assets/products/black-hoodie/women/front.jpg";
+import blackHoodieWomenFrontAlt from "@/assets/products/black-hoodie/women/front-alt.jpg";
+import blackHoodieWomenDetail from "@/assets/products/black-hoodie/women/detail.jpg";
+import blackHoodieWomenBackLook from "@/assets/products/black-hoodie/women/back-look.jpg";
+import blackHoodieWomenBackDetail from "@/assets/products/black-hoodie/women/back-detail.jpg";
+import blackHoodieWomenBack from "@/assets/products/black-hoodie/women/back.jpg";
 
 import greyPrimary from "@/assets/products/grey-trousers/primary.jpg";
 import greySecondary from "@/assets/products/grey-trousers/secondary.jpg";
