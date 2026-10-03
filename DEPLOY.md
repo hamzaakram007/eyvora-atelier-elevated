@@ -124,6 +124,23 @@ https://admin.shopify.com/store/eyvora-premium-essentials-bv3bk/settings/checkou
 If you still don’t see it: you are already covered by the storefront bag phone field.
 Shopify does not expose this setting via API, and the wording in Admin is “Shipping address phone number”.
 
+### Make Shopify checkout shorter (Basic plan)
+
+You cannot redesign the hosted checkout layout on Basic. You *can* hide extra fields:
+
+1. **Settings → Checkout**
+2. Scroll to **Form options** / **Customer information**
+3. Set:
+   - **Company name** → **Don't include**
+   - **Address line 2 (apartment, unit, etc.)** → **Don't include** (or Optional)
+   - **Full name** → **Only require last name** (optional; shorter than first+last)
+4. **Save**
+5. Test checkout again
+
+Keep **Shipping address phone number** as **Required**.
+
+The long `...myshopify.com/checkouts/cn/...` URL is normal — Shopify generates it; it cannot be shortened on Basic.
+
 ### Checkout DNS note (headless + Vercel)
 
 - `eyvora.pk` → **Vercel** (storefront) — keep this
