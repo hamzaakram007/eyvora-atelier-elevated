@@ -2,24 +2,71 @@
 /**
  * Seeds the verified EYVORA launch catalogue into Shopify Admin.
  *
- * Required env:
- *   SHOPIFY_STORE_DOMAIN=eyvora-premium-essentials-bv3bk-uwdagguc.myshopify.com
- *   SHOPIFY_ADMIN_API_TOKEN=shpat_xxx
+ * Auth (either):
+ *   A) Legacy admin custom app token:
+ *      SHOPIFY_ADMIN_API_TOKEN=shpat_xxx
+ *   B) Dev Dashboard app (current Shopify path):
+ *      SHOPIFY_CLIENT_ID=...
+ *      SHOPIFY_CLIENT_SECRET=...
+ *
+ * Required:
+ *   SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
  *
  * Optional:
  *   ARCHIVE_DEMO_PRODUCTS=true
  */
 
-const DOMAIN =
+import { existsSync } from "node:fs";
+
+if (existsSync(".env")) {
+  process.loadEnvFile(".env");
+}
+
+const DOMAIN = (
   process.env.SHOPIFY_STORE_DOMAIN ||
   process.env.VITE_SHOPIFY_STORE_DOMAIN ||
-  "eyvora-premium-essentials-bv3bk-uwdagguc.myshopify.com";
-const TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN || "";
-const API = `https://${DOMAIN}/admin/api/2025-07/graphql.json`;
+  "eyvora-premium-essentials-bv3bk-uwdagguc.myshopify.com"
+).replace(/^https?:\/\//, "").replace(/\/$/, "");
 
-if (!TOKEN) {
-  console.error("Missing SHOPIFY_ADMIN_API_TOKEN");
-  process.exit(1);
+const API = `https://${DOMAIN}/admin/api/2025-07/graphql.json`;
+const SHOP = DOMAIN.replace(/\.myshopify\.com$/i, "");
+
+let cachedToken = process.env.SHOPIFY_ADMIN_API_TOKEN || "";
+let tokenExpiresAt = cachedToken ? Number.POSITIVE_INFINITY : 0;
+
+async function resolveAdminToken() {
+  if (cachedToken && Date.now() < tokenExpiresAt - 60_000) {
+    return cachedToken;
+  }
+
+  const clientId = process.env.SHOPIFY_CLIENT_ID || "";
+  const clientSecret = process.env.SHOPIFY_CLIENT_SECRET || "";
+  if (!clientId || !clientSecret) {
+    throw new Error(
+      "Missing Admin auth. Set SHOPIFY_ADMIN_API_TOKEN=shpat_... OR SHOPIFY_CLIENT_ID + SHOPIFY_CLIENT_SECRET from Dev Dashboard → App settings.",
+    );
+  }
+
+  const res = await fetch(`https://${SHOP}.myshopify.com/admin/oauth/access_token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.access_token) {
+    throw new Error(
+      `Token request failed: ${JSON.stringify(json)}\n` +
+        "Check: app installed on this store, scopes include write_products, and store is in the same Dev Dashboard organization.",
+    );
+  }
+  cachedToken = json.access_token;
+  tokenExpiresAt = Date.now() + (json.expires_in || 86399) * 1000;
+  console.log(`✓ Admin token acquired (scopes: ${json.scope || "n/a"})`);
+  return cachedToken;
 }
 
 const LAUNCH = [
@@ -81,11 +128,12 @@ const COLLECTIONS = [
 ];
 
 async function admin(query, variables = {}) {
+  const token = await resolveAdminToken();
   const res = await fetch(API, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Shopify-Access-Token": TOKEN,
+      "X-Shopify-Access-Token": token,
     },
     body: JSON.stringify({ query, variables }),
   });

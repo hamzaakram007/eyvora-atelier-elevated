@@ -55,11 +55,36 @@ Update DNS at your domain provider as Vercel instructs
 
 ## 3) Replace demo products in Shopify
 
-1. Archive old demo products
-2. Import `shopify-seed/eyvora-launch-products.csv`
-3. Create collections: `hoodies`, `trousers`, `couple`
-4. Upload photos from `src/assets/products/`
-5. Configure payments + shipping
+### Fastest: CSV import (no Admin API needed)
+1. Shopify Admin → **Products** → **Import**
+2. Upload `shopify-seed/eyvora-launch-products.csv`
+3. Archive old demo products
+4. Create collections: `hoodies`, `trousers`, `couple`
+5. Upload photos from `src/assets/products/`
+6. Configure payments + shipping
+
+### Optional: real Admin API (Dev Dashboard — current Shopify path)
+Shopify no longer lets you create new “Develop apps” custom apps that show a permanent `shpat_` token in Admin. Use the Dev Dashboard instead:
+
+1. Open [dev.shopify.com/dashboard](https://dev.shopify.com/dashboard) (same Shopify account that owns the store)
+2. **Apps** → **Create app** → **Start from Dev Dashboard** → name it `EYVORA Admin Seed`
+3. Create a **Version**:
+   - App URL: `https://shopify.dev/apps/default-app-home`
+   - Scopes: `write_products`, `write_files` (optional: `read_orders`)
+   - Release the version
+4. **Install app** on your EYVORA store and approve scopes
+5. App → **Settings** → copy **Client ID** + **Client secret**
+6. Run seed locally (do not commit secrets):
+
+```bash
+export SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
+export SHOPIFY_CLIENT_ID=...
+export SHOPIFY_CLIENT_SECRET=...
+export ARCHIVE_DEMO_PRODUCTS=true
+node scripts/seed-shopify-launch.mjs
+```
+
+If you still have an older Admin custom app with a visible `shpat_` token, that also works via `SHOPIFY_ADMIN_API_TOKEN`.
 
 ## 4) Launch checks
 
