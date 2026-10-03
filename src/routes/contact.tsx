@@ -39,9 +39,9 @@ function Contact() {
             <p className="max-w-md text-[0.95rem] leading-relaxed text-muted-foreground">
               Reach EYVORA for product questions, sizing guidance and order help. For purchases,
               use Checkout in your bag — Cash on Delivery or UBL bank transfer. See{" "}
-              <a href="/payments" className="underline underline-offset-2">
+              <Link to="/payments" className="underline underline-offset-2">
                 Payment methods
-              </a>{" "}
+              </Link>{" "}
               for account details, or message us here if you need assistance.
             </p>
 
