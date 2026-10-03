@@ -148,13 +148,14 @@ export async function storefrontApiRequest(
 export async function fetchProducts(
   first = 24,
   query?: string,
+  gender?: string | null,
 ): Promise<ShopifyProduct[]> {
   try {
     const data = await storefrontApiRequest(STOREFRONT_QUERY, { first, query });
     const remote: ShopifyProduct[] = data?.data?.products?.edges ?? [];
     if (query) {
       // Tag/search queries still prefer authentic launch mapping when possible.
-      const merged = mergeWithShopifyCatalog(remote);
+      const merged = mergeWithShopifyCatalog(remote, gender);
       if (query.toLowerCase().includes("hoodie")) {
         return merged.filter((p) =>
           (p.node.productType ?? "").toLowerCase().includes("hoodie"),
@@ -170,26 +171,27 @@ export async function fetchProducts(
       }
       return merged;
     }
-    return mergeWithShopifyCatalog(remote);
+    return mergeWithShopifyCatalog(remote, gender);
   } catch (error) {
     console.warn("Shopify products unavailable, using launch catalog.", error);
-    return getLaunchCatalog();
+    return getLaunchCatalog(gender);
   }
 }
 
 export async function fetchProductByHandle(
   handle: string,
+  gender?: string | null,
 ): Promise<ShopifyProduct | null> {
   try {
     const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, { handle });
     const product = data?.data?.product;
     if (product) {
-      return applyLaunchImagery({ node: product });
+      return applyLaunchImagery({ node: product }, gender);
     }
   } catch (error) {
     console.warn("Shopify product lookup failed:", error);
   }
-  return getLaunchProductByHandle(handle);
+  return getLaunchProductByHandle(handle, gender);
 }
 
 export async function searchStorefront(term: string, first = 8) {

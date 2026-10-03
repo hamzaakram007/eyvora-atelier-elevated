@@ -10,9 +10,11 @@ import { cn } from "@/lib/utils";
 export function ProductCard({
   product,
   index = 0,
+  gender,
 }: {
   product: ShopifyProduct;
   index?: number;
+  gender?: string;
 }) {
   const node = product.node;
   const images = node.images.edges;
@@ -74,6 +76,7 @@ export function ProductCard({
       <Link
         to="/product/$handle"
         params={{ handle: node.handle }}
+        search={gender === "men" || gender === "women" ? { gender } : undefined}
         className="block overflow-hidden bg-[var(--soft-grey)]"
       >
         <div className="relative aspect-[4/5] overflow-hidden">
@@ -119,6 +122,7 @@ export function ProductCard({
             <Link
               to="/product/$handle"
               params={{ handle: node.handle }}
+              search={gender === "men" || gender === "women" ? { gender } : undefined}
               className="block text-[0.92rem] leading-snug"
             >
               {node.title}

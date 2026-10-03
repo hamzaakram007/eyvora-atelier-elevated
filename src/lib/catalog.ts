@@ -30,6 +30,9 @@ import blackTrousersLifestyle from "@/assets/products/black-trousers/lifestyle.j
 import blackTrousersDetail from "@/assets/products/black-trousers/detail.jpg";
 import blackTrousersCloseup from "@/assets/products/black-trousers/closeup.jpg";
 
+export type ProductImage = { url: string; altText: string };
+export type ModelGender = "men" | "women";
+
 export type LaunchProductMeta = {
   handle: string;
   title: string;
@@ -37,7 +40,12 @@ export type LaunchProductMeta = {
   category: "hoodies" | "trousers";
   price: number;
   description: string;
-  images: Array<{ url: string; altText: string }>;
+  /** Default gallery (men-first for unisex browsing / couple). */
+  images: ProductImage[];
+  /** Male-model shots — used on Men shop + product pages. */
+  imagesMen: ProductImage[];
+  /** Female-model shots — used on Women shop + product pages. */
+  imagesWomen: ProductImage[];
   tags: string[];
 };
 
@@ -52,6 +60,16 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     price: 4399,
     description:
       "A relaxed everyday hoodie in muted olive, finished with signature white piping and a clean EYVORA mark.",
+    imagesMen: [
+      { url: olivePrimary, altText: "EYVORA Olive Green Hoodie — men front view" },
+      { url: oliveFront, altText: "EYVORA Olive Green Hoodie — men lifestyle" },
+      { url: oliveBack, altText: "EYVORA Olive Green Hoodie — men back view" },
+    ],
+    imagesWomen: [
+      { url: oliveSecondary, altText: "EYVORA Olive Green Hoodie — women front view" },
+      { url: oliveLifestyle, altText: "EYVORA Olive Green Hoodie — women lifestyle" },
+      { url: oliveDetail, altText: "EYVORA Olive Green Hoodie — women detail" },
+    ],
     images: [
       { url: olivePrimary, altText: "EYVORA Olive Green Hoodie — front view" },
       { url: oliveSecondary, altText: "EYVORA Olive Green Hoodie — alternate view" },
@@ -70,6 +88,16 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     price: 4399,
     description:
       "A deep charcoal hoodie with white piping and a refined silhouette for everyday wear.",
+    imagesMen: [
+      { url: blackHoodiePrimary, altText: "EYVORA Black Hoodie — men front view" },
+      { url: blackHoodieFront, altText: "EYVORA Black Hoodie — men lifestyle" },
+      { url: blackHoodieLifestyle, altText: "EYVORA Black Hoodie — men detail" },
+      { url: blackHoodieBack, altText: "EYVORA Black Hoodie — men back view" },
+      { url: blackHoodieDetail, altText: "EYVORA Black Hoodie — men close-up" },
+    ],
+    imagesWomen: [
+      { url: blackHoodieSecondary, altText: "EYVORA Black Hoodie — women front view" },
+    ],
     images: [
       { url: blackHoodiePrimary, altText: "EYVORA Black Hoodie — front view" },
       { url: blackHoodieSecondary, altText: "EYVORA Black Hoodie — alternate view" },
@@ -88,6 +116,19 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     price: 2499,
     description:
       "Relaxed straight-leg trousers in soft heather grey, designed for comfort with a quiet logo mark.",
+    imagesMen: [
+      { url: greyPrimary, altText: "EYVORA Grey Trousers — men front view" },
+      { url: greyFront, altText: "EYVORA Grey Trousers — men lifestyle" },
+      { url: greyBack, altText: "EYVORA Grey Trousers — men back view" },
+      { url: greyDetail, altText: "EYVORA Grey Trousers — detail" },
+      { url: greyCloseup, altText: "EYVORA Grey Trousers — close-up" },
+    ],
+    imagesWomen: [
+      { url: greySecondary, altText: "EYVORA Grey Trousers — women front view" },
+      { url: greyLifestyle, altText: "EYVORA Grey Trousers — women lifestyle" },
+      { url: greyDetail, altText: "EYVORA Grey Trousers — detail" },
+      { url: greyCloseup, altText: "EYVORA Grey Trousers — close-up" },
+    ],
     images: [
       { url: greyPrimary, altText: "EYVORA Grey Trousers — front view" },
       { url: greySecondary, altText: "EYVORA Grey Trousers — alternate view" },
@@ -107,6 +148,19 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     price: 2499,
     description:
       "Relaxed straight-leg trousers in deep black, finished with a minimal EYVORA mark on the thigh.",
+    imagesMen: [
+      { url: blackTrousersPrimary, altText: "EYVORA Black Trousers — men front view" },
+      { url: blackTrousersFront, altText: "EYVORA Black Trousers — men lifestyle" },
+      { url: blackTrousersBack, altText: "EYVORA Black Trousers — men back view" },
+      { url: blackTrousersDetail, altText: "EYVORA Black Trousers — detail" },
+      { url: blackTrousersCloseup, altText: "EYVORA Black Trousers — close-up" },
+    ],
+    imagesWomen: [
+      { url: blackTrousersSecondary, altText: "EYVORA Black Trousers — women front view" },
+      { url: blackTrousersLifestyle, altText: "EYVORA Black Trousers — women lifestyle" },
+      { url: blackTrousersDetail, altText: "EYVORA Black Trousers — detail" },
+      { url: blackTrousersCloseup, altText: "EYVORA Black Trousers — close-up" },
+    ],
     images: [
       { url: blackTrousersPrimary, altText: "EYVORA Black Trousers — front view" },
       { url: blackTrousersSecondary, altText: "EYVORA Black Trousers — alternate view" },
@@ -119,6 +173,22 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     tags: ["trousers", "black", "couple", "essentials", "new", "men", "women"],
   },
 ];
+
+export function resolveModelGender(
+  value: string | null | undefined,
+): ModelGender | undefined {
+  if (value === "men" || value === "women") return value;
+  return undefined;
+}
+
+export function imagesForGender(
+  meta: LaunchProductMeta,
+  gender?: ModelGender | string | null,
+): ProductImage[] {
+  if (gender === "women" && meta.imagesWomen.length) return meta.imagesWomen;
+  if (gender === "men" && meta.imagesMen.length) return meta.imagesMen;
+  return meta.images;
+}
 
 export type CouplePieceOption = {
   handle: string;
@@ -221,11 +291,15 @@ function buildLocalVariantId(handle: string, size: string) {
   return `local://${handle}/${size}`;
 }
 
-export function toShopifyProduct(meta: LaunchProductMeta): ShopifyProduct {
+export function toShopifyProduct(
+  meta: LaunchProductMeta,
+  gender?: ModelGender | string | null,
+): ShopifyProduct {
   const price = {
     amount: meta.price.toFixed(1),
     currencyCode: "PKR",
   };
+  const images = imagesForGender(meta, gender);
 
   return {
     node: {
@@ -239,7 +313,7 @@ export function toShopifyProduct(meta: LaunchProductMeta): ShopifyProduct {
       priceRange: { minVariantPrice: price },
       compareAtPriceRange: undefined,
       images: {
-        edges: meta.images.map((img) => ({
+        edges: images.map((img) => ({
           node: { url: img.url, altText: img.altText },
         })),
       },
@@ -265,24 +339,31 @@ export function toShopifyProduct(meta: LaunchProductMeta): ShopifyProduct {
   };
 }
 
-export function getLaunchCatalog(): ShopifyProduct[] {
-  return LAUNCH_PRODUCTS.map(toShopifyProduct);
+export function getLaunchCatalog(gender?: ModelGender | string | null): ShopifyProduct[] {
+  return LAUNCH_PRODUCTS.map((meta) => toShopifyProduct(meta, gender));
 }
 
-export function getLaunchProductByHandle(handle: string): ShopifyProduct | null {
+export function getLaunchProductByHandle(
+  handle: string,
+  gender?: ModelGender | string | null,
+): ShopifyProduct | null {
   const meta = LAUNCH_PRODUCTS.find((p) => p.handle === handle);
-  return meta ? toShopifyProduct(meta) : null;
+  return meta ? toShopifyProduct(meta, gender) : null;
 }
 
-/** Prefer authentic launch photography when handles match. */
-export function applyLaunchImagery(product: ShopifyProduct): ShopifyProduct {
+/** Prefer authentic launch photography; honour Men/Women model gender when provided. */
+export function applyLaunchImagery(
+  product: ShopifyProduct,
+  gender?: ModelGender | string | null,
+): ShopifyProduct {
   const meta = LAUNCH_PRODUCTS.find((p) => p.handle === product.node.handle);
   if (!meta) return product;
+  const images = imagesForGender(meta, gender);
   return {
     node: {
       ...product.node,
       images: {
-        edges: meta.images.map((img) => ({
+        edges: images.map((img) => ({
           node: { url: img.url, altText: img.altText },
         })),
       },
@@ -322,9 +403,10 @@ export function looksLikeDemoCatalog(products: ShopifyProduct[]) {
  */
 export function mergeWithShopifyCatalog(
   remote: ShopifyProduct[],
+  gender?: ModelGender | string | null,
 ): ShopifyProduct[] {
   if (looksLikeDemoCatalog(remote)) {
-    return getLaunchCatalog();
+    return getLaunchCatalog(gender);
   }
 
   const byHandle = new Map(remote.map((p) => [p.node.handle, p]));
@@ -332,24 +414,27 @@ export function mergeWithShopifyCatalog(
 
   const launch = LAUNCH_PRODUCTS.map((meta) => {
     const remoteProduct = byHandle.get(meta.handle);
-    if (!remoteProduct) return toShopifyProduct(meta);
-    return applyLaunchImagery({
-      node: {
-        ...remoteProduct.node,
-        title: meta.title,
-        description: remoteProduct.node.description || meta.description,
-        productType: meta.category === "hoodies" ? "Hoodies" : "Trousers",
-        tags: Array.from(
-          new Set([...(remoteProduct.node.tags ?? []), ...meta.tags]),
-        ),
+    if (!remoteProduct) return toShopifyProduct(meta, gender);
+    return applyLaunchImagery(
+      {
+        node: {
+          ...remoteProduct.node,
+          title: meta.title,
+          description: remoteProduct.node.description || meta.description,
+          productType: meta.category === "hoodies" ? "Hoodies" : "Trousers",
+          tags: Array.from(
+            new Set([...(remoteProduct.node.tags ?? []), ...meta.tags]),
+          ),
+        },
       },
-    });
+      gender,
+    );
   });
 
   const extras = remote
     .filter((p) => !launchHandles.has(p.node.handle))
     .filter((p) => p.node.availableForSale !== false)
-    .map((p) => applyLaunchImagery(p));
+    .map((p) => applyLaunchImagery(p, gender));
 
   return [...launch, ...extras];
 }
@@ -357,9 +442,10 @@ export function mergeWithShopifyCatalog(
 export function findCatalogProduct(
   products: ShopifyProduct[],
   handle: string,
+  gender?: ModelGender | string | null,
 ): ShopifyProduct | null {
   return (
     products.find((p) => p.node.handle === handle) ??
-    getLaunchProductByHandle(handle)
+    getLaunchProductByHandle(handle, gender)
   );
 }

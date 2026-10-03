@@ -7,11 +7,14 @@ export function ProductGrid({
   loading,
   emptyNote = "No products found.",
   columns = "lg:grid-cols-4",
+  gender,
 }: {
   products: ShopifyProduct[];
   loading?: boolean;
   emptyNote?: string;
   columns?: string;
+  /** When set, product links open with the matching model gallery (men/women). */
+  gender?: string;
 }) {
   if (loading) {
     return (
@@ -42,7 +45,7 @@ export function ProductGrid({
     <div className={`grid grid-cols-2 gap-x-5 gap-y-14 ${columns}`}>
       {products.map((product, i) => (
         <Reveal key={product.node.id} delay={(i % 4) * 90} as="div">
-          <ProductCard product={product} index={i} />
+          <ProductCard product={product} index={i} gender={gender} />
         </Reveal>
       ))}
     </div>

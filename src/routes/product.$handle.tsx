@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ChevronRight } from "lucide-react";
 import { fetchProductByHandle, fetchProducts, formatPrice } from "@/lib/shopify";
@@ -8,11 +8,18 @@ import { ProductGrid } from "@/components/site/ProductGrid";
 import { SizeGuideModal } from "@/components/site/SizeGuideModal";
 import { Faq } from "@/components/home/Faq";
 import { useWishlist } from "@/hooks/useWishlist";
-import { isShopifySyncedVariantId } from "@/lib/catalog";
+import { isShopifySyncedVariantId, resolveModelGender } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+type ProductSearch = {
+  gender?: string | undefined;
+};
+
 export const Route = createFileRoute("/product/$handle")({
+  validateSearch: (search: Record<string, unknown>): ProductSearch => ({
+    gender: typeof search.gender === "string" ? search.gender : undefined,
+  }),
   head: ({ params }) => {
     const name = params.handle
       .split("-")
@@ -38,6 +45,9 @@ export const Route = createFileRoute("/product/$handle")({
 
 function ProductPage() {
   const { handle } = Route.useParams();
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/product/$handle" });
+  const modelGender = resolveModelGender(search.gender);
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [selected, setSelected] = useState<Record<string, string>>({});
@@ -50,13 +60,13 @@ function ProductPage() {
   const toggleWishlist = useWishlist((s) => s.toggle);
 
   const { data: product, isLoading: loadingProduct } = useQuery({
-    queryKey: ["product", handle],
-    queryFn: () => fetchProductByHandle(handle),
+    queryKey: ["product", handle, modelGender ?? "default"],
+    queryFn: () => fetchProductByHandle(handle, modelGender),
   });
 
   const { data: related } = useQuery({
-    queryKey: ["products", "related"],
-    queryFn: () => fetchProducts(8),
+    queryKey: ["products", "related", modelGender ?? "default"],
+    queryFn: () => fetchProducts(8, undefined, modelGender),
   });
 
   const node = product?.node;
@@ -80,7 +90,7 @@ function ProductPage() {
     setActiveImage(0);
     setSelected({});
     setQty(1);
-  }, [handle]);
+  }, [handle, modelGender]);
 
   if (loadingProduct) {
     return (
@@ -287,6 +297,40 @@ function ProductPage() {
               </p>
             )}
 
+            <div className="mt-6">
+              <p className="eyebrow mb-3">Shown on</p>
+              <div className="flex flex-wrap gap-2">
+                {(
+                  [
+                    ["men", "Men"],
+                    ["women", "Women"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() =>
+                      navigate({
+                        search: (prev) => ({ ...prev, gender: key }),
+                        replace: true,
+                      })
+                    }
+                    className={cn(
+                      "border px-4 py-2 text-[0.625rem] tracking-[0.18em] uppercase",
+                      modelGender === key
+                        ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                        : "border-border hover:border-foreground",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Same piece — photography switches to male or female models.
+              </p>
+            </div>
+
             {node.description && (
               <p className="mt-7 max-w-md text-[0.9rem] leading-[1.85] text-muted-foreground">
                 {node.description}
@@ -431,6 +475,7 @@ function ProductPage() {
           </h2>
           <ProductGrid
             products={(related ?? []).filter((p) => p.node.handle !== handle).slice(0, 4)}
+            gender={modelGender}
           />
         </section>
       </div>

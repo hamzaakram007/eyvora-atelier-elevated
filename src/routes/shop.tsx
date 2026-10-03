@@ -81,9 +81,12 @@ function Shop() {
   const navigate = useNavigate({ from: "/shop" });
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
 
+  const modelGender =
+    search.gender === "men" || search.gender === "women" ? search.gender : undefined;
+
   const { data, isLoading } = useQuery({
-    queryKey: ["products", "all"],
-    queryFn: () => fetchProducts(60),
+    queryKey: ["products", "all", modelGender ?? "all"],
+    queryFn: () => fetchProducts(60, undefined, modelGender),
   });
 
   const products = useMemo(() => {
@@ -278,6 +281,7 @@ function Shop() {
               products={products}
               loading={isLoading}
               columns="lg:grid-cols-3 xl:grid-cols-4"
+              gender={modelGender}
             />
           </div>
         </div>
