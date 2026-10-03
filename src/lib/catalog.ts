@@ -120,29 +120,98 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
   },
 ];
 
+export type CouplePieceOption = {
+  handle: string;
+  label: string;
+  color: string;
+  kind: "hoodie" | "trousers";
+};
+
+/** Selectable pieces for the couple builder (Person 1 / Person 2). */
+export const COUPLE_HOODIES: CouplePieceOption[] = [
+  { handle: "olive-green-hoodie", label: "Olive Green Hoodie", color: "Olive", kind: "hoodie" },
+  { handle: "black-hoodie", label: "Black Hoodie", color: "Black", kind: "hoodie" },
+];
+
+export const COUPLE_TROUSERS: CouplePieceOption[] = [
+  { handle: "grey-trousers", label: "Grey Trousers", color: "Grey", kind: "trousers" },
+  { handle: "black-trousers", label: "Black Trousers", color: "Black", kind: "trousers" },
+];
+
 export const COUPLE_OUTFITS = [
   {
     id: "olive-black",
-    title: "Olive Hoodie + Black Trousers",
+    title: "Olive + Black",
     note: "Muted olive against deep black — a calm everyday pairing.",
     hoodieHandle: "olive-green-hoodie",
     trousersHandle: "black-trousers",
+    mode: "matching" as const,
   },
   {
     id: "black-grey",
-    title: "Black Hoodie + Grey Trousers",
+    title: "Black + Grey",
     note: "High contrast essentials with a soft grey base.",
     hoodieHandle: "black-hoodie",
     trousersHandle: "grey-trousers",
+    mode: "matching" as const,
   },
   {
     id: "black-black",
-    title: "Black Hoodie + Black Trousers",
+    title: "All Black",
     note: "A monochrome set for a sharper silhouette.",
     hoodieHandle: "black-hoodie",
     trousersHandle: "black-trousers",
+    mode: "matching" as const,
+  },
+  {
+    id: "mix-olive-black",
+    title: "Mix — Olive & Black hoodies",
+    note: "Different colours for each person, paired with black trousers.",
+    hoodieHandle: "olive-green-hoodie",
+    trousersHandle: "black-trousers",
+    person2HoodieHandle: "black-hoodie",
+    person2TrousersHandle: "black-trousers",
+    mode: "mix" as const,
   },
 ] as const;
+
+export type ShopDepartment = "men" | "women" | "couple" | "all";
+
+/** Exact department match via product tags (avoids “men” matching inside “women”). */
+export function matchesDepartment(
+  product: ShopifyProduct,
+  department: ShopDepartment | string | undefined,
+): boolean {
+  if (!department || department === "all") return true;
+  const tags = (product.node.tags ?? []).map((t) => t.toLowerCase());
+  const title = product.node.title.toLowerCase();
+  const hay = `${product.node.productType ?? ""} ${tags.join(" ")}`.toLowerCase();
+
+  if (department === "men") {
+    // Unisex launch pieces carry both tags; men-only future SKUs use `men` without `women-only`.
+    if (tags.includes("women-only")) return false;
+    return tags.includes("men") || tags.includes("unisex") || tags.includes("essentials");
+  }
+  if (department === "women") {
+    if (tags.includes("men-only")) return false;
+    return tags.includes("women") || tags.includes("unisex") || tags.includes("essentials");
+  }
+  if (department === "couple") {
+    return tags.includes("couple") || title.includes("couple") || hay.includes("couple");
+  }
+  return hay.includes(department.toLowerCase());
+}
+
+export function matchesCategory(
+  product: ShopifyProduct,
+  category: string | undefined,
+): boolean {
+  if (!category) return true;
+  const needle = category.toLowerCase().replace(/s$/, "");
+  const hay =
+    `${product.node.title} ${product.node.productType ?? ""} ${(product.node.tags ?? []).join(" ")}`.toLowerCase();
+  return hay.includes(needle);
+}
 
 export function isShopifySyncedVariantId(id: string) {
   return id.startsWith("gid://shopify/ProductVariant/");

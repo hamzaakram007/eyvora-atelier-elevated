@@ -24,19 +24,19 @@ export function CoupleCollection() {
             not identical.
           </h2>
           <p className="mt-7 max-w-md text-[0.95rem] leading-relaxed text-muted-foreground">
-            Build an outfit from the launch essentials — olive or black hoodie, grey or
-            black trousers — and choose each size independently.
+            Matching colours for both, or mix &amp; match — each person picks their own
+            hoodie/trousers colour and size.
           </p>
           <ul className="mt-8 space-y-3 text-sm text-muted-foreground">
-            <li>— Olive Green Hoodie + Black Trousers</li>
-            <li>— Black Hoodie + Grey Trousers</li>
-            <li>— Black Hoodie + Black Trousers</li>
+            <li>— Matching colour combinations</li>
+            <li>— Mix different colours per person</li>
+            <li>— Independent sizes for Person 1 &amp; Person 2</li>
           </ul>
           <Link
             to="/couple"
             className="mt-10 inline-block bg-[var(--ink)] px-9 py-3.5 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)] uppercase transition-opacity hover:opacity-85"
           >
-            Explore outfits
+            Build couple order
           </Link>
         </Reveal>
       </div>

@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { fetchProducts, formatPrice } from "@/lib/shopify";
-import { COUPLE_OUTFITS, findCatalogProduct } from "@/lib/catalog";
+import { fetchProducts, formatPrice, type ShopifyProduct } from "@/lib/shopify";
+import {
+  COUPLE_HOODIES,
+  COUPLE_OUTFITS,
+  COUPLE_TROUSERS,
+  findCatalogProduct,
+  type CouplePieceOption,
+} from "@/lib/catalog";
 import { useCartStore } from "@/stores/cartStore";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
@@ -12,174 +18,451 @@ import coupleHero from "@/assets/products/hero/hero-desktop.jpg";
 export const Route = createFileRoute("/couple")({
   head: () => ({
     meta: [
-      { title: "Couple Collection — Coordinated Outfits | EYVORA" },
+      { title: "Couple Collection — Match or Mix | EYVORA" },
       {
         name: "description",
         content:
-          "Build coordinated EYVORA outfits from the launch essentials. Choose hoodie and trouser sizes independently — no invented bundle discounts.",
+          "Build EYVORA couple outfits. Matching colours or mix & match — each person picks their own size (and colour when mixing).",
       },
       { property: "og:title", content: "Couple Collection — EYVORA" },
       {
         property: "og:description",
         content:
-          "Olive and black hoodies with grey and black trousers. Select sizes for each piece and add both to bag.",
+          "Same colour combination or different colours. Independent sizes for each person.",
       },
     ],
   }),
   component: CouplePage,
 });
 
-function OutfitBuilder({
+type ColorMode = "matching" | "mix";
+
+type PersonSelection = {
+  hoodieHandle: string;
+  hoodieSize: string;
+  trousersHandle: string;
+  trousersSize: string;
+};
+
+const emptyPerson = (): PersonSelection => ({
+  hoodieHandle: COUPLE_HOODIES[0].handle,
+  hoodieSize: "",
+  trousersHandle: COUPLE_TROUSERS[1].handle,
+  trousersSize: "",
+});
+
+function variantFor(
+  product: ShopifyProduct | null,
+  size: string,
+): ShopifyProduct["node"]["variants"]["edges"][number]["node"] | null {
+  if (!product || !size) return null;
+  return (
+    product.node.variants.edges.find((v) =>
+      v.node.selectedOptions.some((o) => o.name === "Size" && o.value === size),
+    )?.node ?? null
+  );
+}
+
+function PiecePicker({
+  label,
+  options,
+  value,
+  onChange,
+  locked,
+}: {
+  label: string;
+  options: CouplePieceOption[];
+  value: string;
+  onChange: (handle: string) => void;
+  locked?: boolean;
+}) {
+  return (
+    <div>
+      <p className="eyebrow mb-3">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt) => (
+          <button
+            key={opt.handle}
+            type="button"
+            disabled={locked}
+            onClick={() => onChange(opt.handle)}
+            className={cn(
+              "border px-3 py-2 text-[0.625rem] tracking-[0.14em] uppercase transition-colors",
+              value === opt.handle
+                ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                : "border-border hover:border-foreground",
+              locked && "opacity-70",
+            )}
+          >
+            {opt.color}
+          </button>
+        ))}
+        <button
+          type="button"
+          disabled={locked}
+          onClick={() => onChange("")}
+          className={cn(
+            "border px-3 py-2 text-[0.625rem] tracking-[0.14em] uppercase",
+            value === ""
+              ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+              : "border-border",
+            locked && "opacity-70",
+          )}
+        >
+          Skip
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SizePicker({
+  label,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  onChange: (size: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div>
+      <p className="eyebrow mb-3">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {["S", "M", "L"].map((size) => (
+          <button
+            key={size}
+            type="button"
+            disabled={disabled}
+            onClick={() => onChange(size)}
+            className={cn(
+              "min-w-11 border px-3 py-2 text-[0.625rem] tracking-[0.18em] uppercase",
+              value === size
+                ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                : "border-border",
+              disabled && "opacity-40",
+            )}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PersonCard({
   title,
-  note,
-  hoodieHandle,
-  trousersHandle,
+  selection,
+  onChange,
+  products,
+  colorLocked,
 }: {
   title: string;
-  note: string;
-  hoodieHandle: string;
-  trousersHandle: string;
+  selection: PersonSelection;
+  onChange: (next: PersonSelection) => void;
+  products: ShopifyProduct[];
+  colorLocked?: boolean;
 }) {
-  const { data } = useQuery({
+  const hoodie = selection.hoodieHandle
+    ? findCatalogProduct(products, selection.hoodieHandle)
+    : null;
+  const trousers = selection.trousersHandle
+    ? findCatalogProduct(products, selection.trousersHandle)
+    : null;
+
+  return (
+    <div className="border border-border p-6 lg:p-8">
+      <p className="eyebrow">{title}</p>
+      <div className="mt-6 grid gap-6">
+        <PiecePicker
+          label="Hoodie colour"
+          options={COUPLE_HOODIES}
+          value={selection.hoodieHandle}
+          locked={colorLocked}
+          onChange={(hoodieHandle) =>
+            onChange({ ...selection, hoodieHandle, hoodieSize: hoodieHandle ? selection.hoodieSize : "" })
+          }
+        />
+        <SizePicker
+          label="Hoodie size"
+          value={selection.hoodieSize}
+          disabled={!selection.hoodieHandle}
+          onChange={(hoodieSize) => onChange({ ...selection, hoodieSize })}
+        />
+        {hoodie?.node.images.edges[0] && (
+          <Link
+            to="/product/$handle"
+            params={{ handle: hoodie.node.handle }}
+            className="block overflow-hidden bg-[var(--soft-grey)]"
+          >
+            <img
+              src={hoodie.node.images.edges[0].node.url}
+              alt={hoodie.node.title}
+              className="aspect-[5/3] w-full object-cover"
+              loading="lazy"
+            />
+          </Link>
+        )}
+
+        <PiecePicker
+          label="Trousers colour"
+          options={COUPLE_TROUSERS}
+          value={selection.trousersHandle}
+          locked={colorLocked}
+          onChange={(trousersHandle) =>
+            onChange({
+              ...selection,
+              trousersHandle,
+              trousersSize: trousersHandle ? selection.trousersSize : "",
+            })
+          }
+        />
+        <SizePicker
+          label="Trousers size"
+          value={selection.trousersSize}
+          disabled={!selection.trousersHandle}
+          onChange={(trousersSize) => onChange({ ...selection, trousersSize })}
+        />
+        {trousers?.node.images.edges[0] && (
+          <Link
+            to="/product/$handle"
+            params={{ handle: trousers.node.handle }}
+            className="block overflow-hidden bg-[var(--soft-grey)]"
+          >
+            <img
+              src={trousers.node.images.edges[0].node.url}
+              alt={trousers.node.title}
+              className="aspect-[5/3] w-full object-cover"
+              loading="lazy"
+            />
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CoupleBuilder() {
+  const { data, isLoading } = useQuery({
     queryKey: ["products", "couple-page"],
-    queryFn: () => fetchProducts(12),
+    queryFn: () => fetchProducts(24),
   });
   const products = data ?? [];
-  const hoodie = findCatalogProduct(products, hoodieHandle);
-  const trousers = findCatalogProduct(products, trousersHandle);
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
-  const [hoodieSize, setHoodieSize] = useState("");
-  const [trouserSize, setTrouserSize] = useState("");
+
+  const [mode, setMode] = useState<ColorMode>("matching");
+  const [person1, setPerson1] = useState<PersonSelection>(emptyPerson);
+  const [person2, setPerson2] = useState<PersonSelection>(emptyPerson);
   const [loading, setLoading] = useState(false);
 
-  if (!hoodie || !trousers) return null;
+  // Matching mode: Person 2 colours follow Person 1; sizes stay independent.
+  useEffect(() => {
+    if (mode !== "matching") return;
+    setPerson2((prev) => ({
+      ...prev,
+      hoodieHandle: person1.hoodieHandle,
+      trousersHandle: person1.trousersHandle,
+    }));
+  }, [mode, person1.hoodieHandle, person1.trousersHandle]);
 
-  const addBoth = async () => {
-    if (!hoodieSize || !trouserSize) {
-      toast.message("Select both sizes", {
-        description: "Choose a hoodie size and a trouser size.",
+  const lineItems = useMemo(() => {
+    const people = [person1, person2];
+    const lines: Array<{
+      product: ShopifyProduct;
+      variant: ShopifyProduct["node"]["variants"]["edges"][number]["node"];
+      who: string;
+    }> = [];
+
+    people.forEach((person, idx) => {
+      const who = `Person ${idx + 1}`;
+      if (person.hoodieHandle && person.hoodieSize) {
+        const product = findCatalogProduct(products, person.hoodieHandle);
+        const variant = variantFor(product, person.hoodieSize);
+        if (product && variant) lines.push({ product, variant, who });
+      }
+      if (person.trousersHandle && person.trousersSize) {
+        const product = findCatalogProduct(products, person.trousersHandle);
+        const variant = variantFor(product, person.trousersSize);
+        if (product && variant) lines.push({ product, variant, who });
+      }
+    });
+    return lines;
+  }, [person1, person2, products]);
+
+  const total = lineItems.reduce(
+    (sum, line) => sum + parseFloat(line.variant.price.amount),
+    0,
+  );
+
+  const applyPreset = (outfit: (typeof COUPLE_OUTFITS)[number]) => {
+    const nextMode = outfit.mode;
+    setMode(nextMode);
+    setPerson1({
+      hoodieHandle: outfit.hoodieHandle,
+      hoodieSize: "",
+      trousersHandle: outfit.trousersHandle,
+      trousersSize: "",
+    });
+    setPerson2({
+      hoodieHandle:
+        "person2HoodieHandle" in outfit && outfit.person2HoodieHandle
+          ? outfit.person2HoodieHandle
+          : outfit.hoodieHandle,
+      hoodieSize: "",
+      trousersHandle:
+        "person2TrousersHandle" in outfit && outfit.person2TrousersHandle
+          ? outfit.person2TrousersHandle
+          : outfit.trousersHandle,
+      trousersSize: "",
+    });
+  };
+
+  const addAll = async () => {
+    if (lineItems.length === 0) {
+      toast.message("Select pieces & sizes", {
+        description: "Each person needs a colour and size for at least one piece.",
       });
       return;
     }
-    const hoodieVariant = hoodie.node.variants.edges.find((v) =>
-      v.node.selectedOptions.some((o) => o.name === "Size" && o.value === hoodieSize),
-    )?.node;
-    const trouserVariant = trousers.node.variants.edges.find((v) =>
-      v.node.selectedOptions.some((o) => o.name === "Size" && o.value === trouserSize),
-    )?.node;
-    if (!hoodieVariant || !trouserVariant) return;
+    // Require sizes whenever a colour/piece is chosen
+    for (const [i, person] of [person1, person2].entries()) {
+      if (person.hoodieHandle && !person.hoodieSize) {
+        toast.message(`Person ${i + 1}: choose hoodie size`);
+        return;
+      }
+      if (person.trousersHandle && !person.trousersSize) {
+        toast.message(`Person ${i + 1}: choose trousers size`);
+        return;
+      }
+    }
 
     setLoading(true);
-    await addItem({
-      product: hoodie,
-      variantId: hoodieVariant.id,
-      variantTitle: hoodieVariant.title,
-      price: hoodieVariant.price,
-      quantity: 1,
-      selectedOptions: hoodieVariant.selectedOptions,
-    });
-    await addItem({
-      product: trousers,
-      variantId: trouserVariant.id,
-      variantTitle: trouserVariant.title,
-      price: trouserVariant.price,
-      quantity: 1,
-      selectedOptions: trouserVariant.selectedOptions,
-    });
-    setLoading(false);
-    toast.success("Outfit added to bag");
-    setOpen(true);
+    try {
+      for (const line of lineItems) {
+        await addItem({
+          product: line.product,
+          variantId: line.variant.id,
+          variantTitle: line.variant.title,
+          price: line.variant.price,
+          quantity: 1,
+          selectedOptions: line.variant.selectedOptions,
+        });
+      }
+      toast.success(`${lineItems.length} pieces added to bag`);
+      setOpen(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const total =
-    parseFloat(hoodie.node.priceRange.minVariantPrice.amount) +
-    parseFloat(trousers.node.priceRange.minVariantPrice.amount);
-
   return (
-    <Reveal className="grid gap-8 border-t border-border py-14 lg:grid-cols-2 lg:gap-12">
-      <div className="grid grid-cols-2 gap-3">
-        {[hoodie, trousers].map((p) => (
-          <Link
-            key={p.node.id}
-            to="/product/$handle"
-            params={{ handle: p.node.handle }}
-            className="overflow-hidden bg-[var(--soft-grey)]"
-          >
-            {p.node.images.edges[0] && (
-              <img
-                src={p.node.images.edges[0].node.url}
-                alt={p.node.title}
-                className="aspect-[4/5] w-full object-cover"
-                loading="lazy"
-              />
+    <section className="mx-auto max-w-[1600px] px-5 py-16 lg:px-10 lg:py-24">
+      <Reveal>
+        <p className="eyebrow">Build your couple order</p>
+        <h2 className="font-display mt-4 text-[clamp(2rem,4vw,3.2rem)]">
+          Two people. Independent sizes.
+        </h2>
+        <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Choose <strong className="font-medium text-foreground">Matching colours</strong> so both
+          wear the same combination, or <strong className="font-medium text-foreground">Mix &amp; match</strong>{" "}
+          so each person picks different colours. Sizes are always chosen separately.
+        </p>
+      </Reveal>
+
+      <div className="mt-10 flex flex-wrap gap-2">
+        {(
+          [
+            ["matching", "Matching colours"],
+            ["mix", "Mix & match colours"],
+          ] as const
+        ).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setMode(key)}
+            className={cn(
+              "border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase",
+              mode === key
+                ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                : "border-border hover:border-foreground",
             )}
-          </Link>
+          >
+            {label}
+          </button>
         ))}
       </div>
-      <div>
-        <p className="eyebrow">Outfit</p>
-        <h2 className="font-display mt-3 text-3xl">{title}</h2>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{note}</p>
-        <p className="mt-5 text-sm">
-          Combined {formatPrice(total, "PKR")} — no bundle discount applied.
-        </p>
 
-        <div className="mt-8 grid gap-6 sm:grid-cols-2">
-          <div>
-            <p className="eyebrow mb-3">Hoodie size</p>
-            <div className="flex flex-wrap gap-2">
-              {["S", "M", "L"].map((size) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => setHoodieSize(size)}
-                  className={cn(
-                    "min-w-11 border px-3 py-2 text-[0.625rem] tracking-[0.18em] uppercase",
-                    hoodieSize === size
-                      ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
-                      : "border-border",
-                  )}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-            <p className="mt-3 text-sm">{hoodie.node.title}</p>
-          </div>
-          <div>
-            <p className="eyebrow mb-3">Trouser size</p>
-            <div className="flex flex-wrap gap-2">
-              {["S", "M", "L"].map((size) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => setTrouserSize(size)}
-                  className={cn(
-                    "min-w-11 border px-3 py-2 text-[0.625rem] tracking-[0.18em] uppercase",
-                    trouserSize === size
-                      ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
-                      : "border-border",
-                  )}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-            <p className="mt-3 text-sm">{trousers.node.title}</p>
-          </div>
+      <div className="mt-8 flex flex-wrap gap-2">
+        <span className="eyebrow mr-2 self-center">Quick presets</span>
+        {COUPLE_OUTFITS.map((outfit) => (
+          <button
+            key={outfit.id}
+            type="button"
+            onClick={() => applyPreset(outfit)}
+            className="border border-border px-3 py-2 text-[0.6875rem] tracking-[0.12em] uppercase hover:border-foreground"
+            title={outfit.note}
+          >
+            {outfit.title}
+          </button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <p className="mt-12 text-sm text-muted-foreground">Loading pieces…</p>
+      ) : (
+        <div className="mt-12 grid gap-6 lg:grid-cols-2">
+          <PersonCard
+            title="Person 1"
+            selection={person1}
+            onChange={setPerson1}
+            products={products}
+          />
+          <PersonCard
+            title="Person 2"
+            selection={person2}
+            onChange={setPerson2}
+            products={products}
+            colorLocked={mode === "matching"}
+          />
         </div>
+      )}
 
+      <div className="mt-10 border border-border p-6 lg:flex lg:items-center lg:justify-between lg:gap-8 lg:p-8">
+        <div>
+          <p className="eyebrow">Order summary</p>
+          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+            {lineItems.length === 0 ? (
+              <li>Select colours and sizes for each person.</li>
+            ) : (
+              lineItems.map((line, i) => (
+                <li key={`${line.variant.id}-${i}`}>
+                  {line.who}: {line.product.node.title} — Size{" "}
+                  {line.variant.selectedOptions.find((o) => o.name === "Size")?.value}{" "}
+                  ({formatPrice(line.variant.price.amount, line.variant.price.currencyCode)})
+                </li>
+              ))
+            )}
+          </ul>
+          {lineItems.length > 0 && (
+            <p className="mt-4 text-sm">
+              Combined {formatPrice(total, "PKR")} — no bundle discount applied.
+            </p>
+          )}
+        </div>
         <button
           type="button"
-          onClick={addBoth}
-          disabled={loading}
-          className="mt-8 bg-[var(--ink)] px-8 py-4 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)] uppercase disabled:opacity-40"
+          onClick={addAll}
+          disabled={loading || lineItems.length === 0}
+          className="mt-6 bg-[var(--ink)] px-8 py-4 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)] uppercase disabled:opacity-40 lg:mt-0"
         >
-          {loading ? "Adding…" : "Add both to bag"}
+          {loading ? "Adding…" : `Add ${lineItems.length || ""} to bag`}
         </button>
       </div>
-    </Reveal>
+    </section>
   );
 }
 
@@ -201,16 +484,35 @@ function CouplePage() {
             Dress together.
           </h1>
           <p className="mt-6 max-w-lg text-[0.95rem] leading-relaxed text-[var(--ivory)]/75">
-            Choose an outfit from the launch essentials, select each size independently, and add
-            both pieces to your bag.
+            Matching colours or mix &amp; match — each person chooses their own size.
           </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1600px] px-5 lg:px-10">
-        {COUPLE_OUTFITS.map((outfit) => (
-          <OutfitBuilder key={outfit.id} {...outfit} />
-        ))}
+      <CoupleBuilder />
+
+      <section className="border-t border-border py-16">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between lg:px-10">
+          <p className="text-sm text-muted-foreground">
+            Shopping for one? Browse Men or Women essentials separately.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/shop"
+              search={{ gender: "men" }}
+              className="border border-border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase"
+            >
+              Shop Men
+            </Link>
+            <Link
+              to="/shop"
+              search={{ gender: "women" }}
+              className="border border-border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase"
+            >
+              Shop Women
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   );

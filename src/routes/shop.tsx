@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
+import { matchesCategory, matchesDepartment } from "@/lib/catalog";
 import { ProductGrid } from "@/components/site/ProductGrid";
 import { cn } from "@/lib/utils";
 
@@ -29,23 +30,37 @@ export const Route = createFileRoute("/shop")({
     size: str(search["size"]),
     availability: str(search["availability"]),
   }),
-  head: () => ({
-    meta: [
-      { title: "Shop All — EYVORA Hoodies & Trousers" },
-      {
-        name: "description",
-        content:
-          "Browse the full EYVORA collection: premium hoodies and trousers for men and women, filtered by size, colour and availability.",
-      },
-      { property: "og:title", content: "Shop EYVORA" },
-      {
-        property: "og:description",
-        content: "Premium hoodies and trousers. Filter by gender, size, colour and price.",
-      },
-    ],
-  }),
+  head: ({ match }) => {
+    const gender = match.search.gender;
+    const title =
+      gender === "men"
+        ? "Men — EYVORA"
+        : gender === "women"
+          ? "Women — EYVORA"
+          : gender === "couple"
+            ? "Couple — EYVORA"
+            : "Shop All — EYVORA Hoodies & Trousers";
+    return {
+      meta: [
+        { title },
+        {
+          name: "description",
+          content:
+            "Browse EYVORA by Men, Women or Couple. Premium hoodies and trousers filtered by size, colour and availability.",
+        },
+        { property: "og:title", content: title },
+      ],
+    };
+  },
   component: Shop,
 });
+
+const departments = [
+  { key: undefined, label: "All" },
+  { key: "men", label: "Men" },
+  { key: "women", label: "Women" },
+  { key: "couple", label: "Couple" },
+] as const;
 
 const sorts = [
   { key: "featured", label: "Featured" },
@@ -73,12 +88,18 @@ function Shop() {
 
   const products = useMemo(() => {
     let list = [...(data ?? [])];
-    const filters = [search.gender, search.category, search.collection, search.occasion]
-      .filter(Boolean)
-      .map((f) => (f as string).toLowerCase());
-    filters.forEach((f) => {
-      list = list.filter((p) => textOf(p).includes(f.replace(/s$/, "")));
-    });
+
+    list = list.filter((p) => matchesDepartment(p, search.gender));
+    list = list.filter((p) => matchesCategory(p, search.category));
+
+    if (search.collection) {
+      const c = search.collection.toLowerCase();
+      list = list.filter((p) => textOf(p).includes(c));
+    }
+    if (search.occasion) {
+      const o = search.occasion.toLowerCase();
+      list = list.filter((p) => textOf(p).includes(o));
+    }
     if (search.color) {
       list = list.filter((p) => textOf(p).includes(search.color!.toLowerCase()));
     }
@@ -119,9 +140,16 @@ function Shop() {
   const set = (patch: ShopSearch) =>
     navigate({ search: (prev: ShopSearch) => ({ ...prev, ...patch }) });
 
-  const title = search.collection
-    ? `${search.collection} collection`
-    : [search.gender, search.category].filter(Boolean).join(" ") || "All pieces";
+  const title =
+    search.gender === "men"
+      ? "Men"
+      : search.gender === "women"
+        ? "Women"
+        : search.gender === "couple"
+          ? "Couple pieces"
+          : search.collection
+            ? `${search.collection} collection`
+            : [search.category].filter(Boolean).join(" ") || "All pieces";
 
   return (
     <div className="pt-32 lg:pt-40">
@@ -131,9 +159,38 @@ function Shop() {
           <h1 className="font-display mt-4 text-[clamp(2.25rem,5vw,4rem)] capitalize">
             {title}
           </h1>
-          <p className="mt-4 text-sm text-muted-foreground">
+          <p className="mt-4 max-w-xl text-sm text-muted-foreground">
+            {search.gender === "couple"
+              ? "Couple-ready essentials. For two-person colour & size selection, use the Couple builder."
+              : search.gender === "men"
+                ? "Men’s essentials — hoodies and trousers in S, M and L."
+                : search.gender === "women"
+                  ? "Women’s essentials — hoodies and trousers in S, M and L."
+                  : "Shop by Men, Women or Couple — then filter by piece, size and colour."}
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
             {isLoading ? "Loading pieces…" : `${products.length} pieces`}
           </p>
+
+          <div className="mt-8 flex flex-wrap gap-2">
+            {departments.map((d) => (
+              <Chip
+                key={d.label}
+                active={(search.gender ?? undefined) === d.key}
+                onClick={() => set({ gender: d.key })}
+              >
+                {d.label}
+              </Chip>
+            ))}
+            {search.gender === "couple" && (
+              <Link
+                to="/couple"
+                className="border border-[var(--ink)] bg-[var(--ink)] px-3 py-1.5 text-[0.6875rem] tracking-[0.14em] text-[var(--ivory)] uppercase"
+              >
+                Open couple builder
+              </Link>
+            )}
+          </div>
         </header>
 
         <div className="grid gap-12 py-12 lg:grid-cols-[210px_1fr] lg:gap-16">

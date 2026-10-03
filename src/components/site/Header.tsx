@@ -32,10 +32,11 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
         <p className="eyebrow mb-5">Collections</p>
         <ul className="space-y-3">
           {[
+            { label: "Men", search: { gender: "men" } },
+            { label: "Women", search: { gender: "women" } },
+            { label: "Couple Collection", to: "/couple" as const },
             { label: "Hoodies", search: { category: "hoodies" } },
             { label: "Trousers", search: { category: "trousers" } },
-            { label: "Couple Collection", to: "/couple" as const },
-            { label: "New Arrivals", search: { sort: "newest" } },
             { label: "Shop All", search: {} },
           ].map((item) => (
             <li key={item.label}>
@@ -189,6 +190,9 @@ export function Header() {
               </Link>
               <Link to="/shop" search={{ gender: "women" }} className="rule-link">
                 Women
+              </Link>
+              <Link to="/couple" className="rule-link">
+                Couple
               </Link>
               <Link to="/about" className="rule-link">
                 About Us

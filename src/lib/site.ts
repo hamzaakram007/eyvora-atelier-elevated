@@ -130,9 +130,10 @@ export const whyPoints = [
 
 export const navLinks = [
   { label: "Home", to: "/" as const },
-  { label: "Collections", to: "/shop" as const, search: {} },
+  { label: "Shop All", to: "/shop" as const, search: {} },
   { label: "Men", to: "/shop" as const, search: { gender: "men" } },
   { label: "Women", to: "/shop" as const, search: { gender: "women" } },
+  { label: "Couple", to: "/couple" as const },
   { label: "About Us", to: "/about" as const },
   { label: "Contact", to: "/contact" as const },
   { label: "Visit Us", to: "/visit" as const },
