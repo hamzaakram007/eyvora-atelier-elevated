@@ -193,9 +193,9 @@ export function CartDrawer() {
                 <span>{formatPrice(subtotal, currency)}</span>
               </div>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                {SHOPIFY_CHECKOUT_LOCKED || !allSynced
-                  ? `Shopify checkout unlocks after a paid plan removes the store password. Until then, place your order via ${orderChannelLabel() ?? "contact"}.`
-                  : "Shipping and payment methods are confirmed at Shopify checkout."}
+                {allSynced && !SHOPIFY_CHECKOUT_LOCKED
+                  ? "Shipping (from PKR 250) and payment methods are confirmed at secure Shopify checkout."
+                  : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}.`}
               </p>
               <button
                 type="button"

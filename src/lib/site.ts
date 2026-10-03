@@ -50,16 +50,14 @@ export const orderChannelLabel = () =>
   whatsappConfigured() ? "WhatsApp" : CONTACT_EMAIL ? "Email" : null;
 
 /**
- * Shopify trial keeps the Online Store password on, which locks Storefront API checkout.
- * The Vercel site still sells via local catalogue + WhatsApp/email until a paid plan is active.
+ * Set true only while Shopify Online Store password / trial blocks Storefront API.
+ * Password is off and plan is active — native checkout is enabled.
  */
-export const SHOPIFY_CHECKOUT_LOCKED = true;
+export const SHOPIFY_CHECKOUT_LOCKED = false;
 
 export const announcements = [
   {
-    text: SHOPIFY_CHECKOUT_LOCKED
-      ? "EYVORA Essentials are live — order via bag checkout while Shopify plan unlocks."
-      : "Discover the EYVORA Essentials Collection.",
+    text: "EYVORA Essentials — hoodies PKR 4,399 · trousers PKR 2,499. Free-feeling delivery from PKR 250.",
     href: "/shop",
   },
 ];
@@ -83,11 +81,11 @@ export const faqs = [
   },
   {
     q: "Which payment methods are available?",
-    a: "While the Shopify plan is pending, orders are confirmed by email (or WhatsApp). After the plan is active, payment methods shown at Shopify checkout apply (for example Cash on Delivery, bank transfer, or a local gateway).",
+    a: "Available payment methods are shown at Shopify checkout and depend on what is enabled in Admin (for example Cash on Delivery, bank transfer, or a local gateway).",
   },
   {
     q: "Do you offer Cash on Delivery?",
-    a: "Yes — mention COD when you send your order request. Once Shopify checkout is unlocked, COD appears there if enabled in Admin.",
+    a: "Cash on Delivery appears at checkout when it has been enabled in the Shopify admin for your region.",
   },
   {
     q: "How can I track my order?",

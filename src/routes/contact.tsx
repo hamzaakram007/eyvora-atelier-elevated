@@ -37,9 +37,8 @@ function Contact() {
         <div className="grid gap-14 py-16 lg:grid-cols-[1fr_1fr] lg:gap-24">
           <Reveal>
             <p className="max-w-md text-[0.95rem] leading-relaxed text-muted-foreground">
-              Reach EYVORA for product questions, sizing guidance and order help. While the Shopify
-              plan is pending, bag checkout sends your order request by email
-              {whatsappConfigured() ? " or WhatsApp" : ""}.
+              Reach EYVORA for product questions, sizing guidance and order help. For purchases,
+              use Checkout in your bag — or message us here if you need assistance.
             </p>
 
             <ul className="mt-12 space-y-8">

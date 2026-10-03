@@ -9,22 +9,13 @@
 
 Lovable is not required.
 
-## Trial-mode note (current)
+## Checkout status
 
-Shopify **trial** keeps Online Store password protection on. That locks the Storefront API
-(`Online Store channel is locked`), so native cart/checkout cannot run yet.
+Shopify plan is active and Online Store password is off.
 
-What already works without buying a plan:
-
-- Vercel storefront with the 4 launch products + photography
-- Bag → **Order via Email** (or WhatsApp if `VITE_WHATSAPP_NUMBER` is set)
-- Shopify Admin catalogue seeded (products, images, collections, inventory, shipping rates)
-
-After you buy a Shopify plan:
-
-1. Online Store → Preferences → turn **off** password
-2. Set `SHOPIFY_CHECKOUT_LOCKED` to `false` in `src/lib/site.ts` (or remove the trial banner)
-3. Redeploy — Storefront checkout will activate automatically
+- Storefront API serves the 4 launch products
+- Bag → Shopify Cart → hosted checkout (rewritten to `*.myshopify.com` so `eyvora.pk` can sit on Vercel)
+- `SHOPIFY_CHECKOUT_LOCKED = false` in `src/lib/site.ts`
 
 ## 1) Vercel deploy
 
@@ -71,10 +62,19 @@ node scripts/seed-shopify-launch.mjs
 ## 4) Launch checks
 
 - [x] Vercel site loads new EYVORA design
-- [x] Products show PKR 4399 / 2499 (local catalogue while Storefront locked)
-- [x] Bag → Order via Email works on trial
-- [ ] WhatsApp number set on Vercel (`VITE_WHATSAPP_NUMBER`)
-- [ ] `eyvora.pk` DNS → Vercel
-- [ ] Buy Shopify plan → disable password → native checkout
-- [ ] Enable COD / payments in Shopify Admin
+- [x] Products show PKR 4399 / 2499 via Storefront API
+- [x] Bag → Shopify checkout works (password off, plan active)
+- [x] Domestic shipping PKR 250
+- [ ] `eyvora.pk` Cloudflare DNS → Vercel (still on Shopify `23.227.38.65`)
+- [ ] Enable COD / payments in Shopify Admin → Settings → Payments
+- [ ] Optional: `VITE_WHATSAPP_NUMBER` on Vercel
 - [ ] Rotate Client secret (shared in chat)
+
+### Cloudflare DNS for eyvora.pk → Vercel
+
+| Type | Name | Value |
+|------|------|--------|
+| A | `@` | `76.76.21.21` |
+| CNAME | `www` | `cname.vercel-dns.com` |
+
+Remove Shopify A/CNAME records. Checkout still works on `*.myshopify.com`.

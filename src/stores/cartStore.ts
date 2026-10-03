@@ -67,6 +67,15 @@ const CART_LINES_REMOVE_MUTATION = `
 function formatCheckoutUrl(checkoutUrl: string): string {
   try {
     const url = new URL(checkoutUrl);
+    // Keep checkout on the Shopify shop domain so eyvora.pk can point at Vercel
+    // without breaking /cart/c/... hosted checkout routes.
+    const shopDomain =
+      import.meta.env.VITE_SHOPIFY_STORE_DOMAIN ||
+      "eyvora-premium-essentials-bv3bk-uwdagguc.myshopify.com";
+    if (shopDomain) {
+      url.host = shopDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      url.protocol = "https:";
+    }
     url.searchParams.set("channel", "online_store");
     return url.toString();
   } catch {
@@ -213,8 +222,8 @@ export const useCartStore = create<CartStore>()(
             const channel = orderChannelLabel();
             toast.message("Saved to bag", {
               description: channel
-                ? `Checkout opens ${channel} until the Shopify plan unlocks native checkout.`
-                : "Add a WhatsApp number or contact email to enable order checkout.",
+                ? `Product sync pending — checkout can use ${channel}, or refresh after Shopify sync.`
+                : "Refresh the page once Shopify products finish syncing for native checkout.",
             });
             return;
           }
@@ -226,6 +235,13 @@ export const useCartStore = create<CartStore>()(
                 cartId: result.cartId,
                 checkoutUrl: result.checkoutUrl,
                 items: [{ ...item, lineId: result.lineId }],
+              });
+              toast.message("Saved to bag", {
+                description: "Ready for secure Shopify checkout.",
+              });
+            } else {
+              toast.error("Could not add to bag", {
+                description: "Please try again in a moment.",
               });
             }
           } else if (existingItem) {
@@ -251,6 +267,9 @@ export const useCartStore = create<CartStore>()(
             if (result.success) {
               const currentItems = get().items;
               set({ items: [...currentItems, { ...item, lineId: result.lineId ?? null }] });
+              toast.message("Saved to bag", {
+                description: "Ready for secure Shopify checkout.",
+              });
             } else if (result.cartNotFound) {
               clearCart();
             }
