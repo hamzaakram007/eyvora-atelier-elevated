@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
 import { isShopifySyncedVariantId } from "@/lib/catalog";
 import { storefrontApiRequest, type ShopifyProduct } from "@/lib/shopify";
-import { normalizePakistanPhone, orderChannelLabel, orderLink } from "@/lib/site";
+import { orderChannelLabel, orderLink } from "@/lib/site";
 
 export interface CartItem {
   lineId: string | null;
@@ -60,19 +60,6 @@ const CART_LINES_REMOVE_MUTATION = `
     cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
       cart { id }
       userErrors { field message }
-    }
-  }
-`;
-
-const CART_BUYER_IDENTITY_UPDATE = `
-  mutation cartBuyerIdentityUpdate($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
-    cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
-      cart {
-        id
-        checkoutUrl
-        buyerIdentity { phone email countryCode }
-      }
-      userErrors { field message code }
     }
   }
 `;
@@ -186,36 +173,6 @@ async function removeLineFromShopifyCart(cartId: string, lineId: string) {
   return { success: true };
 }
 
-async function updateCartBuyerIdentity(
-  cartId: string,
-  identity: { phone: string; email?: string },
-) {
-  const data = await storefrontApiRequest(CART_BUYER_IDENTITY_UPDATE, {
-    cartId,
-    buyerIdentity: {
-      phone: identity.phone,
-      countryCode: "PK",
-      ...(identity.email ? { email: identity.email } : {}),
-    },
-  });
-
-  const payload = data?.data?.cartBuyerIdentityUpdate;
-  const userErrors: UserError[] = payload?.userErrors || [];
-  if (isCartNotFoundError(userErrors)) return { success: false as const, cartNotFound: true };
-  if (userErrors.length > 0) {
-    console.error("Buyer identity update failed:", userErrors);
-    return {
-      success: false as const,
-      message: userErrors.map((e) => e.message).join(", ") || "Could not save phone number",
-    };
-  }
-
-  const checkoutUrl = payload?.cart?.checkoutUrl
-    ? formatCheckoutUrl(payload.cart.checkoutUrl)
-    : null;
-  return { success: true as const, checkoutUrl };
-}
-
 interface CartStore {
   items: CartItem[];
   cartId: string | null;
@@ -224,21 +181,15 @@ interface CartStore {
   isSyncing: boolean;
   isOpen: boolean;
   note: string;
-  customerName: string;
-  customerPhone: string;
-  customerEmail: string;
   setOpen: (open: boolean) => void;
   setNote: (note: string) => void;
-  setCustomerName: (name: string) => void;
-  setCustomerPhone: (phone: string) => void;
-  setCustomerEmail: (email: string) => void;
   addItem: (item: Omit<CartItem, "lineId">) => Promise<void>;
   updateQuantity: (variantId: string, quantity: number) => Promise<void>;
   removeItem: (variantId: string) => Promise<void>;
   clearCart: () => void;
   syncCart: () => Promise<void>;
   getCheckoutUrl: () => string | null;
-  /** Validates required phone, syncs to Shopify cart, returns checkout URL. */
+  /** Returns a Shopify checkout URL (rewritten off the Vercel domain). */
   prepareCheckout: () => Promise<string | null>;
 }
 
@@ -252,15 +203,9 @@ export const useCartStore = create<CartStore>()(
       isSyncing: false,
       isOpen: false,
       note: "",
-      customerName: "",
-      customerPhone: "",
-      customerEmail: "",
 
       setOpen: (open) => set({ isOpen: open }),
       setNote: (note) => set({ note }),
-      setCustomerName: (customerName) => set({ customerName }),
-      setCustomerPhone: (customerPhone) => set({ customerPhone }),
-      setCustomerEmail: (customerEmail) => set({ customerEmail }),
 
       addItem: async (item) => {
         const { items, cartId, clearCart } = get();
@@ -418,19 +363,16 @@ export const useCartStore = create<CartStore>()(
 
       clearCart: () => set({ items: [], cartId: null, checkoutUrl: null }),
       getCheckoutUrl: () => {
-        const { checkoutUrl, items, customerPhone, customerName, customerEmail } = get();
+        const { checkoutUrl, items } = get();
         if (checkoutUrl) return formatCheckoutUrl(checkoutUrl);
         if (items.length === 0) return null;
         if (items.every((i) => !isShopifySyncedVariantId(i.variantId))) {
-          const phone = normalizePakistanPhone(customerPhone);
-          if (!phone) return null;
           const summary = items
             .map((i) => {
               const size =
                 i.selectedOptions.find((o) => o.name.toLowerCase() === "size")
                   ?.value ?? i.variantTitle;
-              const lineTotal =
-                parseFloat(i.price.amount) * i.quantity;
+              const lineTotal = parseFloat(i.price.amount) * i.quantity;
               return `• ${i.product.node.title} — Size ${size} × ${i.quantity} (PKR ${Math.round(lineTotal).toLocaleString("en-PK")})`;
             })
             .join("\n");
@@ -438,16 +380,9 @@ export const useCartStore = create<CartStore>()(
             (sum, i) => sum + parseFloat(i.price.amount) * i.quantity,
             0,
           );
-          const contactLines = [
-            customerName.trim() ? `Name: ${customerName.trim()}` : null,
-            `Phone: ${phone}`,
-            customerEmail.trim() ? `Email: ${customerEmail.trim()}` : null,
-          ]
-            .filter(Boolean)
-            .join("\n");
           return (
             orderLink(
-              `Hello EYVORA, I would like to order:\n${summary}\n\n${contactLines}\nSubtotal: PKR ${Math.round(subtotal).toLocaleString("en-PK")}\n(Please confirm delivery city & payment method.)`,
+              `Hello EYVORA, I would like to order:\n${summary}\n\nSubtotal: PKR ${Math.round(subtotal).toLocaleString("en-PK")}\n(Please confirm delivery city, phone & payment method.)`,
             ) || null
           );
         }
@@ -455,72 +390,20 @@ export const useCartStore = create<CartStore>()(
       },
 
       prepareCheckout: async () => {
-        const {
-          cartId,
-          checkoutUrl,
-          items,
-          customerPhone,
-          customerEmail,
-          clearCart,
-        } = get();
-
+        const { items } = get();
         if (items.length === 0) {
           toast.message("Your bag is empty");
           return null;
         }
 
-        const phone = normalizePakistanPhone(customerPhone);
-        if (!phone) {
-          toast.message("Phone number required", {
-            description: "Enter a valid Pakistan mobile number (e.g. 03XX XXXXXXX).",
-          });
-          return null;
-        }
-
-        // Local / WhatsApp-email fallback checkout
-        if (items.every((i) => !isShopifySyncedVariantId(i.variantId))) {
-          return get().getCheckoutUrl();
-        }
-
-        if (!cartId) {
+        const url = get().getCheckoutUrl();
+        if (!url) {
           toast.message("Checkout unavailable", {
-            description: "Add items again, then enter your phone number.",
+            description: "Add items again, then try Checkout.",
           });
           return null;
         }
-
-        set({ isLoading: true });
-        try {
-          const email = customerEmail.trim();
-          const result = await updateCartBuyerIdentity(cartId, {
-            phone,
-            ...(email ? { email } : {}),
-          });
-          if (result.cartNotFound) {
-            clearCart();
-            toast.message("Bag expired", {
-              description: "Please add your pieces again.",
-            });
-            return null;
-          }
-          if (!result.success) {
-            toast.error("Could not save phone number", {
-              description: result.message || "Please check the number and try again.",
-            });
-            return null;
-          }
-          const nextUrl = result.checkoutUrl || checkoutUrl;
-          if (nextUrl) set({ checkoutUrl: nextUrl });
-          return nextUrl;
-        } catch (error) {
-          console.error("prepareCheckout failed:", error);
-          toast.error("Checkout failed", {
-            description: "Please try again in a moment.",
-          });
-          return null;
-        } finally {
-          set({ isLoading: false });
-        }
+        return url;
       },
 
       syncCart: async () => {
@@ -548,9 +431,6 @@ export const useCartStore = create<CartStore>()(
         cartId: state.cartId,
         checkoutUrl: state.checkoutUrl,
         note: state.note,
-        customerName: state.customerName,
-        customerPhone: state.customerPhone,
-        customerEmail: state.customerEmail,
       }),
     },
   ),

@@ -104,25 +104,16 @@ After payment, send your order number + screenshot to EYVORA.
 
 Storefront page with the same details: `/payments` (also published in Shopify as Online Store page `payment-methods`).
 
-### Require phone at Shopify checkout (optional — bag already enforces it)
+### Require phone at Shopify checkout (storefront no longer asks)
 
-On **eyvora.pk**, the bag already blocks Checkout until a Pakistan phone is entered.
-Shopify Admin’s label is easy to miss — it is **not** called “Phone number”.
+Phone is **not** required on the eyvora.pk bag anymore. Collect it only in Shopify checkout:
 
-Exact path (Basic plan):
+1. Open Admin → **Settings → Checkout**
+2. Under **Customer information**, set **Shipping address phone number** → **Required**
+3. **Save**
 
-1. Open Admin → bottom-left **Settings** (gear)
-2. Click **Checkout** (sometimes shown as **Checkout and accounts**)
-3. Scroll to **Customer information**
-4. Find **Shipping address phone number**
-5. Change it from **Optional** → **Required**
-6. Click **Save**
-
-Direct link (logged into this shop):  
+Direct link:  
 https://admin.shopify.com/store/eyvora-premium-essentials-bv3bk/settings/checkout
-
-If you still don’t see it: you are already covered by the storefront bag phone field.
-Shopify does not expose this setting via API, and the wording in Admin is “Shipping address phone number”.
 
 ### Make Shopify checkout shorter (Basic plan)
 

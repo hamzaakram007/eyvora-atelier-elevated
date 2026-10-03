@@ -160,10 +160,9 @@ function ProductPage() {
       quantity: qty,
       selectedOptions: variant.selectedOptions,
     });
-    // Open bag so required phone / customer details are collected before checkout.
     setOpen(true);
-    toast.message("Enter your phone number", {
-      description: "Phone is required before checkout for delivery updates.",
+    toast.message("Ready in your bag", {
+      description: "Continue to Checkout when you’re ready.",
     });
   };
 
