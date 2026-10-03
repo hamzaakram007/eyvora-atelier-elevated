@@ -529,8 +529,7 @@ export function findCatalogProduct(
   handle: string,
   gender?: ModelGender | string | null,
 ): ShopifyProduct | null {
-  return (
-    products.find((p) => p.node.handle === handle) ??
-    getLaunchProductByHandle(handle, gender)
-  );
+  const found = products.find((p) => p.node.handle === handle);
+  if (found) return applyLaunchImagery(found, gender);
+  return getLaunchProductByHandle(handle, gender);
 }

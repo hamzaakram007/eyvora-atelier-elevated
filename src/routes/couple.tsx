@@ -10,6 +10,7 @@ import {
   COUPLE_TROUSERS,
   findCatalogProduct,
   type CouplePieceOption,
+  type ModelGender,
 } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cartStore";
 import { Reveal } from "@/components/site/Reveal";
@@ -156,27 +157,36 @@ function SizePicker({
 
 function PersonCard({
   title,
+  subtitle,
   selection,
   onChange,
   products,
   colorLocked,
+  gender,
 }: {
   title: string;
+  subtitle: string;
   selection: PersonSelection;
   onChange: (next: PersonSelection) => void;
   products: ShopifyProduct[];
   colorLocked?: boolean;
+  /** Person 1 = male model photos; Person 2 = female model photos. */
+  gender: ModelGender;
 }) {
   const hoodie = selection.hoodieHandle
-    ? findCatalogProduct(products, selection.hoodieHandle)
+    ? findCatalogProduct(products, selection.hoodieHandle, gender)
     : null;
   const trousers = selection.trousersHandle
-    ? findCatalogProduct(products, selection.trousersHandle)
+    ? findCatalogProduct(products, selection.trousersHandle, gender)
     : null;
+
+  const hoodieImage = hoodie?.node.images.edges[0]?.node;
+  const trousersImage = trousers?.node.images.edges[0]?.node;
 
   return (
     <div className="border border-border p-6 lg:p-8">
       <p className="eyebrow">{title}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
       <div className="mt-6 grid gap-6">
         <PiecePicker
           label="Hoodie colour"
@@ -193,15 +203,16 @@ function PersonCard({
           disabled={!selection.hoodieHandle}
           onChange={(hoodieSize) => onChange({ ...selection, hoodieSize })}
         />
-        {hoodie?.node.images.edges[0] && (
+        {hoodie && hoodieImage && (
           <Link
             to="/product/$handle"
             params={{ handle: hoodie.node.handle }}
+            search={{ gender }}
             className="block overflow-hidden bg-[var(--soft-grey)]"
           >
             <img
-              src={hoodie.node.images.edges[0].node.url}
-              alt={hoodie.node.title}
+              src={hoodieImage.url}
+              alt={hoodieImage.altText || `${hoodie.node.title} — ${gender === "women" ? "women" : "men"}`}
               className="aspect-[5/3] w-full object-cover"
               loading="lazy"
             />
@@ -227,15 +238,16 @@ function PersonCard({
           disabled={!selection.trousersHandle}
           onChange={(trousersSize) => onChange({ ...selection, trousersSize })}
         />
-        {trousers?.node.images.edges[0] && (
+        {trousers && trousersImage && (
           <Link
             to="/product/$handle"
             params={{ handle: trousers.node.handle }}
+            search={{ gender }}
             className="block overflow-hidden bg-[var(--soft-grey)]"
           >
             <img
-              src={trousers.node.images.edges[0].node.url}
-              alt={trousers.node.title}
+              src={trousersImage.url}
+              alt={trousersImage.altText || `${trousers.node.title} — ${gender === "women" ? "women" : "men"}`}
               className="aspect-[5/3] w-full object-cover"
               loading="lazy"
             />
@@ -271,26 +283,28 @@ function CoupleBuilder() {
   }, [mode, person1.hoodieHandle, person1.trousersHandle]);
 
   const lineItems = useMemo(() => {
-    const people = [person1, person2];
+    const people: Array<{ person: PersonSelection; who: string; gender: ModelGender }> = [
+      { person: person1, who: "Person 1 (Him)", gender: "men" },
+      { person: person2, who: "Person 2 (Her)", gender: "women" },
+    ];
     const lines: Array<{
       product: ShopifyProduct;
       variant: ShopifyProduct["node"]["variants"]["edges"][number]["node"];
       who: string;
     }> = [];
 
-    people.forEach((person, idx) => {
-      const who = `Person ${idx + 1}`;
+    for (const { person, who, gender } of people) {
       if (person.hoodieHandle && person.hoodieSize) {
-        const product = findCatalogProduct(products, person.hoodieHandle);
+        const product = findCatalogProduct(products, person.hoodieHandle, gender);
         const variant = variantFor(product, person.hoodieSize);
         if (product && variant) lines.push({ product, variant, who });
       }
       if (person.trousersHandle && person.trousersSize) {
-        const product = findCatalogProduct(products, person.trousersHandle);
+        const product = findCatalogProduct(products, person.trousersHandle, gender);
         const variant = variantFor(product, person.trousersSize);
         if (product && variant) lines.push({ product, variant, who });
       }
-    });
+    }
     return lines;
   }, [person1, person2, products]);
 
@@ -331,12 +345,13 @@ function CoupleBuilder() {
     }
     // Require sizes whenever a colour/piece is chosen
     for (const [i, person] of [person1, person2].entries()) {
+      const label = i === 0 ? "Person 1 (Him)" : "Person 2 (Her)";
       if (person.hoodieHandle && !person.hoodieSize) {
-        toast.message(`Person ${i + 1}: choose hoodie size`);
+        toast.message(`${label}: choose hoodie size`);
         return;
       }
       if (person.trousersHandle && !person.trousersSize) {
-        toast.message(`Person ${i + 1}: choose trousers size`);
+        toast.message(`${label}: choose trousers size`);
         return;
       }
     }
@@ -368,9 +383,13 @@ function CoupleBuilder() {
           Two people. Independent sizes.
         </h2>
         <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Choose <strong className="font-medium text-foreground">Matching colours</strong> so both
-          wear the same combination, or <strong className="font-medium text-foreground">Mix &amp; match</strong>{" "}
-          so each person picks different colours. Sizes are always chosen separately.
+          <strong className="font-medium text-foreground">Person 1</strong> shows the male model
+          photos; <strong className="font-medium text-foreground">Person 2</strong> shows the female
+          model photos. Choose{" "}
+          <strong className="font-medium text-foreground">Matching colours</strong> so both wear the
+          same combination, or{" "}
+          <strong className="font-medium text-foreground">Mix &amp; match</strong> so each person
+          picks different colours. Colour and size stay independent for each person.
         </p>
       </Reveal>
 
@@ -417,16 +436,20 @@ function CoupleBuilder() {
       ) : (
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <PersonCard
-            title="Person 1"
+            title="Person 1 — Him"
+            subtitle="Male model photos. Pick any colour and size."
             selection={person1}
             onChange={setPerson1}
             products={products}
+            gender="men"
           />
           <PersonCard
-            title="Person 2"
+            title="Person 2 — Her"
+            subtitle="Female model photos. Pick any colour and size."
             selection={person2}
             onChange={setPerson2}
             products={products}
+            gender="women"
             colorLocked={mode === "matching"}
           />
         </div>
