@@ -6,6 +6,11 @@ import oliveFront from "@/assets/products/olive-hoodie/front.jpg";
 import oliveBack from "@/assets/products/olive-hoodie/back.jpg";
 import oliveLifestyle from "@/assets/products/olive-hoodie/lifestyle.jpg";
 import oliveDetail from "@/assets/products/olive-hoodie/detail.jpg";
+import oliveWomenFront from "@/assets/products/olive-hoodie/women/front.jpg";
+import oliveWomenFrontAlt from "@/assets/products/olive-hoodie/women/front-alt.jpg";
+import oliveWomenDetail from "@/assets/products/olive-hoodie/women/detail.jpg";
+import oliveWomenHood from "@/assets/products/olive-hoodie/women/hood.jpg";
+import oliveWomenBack from "@/assets/products/olive-hoodie/women/back.jpg";
 
 import blackHoodiePrimary from "@/assets/products/black-hoodie/primary.jpg";
 import blackHoodieSecondary from "@/assets/products/black-hoodie/secondary.jpg";
@@ -78,9 +83,11 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
       { url: oliveBack, altText: "EYVORA Olive Green Hoodie — men back view" },
     ],
     imagesWomen: [
-      { url: oliveSecondary, altText: "EYVORA Olive Green Hoodie — women front view" },
-      { url: oliveLifestyle, altText: "EYVORA Olive Green Hoodie — women lifestyle" },
-      { url: oliveDetail, altText: "EYVORA Olive Green Hoodie — women detail" },
+      { url: oliveWomenFront, altText: "EYVORA Olive Green Hoodie — women front view" },
+      { url: oliveWomenFrontAlt, altText: "EYVORA Olive Green Hoodie — women portrait" },
+      { url: oliveWomenDetail, altText: "EYVORA Olive Green Hoodie — women detail" },
+      { url: oliveWomenHood, altText: "EYVORA Olive Green Hoodie — women hood up" },
+      { url: oliveWomenBack, altText: "EYVORA Olive Green Hoodie — women back view" },
     ],
     images: [
       { url: olivePrimary, altText: "EYVORA Olive Green Hoodie — front view" },
