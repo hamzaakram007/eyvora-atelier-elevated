@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { fetchProducts, formatPrice, type ShopifyProduct } from "@/lib/shopify";
 import {
+  COUPLE_CONTRAST_GALLERY,
   COUPLE_HOODIES,
   COUPLE_OUTFITS,
   COUPLE_TROUSERS,
@@ -13,22 +14,22 @@ import {
 import { useCartStore } from "@/stores/cartStore";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
-import coupleHero from "@/assets/products/hero/hero-desktop.jpg";
+import coupleHero from "@/assets/products/couple/contrast/olive-black-grey.jpg";
 
 export const Route = createFileRoute("/couple")({
   head: () => ({
     meta: [
-      { title: "Couple Collection — Match or Mix | EYVORA" },
+      { title: "Couple Collection — Contrast Looks | EYVORA" },
       {
         name: "description",
         content:
-          "Build EYVORA couple outfits. Matching colours or mix & match — each person picks their own size (and colour when mixing).",
+          "EYVORA couple contrast looks — olive & black hoodies with grey & black trousers. Match or mix colours; each person picks their own size.",
       },
-      { property: "og:title", content: "Couple Collection — EYVORA" },
+      { property: "og:title", content: "Couple Contrast Collection — EYVORA" },
       {
         property: "og:description",
         content:
-          "Same colour combination or different colours. Independent sizes for each person.",
+          "Signature contrast outfits for two. Olive with black, black with grey — independent sizes for each person.",
       },
     ],
   }),
@@ -466,29 +467,63 @@ function CoupleBuilder() {
   );
 }
 
+function ContrastGallery() {
+  return (
+    <section className="mx-auto max-w-[1600px] px-5 py-16 lg:px-10 lg:py-20">
+      <Reveal>
+        <p className="eyebrow">Contrast looks</p>
+        <h2 className="font-display mt-4 text-[clamp(2rem,4vw,3rem)]">
+          Hoodies &amp; trousers, mixed.
+        </h2>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Signature couple contrast — olive with black, black with grey. Use a preset below
+          or build your own mix.
+        </p>
+      </Reveal>
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {COUPLE_CONTRAST_GALLERY.map((shot, i) => (
+          <Reveal key={shot.id} delay={i * 70} className="overflow-hidden bg-[var(--soft-grey)]">
+            <img
+              src={shot.src}
+              alt={shot.alt}
+              loading="lazy"
+              className="aspect-[4/5] w-full object-cover"
+            />
+            <p className="px-4 py-3 text-[0.6875rem] tracking-[0.14em] text-muted-foreground uppercase">
+              {shot.caption}
+            </p>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function CouplePage() {
   return (
     <main>
       <section className="relative">
         <img
           src={coupleHero}
-          alt="Couple wearing coordinated EYVORA pieces"
+          alt="Couple contrast look — olive and black EYVORA hoodies"
           width={1600}
           height={2000}
-          className="h-[62vh] w-full object-cover object-[50%_20%] lg:h-[74vh]"
+          className="h-[62vh] w-full object-cover object-[50%_18%] lg:h-[74vh]"
         />
         <div className="absolute inset-0 bg-[var(--ink)]/35" />
         <div className="absolute inset-0 mx-auto flex max-w-[1600px] flex-col justify-end px-5 pb-16 text-[var(--ivory)] lg:px-10 lg:pb-24">
           <p className="eyebrow text-[var(--ivory)]/60">Couple Collection</p>
           <h1 className="font-display mt-5 max-w-2xl text-[clamp(2.5rem,6vw,5rem)] leading-[1.02]">
-            Dress together.
+            Contrast, together.
           </h1>
           <p className="mt-6 max-w-lg text-[0.95rem] leading-relaxed text-[var(--ivory)]/75">
-            Matching colours or mix &amp; match — each person chooses their own size.
+            Mix olive &amp; black hoodies with grey &amp; black trousers — each person picks
+            their own size.
           </p>
         </div>
       </section>
 
+      <ContrastGallery />
       <CoupleBuilder />
 
       <section className="border-t border-border py-16">

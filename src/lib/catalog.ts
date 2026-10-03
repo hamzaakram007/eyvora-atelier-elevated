@@ -54,6 +54,12 @@ import blackTrousersWomenPocketSide from "@/assets/products/black-trousers/women
 import blackTrousersWomenPhonePocket from "@/assets/products/black-trousers/women/phone-pocket.jpg";
 import blackTrousersWomenBackWalk from "@/assets/products/black-trousers/women/back-walk.jpg";
 
+import coupleContrastHoodiesA from "@/assets/products/couple/contrast/olive-black-grey.jpg";
+import coupleContrastHoodiesB from "@/assets/products/couple/contrast/black-olive-seated.jpg";
+import coupleContrastTrousersBack from "@/assets/products/couple/contrast/trousers-back.jpg";
+import coupleContrastTrousersFront from "@/assets/products/couple/contrast/trousers-front.jpg";
+import coupleContrastTrousersSide from "@/assets/products/couple/contrast/trousers-side.jpg";
+
 export type ProductImage = { url: string; altText: string };
 export type ModelGender = "men" | "women";
 
@@ -244,7 +250,50 @@ export const COUPLE_TROUSERS: CouplePieceOption[] = [
   { handle: "black-trousers", label: "Black Trousers", color: "Black", kind: "trousers" },
 ];
 
+export const COUPLE_CONTRAST_GALLERY = [
+  {
+    id: "hoodies-olive-black",
+    src: coupleContrastHoodiesA,
+    alt: "Couple contrast — olive hoodie with black trousers and black hoodie with grey trousers",
+    caption: "Contrast hoodies — Olive + Black",
+  },
+  {
+    id: "hoodies-seated",
+    src: coupleContrastHoodiesB,
+    alt: "Couple contrast — black hoodie and olive hoodie seated look",
+    caption: "Contrast hoodies — seated look",
+  },
+  {
+    id: "trousers-front",
+    src: coupleContrastTrousersFront,
+    alt: "Couple contrast trousers — black and grey front",
+    caption: "Contrast trousers — Black + Grey",
+  },
+  {
+    id: "trousers-side",
+    src: coupleContrastTrousersSide,
+    alt: "Couple contrast trousers — side view",
+    caption: "Contrast trousers — side",
+  },
+  {
+    id: "trousers-back",
+    src: coupleContrastTrousersBack,
+    alt: "Couple contrast trousers — back pockets",
+    caption: "Contrast trousers — back",
+  },
+] as const;
+
 export const COUPLE_OUTFITS = [
+  {
+    id: "contrast-olive-black",
+    title: "Contrast — Olive & Black",
+    note: "Signature couple contrast: one olive hoodie + black trousers, one black hoodie + grey trousers.",
+    hoodieHandle: "olive-green-hoodie",
+    trousersHandle: "black-trousers",
+    person2HoodieHandle: "black-hoodie",
+    person2TrousersHandle: "grey-trousers",
+    mode: "mix" as const,
+  },
   {
     id: "olive-black",
     title: "Olive + Black",

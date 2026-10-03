@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
-import couple from "@/assets/products/couple/couple-1.jpg";
+import couple from "@/assets/products/couple/contrast/olive-black-grey.jpg";
 
 export function CoupleCollection() {
   return (
@@ -9,7 +9,7 @@ export function CoupleCollection() {
         <Reveal className="relative overflow-hidden bg-[var(--soft-grey)]">
           <img
             src={couple}
-            alt="Couple wearing coordinated EYVORA hoodies and trousers"
+            alt="Couple contrast look — olive and black EYVORA hoodies with grey and black trousers"
             loading="lazy"
             width={1400}
             height={1750}
@@ -19,17 +19,17 @@ export function CoupleCollection() {
         <Reveal delay={120}>
           <p className="eyebrow">Couple Collection</p>
           <h2 className="font-display mt-5 text-[clamp(2rem,4vw,3.4rem)] leading-[1.03]">
-            Coordinated,
+            Contrast,
             <br />
             not identical.
           </h2>
           <p className="mt-7 max-w-md text-[0.95rem] leading-relaxed text-muted-foreground">
-            Matching colours for both, or mix &amp; match — each person picks their own
-            hoodie/trousers colour and size.
+            Signature couple looks — olive with black, black with grey. Matching colours or
+            mix &amp; match, with independent sizes for each person.
           </p>
           <ul className="mt-8 space-y-3 text-sm text-muted-foreground">
-            <li>— Matching colour combinations</li>
-            <li>— Mix different colours per person</li>
+            <li>— Contrast hoodies (Olive + Black)</li>
+            <li>— Contrast trousers (Grey + Black)</li>
             <li>— Independent sizes for Person 1 &amp; Person 2</li>
           </ul>
           <Link
