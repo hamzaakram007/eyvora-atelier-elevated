@@ -245,6 +245,12 @@ export function looksLikeDemoCatalog(products: ShopifyProduct[]) {
   return demoSignals.length >= Math.max(1, Math.floor(products.length / 2));
 }
 
+/**
+ * Merge Shopify Admin catalogue with launch overrides.
+ * - Launch handles keep curated titles/tags/photography when present remotely.
+ * - Any additional active Shopify products are appended automatically
+ *   (add in Admin → they appear on the Vercel storefront after publish).
+ */
 export function mergeWithShopifyCatalog(
   remote: ShopifyProduct[],
 ): ShopifyProduct[] {
@@ -253,7 +259,9 @@ export function mergeWithShopifyCatalog(
   }
 
   const byHandle = new Map(remote.map((p) => [p.node.handle, p]));
-  return LAUNCH_PRODUCTS.map((meta) => {
+  const launchHandles = new Set(LAUNCH_PRODUCTS.map((p) => p.handle));
+
+  const launch = LAUNCH_PRODUCTS.map((meta) => {
     const remoteProduct = byHandle.get(meta.handle);
     if (!remoteProduct) return toShopifyProduct(meta);
     return applyLaunchImagery({
@@ -268,6 +276,13 @@ export function mergeWithShopifyCatalog(
       },
     });
   });
+
+  const extras = remote
+    .filter((p) => !launchHandles.has(p.node.handle))
+    .filter((p) => p.node.availableForSale !== false)
+    .map((p) => applyLaunchImagery(p));
+
+  return [...launch, ...extras];
 }
 
 export function findCatalogProduct(

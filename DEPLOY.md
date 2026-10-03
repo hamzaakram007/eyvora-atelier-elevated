@@ -13,9 +13,21 @@ Lovable is not required.
 
 Shopify plan is active and Online Store password is off.
 
-- Storefront API serves the 4 launch products
+- Storefront API serves Shopify products (launch 4 + any new ones you add in Admin)
 - Bag → Shopify Cart → hosted checkout (rewritten to `*.myshopify.com` so `eyvora.pk` can sit on Vercel)
 - `SHOPIFY_CHECKOUT_LOCKED = false` in `src/lib/site.ts`
+
+## Adding new products (Shopify Admin)
+
+No code change needed for a normal new product:
+
+1. Shopify Admin → **Products** → **Add product**
+2. Title, price (PKR), sizes (S/M/L), photos, inventory
+3. **Publish** to **Online Store** (and any other channels you use)
+4. Optional: add tags like `hoodies`, `trousers`, `couple`, `new` so filters/collections pick it up
+5. Optional: add to a collection (`hoodies` / `trousers` / `couple`)
+
+The Vercel site reads the Storefront API — new published products show on `/shop` automatically (usually within a minute; hard-refresh if cached).
 
 ## 1) Vercel deploy
 
