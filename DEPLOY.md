@@ -104,6 +104,16 @@ After payment, send your order number + screenshot to EYVORA.
 
 Storefront page with the same details: `/payments` (also published in Shopify as Online Store page `payment-methods`).
 
+### Require phone at Shopify checkout (recommended)
+
+The bag already blocks checkout without a Pakistan phone number. Also set it in Admin:
+
+1. **Settings → Checkout**
+2. Under **Customer information**, set **Phone number** to **Required**
+3. Save
+
+This keeps phone mandatory on Shopify’s hosted checkout as well.
+
 ### Cloudflare DNS for eyvora.pk → Vercel
 
 | Type | Name | Value |

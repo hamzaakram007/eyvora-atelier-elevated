@@ -54,7 +54,6 @@ function ProductPage() {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
-  const checkoutUrl = useCartStore((s) => s.getCheckoutUrl);
   const isLoading = useCartStore((s) => s.isLoading);
   const wishlisted = useWishlist((s) => s.handles.includes(handle));
   const toggleWishlist = useWishlist((s) => s.toggle);
@@ -161,16 +160,10 @@ function ProductPage() {
       quantity: qty,
       selectedOptions: variant.selectedOptions,
     });
-    const url = checkoutUrl();
-    if (url) {
-      window.open(url, "_blank");
-      return;
-    }
+    // Open bag so required phone / customer details are collected before checkout.
     setOpen(true);
-    toast.message("Ready in your bag", {
-      description: isShopifySyncedVariantId(variant.id)
-        ? "Open checkout from the bag when available."
-        : "Shopify product sync is required for native checkout.",
+    toast.message("Enter your phone number", {
+      description: "Phone is required before checkout for delivery updates.",
     });
   };
 

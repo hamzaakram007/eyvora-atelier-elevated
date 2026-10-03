@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Loader2, Minus, Plus, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -6,7 +6,12 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { useCartStore } from "@/stores/cartStore";
 import { fetchProducts, formatPrice } from "@/lib/shopify";
 import { isShopifySyncedVariantId } from "@/lib/catalog";
-import { orderChannelLabel, SHOPIFY_CHECKOUT_LOCKED } from "@/lib/site";
+import {
+  normalizePakistanPhone,
+  orderChannelLabel,
+  SHOPIFY_CHECKOUT_LOCKED,
+} from "@/lib/site";
+import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
   const {
@@ -17,8 +22,16 @@ export function CartDrawer() {
     updateQuantity,
     removeItem,
     getCheckoutUrl,
+    prepareCheckout,
     syncCart,
+    customerName,
+    customerPhone,
+    customerEmail,
+    setCustomerName,
+    setCustomerPhone,
+    setCustomerEmail,
   } = useCartStore();
+  const [phoneTouched, setPhoneTouched] = useState(false);
 
   const { data: upsell } = useQuery({
     queryKey: ["products", "upsell"],
@@ -37,13 +50,20 @@ export function CartDrawer() {
     upsell?.filter(
       (p) => !items.some((i) => i.product.node.handle === p.node.handle),
     ).slice(0, 2) ?? [];
+  const phoneValid = useMemo(
+    () => Boolean(normalizePakistanPhone(customerPhone)),
+    [customerPhone],
+  );
+  const phoneError = phoneTouched && !phoneValid;
 
   useEffect(() => {
     if (isOpen) syncCart();
   }, [isOpen, syncCart]);
 
-  const handleCheckout = () => {
-    const checkoutUrl = getCheckoutUrl();
+  const handleCheckout = async () => {
+    setPhoneTouched(true);
+    if (!phoneValid) return;
+    const checkoutUrl = await prepareCheckout();
     if (checkoutUrl) {
       window.open(checkoutUrl, "_blank");
       setOpen(false);
@@ -192,6 +212,70 @@ export function CartDrawer() {
                 <span className="tracking-[0.16em] uppercase">Subtotal</span>
                 <span>{formatPrice(subtotal, currency)}</span>
               </div>
+
+              <div className="mt-5 space-y-3 border border-border p-4">
+                <p className="text-[0.625rem] tracking-[0.22em] uppercase">
+                  Customer details
+                </p>
+                <label className="block">
+                  <span className="text-[0.65rem] tracking-[0.14em] text-muted-foreground uppercase">
+                    Phone <span className="text-foreground">*</span>
+                  </span>
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    required
+                    placeholder="03XX XXXXXXX"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    onBlur={() => setPhoneTouched(true)}
+                    aria-invalid={phoneError}
+                    className={cn(
+                      "mt-1.5 w-full border bg-background px-3 py-2.5 text-sm outline-none",
+                      phoneError
+                        ? "border-red-600 focus:border-red-600"
+                        : "border-border focus:border-foreground",
+                    )}
+                  />
+                  {phoneError ? (
+                    <span className="mt-1.5 block text-[0.7rem] text-red-700">
+                      Enter a valid Pakistan mobile number to continue.
+                    </span>
+                  ) : (
+                    <span className="mt-1.5 block text-[0.7rem] text-muted-foreground">
+                      Required for delivery and Cash on Delivery.
+                    </span>
+                  )}
+                </label>
+                <label className="block">
+                  <span className="text-[0.65rem] tracking-[0.14em] text-muted-foreground uppercase">
+                    Name
+                  </span>
+                  <input
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Full name"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="mt-1.5 w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-[0.65rem] tracking-[0.14em] text-muted-foreground uppercase">
+                    Email
+                  </span>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="optional@email.com"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    className="mt-1.5 w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground"
+                  />
+                </label>
+              </div>
+
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                 {allSynced && !SHOPIFY_CHECKOUT_LOCKED
                   ? "Shipping from PKR 250. Pay with Cash on Delivery or UBL bank transfer at checkout."
@@ -203,17 +287,21 @@ export function CartDrawer() {
               <button
                 type="button"
                 onClick={handleCheckout}
-                disabled={isLoading || !getCheckoutUrl()}
+                disabled={
+                  isLoading ||
+                  items.length === 0 ||
+                  (!allSynced && !getCheckoutUrl() && !phoneValid)
+                }
                 className="mt-5 flex w-full items-center justify-center bg-[var(--ink)] py-4 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)] uppercase disabled:opacity-40"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : allSynced && !SHOPIFY_CHECKOUT_LOCKED ? (
                   "Checkout"
-                ) : getCheckoutUrl() ? (
+                ) : phoneValid || getCheckoutUrl() ? (
                   `Order via ${orderChannelLabel()}`
                 ) : (
-                  "Checkout unavailable"
+                  "Enter phone to continue"
                 )}
               </button>
               <button

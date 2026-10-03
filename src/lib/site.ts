@@ -31,6 +31,25 @@ export const CONTACT_EMAIL =
 /** Display-friendly WhatsApp number for Pakistan. */
 export const WHATSAPP_DISPLAY = "0316 1609389";
 
+/**
+ * Normalize Pakistan mobile numbers to E.164 (+92##########).
+ * Accepts 03XXXXXXXXX, 3XXXXXXXXX, 923XXXXXXXXX, +92…
+ */
+export function normalizePakistanPhone(input: string): string | null {
+  const digits = input.replace(/\D/g, "");
+  let national = digits;
+  if (national.startsWith("92") && national.length >= 12) {
+    national = national.slice(2);
+  }
+  if (national.startsWith("0") && national.length >= 11) {
+    national = national.slice(1);
+  }
+  if (national.length === 10 && national.startsWith("3")) {
+    return `+92${national}`;
+  }
+  return null;
+}
+
 export const whatsappConfigured = () => WHATSAPP_NUMBER.length >= 10;
 
 export const whatsappLink = (message = WHATSAPP_MESSAGE) => {
