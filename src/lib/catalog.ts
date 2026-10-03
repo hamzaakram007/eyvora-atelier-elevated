@@ -46,6 +46,13 @@ import blackTrousersBack from "@/assets/products/black-trousers/back.jpg";
 import blackTrousersLifestyle from "@/assets/products/black-trousers/lifestyle.jpg";
 import blackTrousersDetail from "@/assets/products/black-trousers/detail.jpg";
 import blackTrousersCloseup from "@/assets/products/black-trousers/closeup.jpg";
+import blackTrousersWomenFront from "@/assets/products/black-trousers/women/front.jpg";
+import blackTrousersWomenLifestyle from "@/assets/products/black-trousers/women/lifestyle.jpg";
+import blackTrousersWomenLogo from "@/assets/products/black-trousers/women/logo.jpg";
+import blackTrousersWomenPocketBack from "@/assets/products/black-trousers/women/pocket-back.jpg";
+import blackTrousersWomenPocketSide from "@/assets/products/black-trousers/women/pocket-side.jpg";
+import blackTrousersWomenPhonePocket from "@/assets/products/black-trousers/women/phone-pocket.jpg";
+import blackTrousersWomenBackWalk from "@/assets/products/black-trousers/women/back-walk.jpg";
 
 export type ProductImage = { url: string; altText: string };
 export type ModelGender = "men" | "women";
@@ -182,10 +189,13 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
       { url: blackTrousersCloseup, altText: "EYVORA Black Trousers — close-up" },
     ],
     imagesWomen: [
-      { url: blackTrousersSecondary, altText: "EYVORA Black Trousers — women front view" },
-      { url: blackTrousersLifestyle, altText: "EYVORA Black Trousers — women lifestyle" },
-      { url: blackTrousersDetail, altText: "EYVORA Black Trousers — detail" },
-      { url: blackTrousersCloseup, altText: "EYVORA Black Trousers — close-up" },
+      { url: blackTrousersWomenFront, altText: "EYVORA Black Trousers — women front view" },
+      { url: blackTrousersWomenLifestyle, altText: "EYVORA Black Trousers — women walking" },
+      { url: blackTrousersWomenLogo, altText: "EYVORA Black Trousers — women logo detail" },
+      { url: blackTrousersWomenPocketBack, altText: "EYVORA Black Trousers — women pocket detail" },
+      { url: blackTrousersWomenPocketSide, altText: "EYVORA Black Trousers — women side pocket" },
+      { url: blackTrousersWomenPhonePocket, altText: "EYVORA Black Trousers — women phone pocket" },
+      { url: blackTrousersWomenBackWalk, altText: "EYVORA Black Trousers — women back walk" },
     ],
     images: [
       { url: blackTrousersPrimary, altText: "EYVORA Black Trousers — front view" },
