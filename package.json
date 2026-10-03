@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "start": "node .output/server/index.mjs",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "shopify:verify": "node scripts/verify-shopify.mjs",
+    "shopify:seed": "node --env-file=.env scripts/seed-shopify-launch.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
