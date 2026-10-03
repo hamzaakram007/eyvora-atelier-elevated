@@ -2,7 +2,11 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
-import { matchesCategory, matchesDepartment } from "@/lib/catalog";
+import {
+  expandProductsForBothGenders,
+  matchesCategory,
+  matchesDepartment,
+} from "@/lib/catalog";
 import { ProductGrid } from "@/components/site/ProductGrid";
 import { cn } from "@/lib/utils";
 
@@ -140,6 +144,14 @@ function Shop() {
     return list;
   }, [data, search, maxPrice]);
 
+  /** Men/Women departments keep one gallery; Hoodies/Trousers/All show both. */
+  const gridItems = useMemo(() => {
+    if (modelGender) {
+      return products.map((product) => ({ product, gender: modelGender }));
+    }
+    return expandProductsForBothGenders(products);
+  }, [products, modelGender]);
+
   const set = (patch: ShopSearch) =>
     navigate({ search: (prev: ShopSearch) => ({ ...prev, ...patch }) });
 
@@ -152,7 +164,11 @@ function Shop() {
           ? "Couple pieces"
           : search.collection
             ? `${search.collection} collection`
-            : [search.category].filter(Boolean).join(" ") || "All pieces";
+            : search.category === "hoodies"
+              ? "Hoodies"
+              : search.category === "trousers"
+                ? "Trousers"
+                : "All pieces";
 
   return (
     <div className="pt-32 lg:pt-40">
@@ -169,10 +185,16 @@ function Shop() {
                 ? "Men’s essentials — hoodies and trousers in S, M and L."
                 : search.gender === "women"
                   ? "Women’s essentials — hoodies and trousers in S, M and L."
-                  : "Shop by Men, Women or Couple — then filter by piece, size and colour."}
+                  : search.category === "hoodies"
+                    ? "All hoodies for men and women — same pieces, gendered model photos."
+                    : search.category === "trousers"
+                      ? "All trousers for men and women — same pieces, gendered model photos."
+                      : "Shop by Men, Women or Couple — or browse Hoodies and Trousers for both genders."}
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
-            {isLoading ? "Loading pieces…" : `${products.length} pieces`}
+            {isLoading
+              ? "Loading pieces…"
+              : `${gridItems.length} ${gridItems.length === 1 ? "piece" : "pieces"}`}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-2">
@@ -278,10 +300,9 @@ function Shop() {
               ))}
             </div>
             <ProductGrid
-              products={products}
+              items={gridItems}
               loading={isLoading}
               columns="lg:grid-cols-3 xl:grid-cols-4"
-              gender={modelGender}
             />
           </div>
         </div>

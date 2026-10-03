@@ -32,12 +32,13 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
         <p className="eyebrow mb-5">Collections</p>
         <ul className="space-y-3">
           {[
-            { label: "Men", search: { gender: "men" } },
-            { label: "Women", search: { gender: "women" } },
+            { label: "Men", search: { gender: "men" as const } },
+            { label: "Women", search: { gender: "women" as const } },
             { label: "Couple Collection", to: "/couple" as const },
-            { label: "Hoodies", search: { category: "hoodies" } },
-            { label: "Trousers", search: { category: "trousers" } },
-            { label: "Shop All", search: {} },
+            // Category views intentionally omit gender so both Men + Women cards show.
+            { label: "Hoodies", search: { category: "hoodies" as const, gender: undefined } },
+            { label: "Trousers", search: { category: "trousers" as const, gender: undefined } },
+            { label: "Shop All", search: { gender: undefined, category: undefined } },
           ].map((item) => (
             <li key={item.label}>
               {"to" in item && item.to ? (
@@ -90,8 +91,16 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
       </div>
       <div className="grid grid-cols-3 gap-3">
         {[
-          { img: hoodies, label: "Hoodies", search: { category: "hoodies" } },
-          { img: trousers, label: "Trousers", search: { category: "trousers" } },
+          {
+            img: hoodies,
+            label: "Hoodies",
+            search: { category: "hoodies" as const, gender: undefined },
+          },
+          {
+            img: trousers,
+            label: "Trousers",
+            search: { category: "trousers" as const, gender: undefined },
+          },
           { img: couple, label: "Couple", to: "/couple" as const },
         ].map((tile) =>
           "to" in tile && tile.to ? (
@@ -318,12 +327,24 @@ export function Header() {
           <nav className="flex-1 overflow-y-auto px-5 py-4">
             {[
               { label: "Home", to: "/", search: undefined },
-              { label: "Shop All", to: "/shop", search: {} },
+              {
+                label: "Shop All",
+                to: "/shop",
+                search: { gender: undefined, category: undefined },
+              },
               { label: "Men", to: "/shop", search: { gender: "men" } },
               { label: "Women", to: "/shop", search: { gender: "women" } },
               { label: "Couple", to: "/couple", search: undefined },
-              { label: "Hoodies", to: "/shop", search: { category: "hoodies" } },
-              { label: "Trousers", to: "/shop", search: { category: "trousers" } },
+              {
+                label: "Hoodies",
+                to: "/shop",
+                search: { category: "hoodies", gender: undefined },
+              },
+              {
+                label: "Trousers",
+                to: "/shop",
+                search: { category: "trousers", gender: undefined },
+              },
               { label: "Wishlist", to: "/wishlist", search: undefined },
               { label: "About Us", to: "/about", search: undefined },
               { label: "Contact", to: "/contact", search: undefined },

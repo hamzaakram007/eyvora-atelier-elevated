@@ -456,6 +456,50 @@ export function applyLaunchImagery(
   };
 }
 
+/** Stable product id for a gendered shop card (keeps Shopify/local id for cart). */
+export function productCardForGender(
+  product: ShopifyProduct,
+  gender: ModelGender,
+): ShopifyProduct {
+  const imaged = applyLaunchImagery(product, gender);
+  const baseId = imaged.node.id.replace(/::(men|women)$/i, "");
+  return {
+    node: {
+      ...imaged.node,
+      id: `${baseId}::${gender}`,
+    },
+  };
+}
+
+/**
+ * Expand unisex launch pieces into Men + Women cards so category / Shop All
+ * views show both model galleries (Hoodies & Trousers menu links).
+ */
+export function expandProductsForBothGenders(
+  products: ShopifyProduct[],
+): Array<{ product: ShopifyProduct; gender: ModelGender }> {
+  const items: Array<{ product: ShopifyProduct; gender: ModelGender }> = [];
+  for (const product of products) {
+    const meta = LAUNCH_PRODUCTS.find((p) => p.handle === product.node.handle);
+    const hasMen = Boolean(meta?.imagesMen.length);
+    const hasWomen = Boolean(meta?.imagesWomen.length);
+    if (hasMen && hasWomen) {
+      items.push({ product: productCardForGender(product, "men"), gender: "men" });
+      items.push({ product: productCardForGender(product, "women"), gender: "women" });
+      continue;
+    }
+    if (hasWomen) {
+      items.push({ product: productCardForGender(product, "women"), gender: "women" });
+      continue;
+    }
+    items.push({
+      product: hasMen ? productCardForGender(product, "men") : product,
+      gender: "men",
+    });
+  }
+  return items;
+}
+
 /**
  * Detect the temporary demo catalogue currently in Shopify Admin
  * (wrong titles/prices vs the verified launch assortment).

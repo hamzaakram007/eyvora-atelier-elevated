@@ -2,20 +2,35 @@ import type { ShopifyProduct } from "@/lib/shopify";
 import { ProductCard } from "./ProductCard";
 import { Reveal } from "./Reveal";
 
+export type ProductGridItem = {
+  product: ShopifyProduct;
+  gender?: string;
+};
+
 export function ProductGrid({
   products,
+  items,
   loading,
   emptyNote = "No products found.",
   columns = "lg:grid-cols-4",
   gender,
 }: {
-  products: ShopifyProduct[];
+  products?: ShopifyProduct[];
+  /** Prefer this when each card needs its own Men/Women gallery. */
+  items?: ProductGridItem[];
   loading?: boolean;
   emptyNote?: string;
   columns?: string;
-  /** When set, product links open with the matching model gallery (men/women). */
+  /** Shared gender for all cards when `items` is not provided. */
   gender?: string;
 }) {
+  const resolved: ProductGridItem[] =
+    items ??
+    (products ?? []).map((product) => ({
+      product,
+      gender,
+    }));
+
   if (loading) {
     return (
       <div className={`grid grid-cols-2 gap-x-5 gap-y-12 ${columns}`}>
@@ -30,7 +45,7 @@ export function ProductGrid({
     );
   }
 
-  if (products.length === 0) {
+  if (resolved.length === 0) {
     return (
       <div className="border border-dashed border-border px-8 py-24 text-center">
         <p className="font-display text-2xl">{emptyNote}</p>
@@ -43,9 +58,9 @@ export function ProductGrid({
 
   return (
     <div className={`grid grid-cols-2 gap-x-5 gap-y-14 ${columns}`}>
-      {products.map((product, i) => (
-        <Reveal key={product.node.id} delay={(i % 4) * 90} as="div">
-          <ProductCard product={product} index={i} gender={gender} />
+      {resolved.map((item, i) => (
+        <Reveal key={item.product.node.id} delay={(i % 4) * 90} as="div">
+          <ProductCard product={item.product} index={i} gender={item.gender} />
         </Reveal>
       ))}
     </div>
