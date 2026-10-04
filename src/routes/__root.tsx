@@ -7,16 +7,23 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { type ReactNode } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { CartDrawer } from "@/components/site/CartDrawer";
-import { FloatingAssistant } from "@/components/site/FloatingAssistant";
 import { MobileTabBar } from "@/components/site/MobileTabBar";
 import { Toaster } from "@/components/ui/sonner";
 import { useCartSync } from "@/hooks/useCartSync";
+
+const CartDrawer = lazy(() =>
+  import("@/components/site/CartDrawer").then((m) => ({ default: m.CartDrawer })),
+);
+const FloatingAssistant = lazy(() =>
+  import("@/components/site/FloatingAssistant").then((m) => ({
+    default: m.FloatingAssistant,
+  })),
+);
 
 function NotFoundComponent() {
   return (
@@ -151,8 +158,12 @@ function SiteChrome() {
         <Outlet />
       </main>
       <Footer />
-      <CartDrawer />
-      <FloatingAssistant />
+      <Suspense fallback={null}>
+        <CartDrawer />
+      </Suspense>
+      <Suspense fallback={null}>
+        <FloatingAssistant />
+      </Suspense>
       <MobileTabBar />
       <Toaster position="top-center" />
     </>

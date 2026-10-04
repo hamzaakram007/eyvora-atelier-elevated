@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "@/components/home/Hero";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
+import heroMobile from "@/assets/products/hero/hero-mobile.webp";
 
 const BestSellers = lazy(() =>
   import("@/components/home/BestSellers").then((m) => ({ default: m.BestSellers })),
@@ -55,7 +56,10 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: "https://eyvora.pk/og.jpg" },
     ],
-    links: [{ rel: "canonical", href: "https://eyvora.pk/" }],
+    links: [
+      { rel: "canonical", href: "https://eyvora.pk/" },
+      { rel: "preload", as: "image", href: heroMobile, type: "image/webp" },
+    ],
     scripts: [
       {
         type: "application/ld+json",

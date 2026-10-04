@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Recompress product/marketing JPEGs for faster LCP.
- * Keeps original paths so imports stay unchanged.
+ * Recompress product/marketing images and emit WebP siblings for faster LCP.
+ * Keeps JPEG originals (further compressed) and writes matching .webp files.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -9,11 +9,12 @@ import sharp from "sharp";
 
 const ROOT = path.resolve("src/assets");
 const MAX_EDGE = {
-  hero: 1600,
-  default: 1400,
-  women: 1200,
-  category: 1200,
-  couple: 1400,
+  hero: 1400,
+  default: 1100,
+  women: 1000,
+  category: 1000,
+  couple: 1200,
+  card: 800,
 };
 
 async function walk(dir, out = []) {
@@ -35,6 +36,21 @@ function maxFor(file) {
   return MAX_EDGE.default;
 }
 
+async function writeIfSmaller(tmp, dest, before) {
+  const after = (await fs.stat(tmp)).size;
+  if (after < before * 0.995 || path.extname(dest).toLowerCase() === ".webp") {
+    // Always keep freshly generated webp; replace jpeg only when smaller.
+    if (path.extname(dest).toLowerCase() !== ".webp" && after >= before * 0.995) {
+      await fs.unlink(tmp);
+      return before;
+    }
+    await fs.rename(tmp, dest);
+    return after;
+  }
+  await fs.unlink(tmp);
+  return before;
+}
+
 async function optimize(file) {
   const before = (await fs.stat(file)).size;
   const ext = path.extname(file).toLowerCase();
@@ -42,29 +58,34 @@ async function optimize(file) {
   const img = sharp(file, { failOn: "none" }).rotate();
   const meta = await img.metadata();
   const width = meta.width || max;
-  const pipeline = img.resize({
+  const resized = {
     width: Math.min(width, max),
     height: Math.min(meta.height || max, max),
     fit: "inside",
     withoutEnlargement: true,
-  });
+  };
 
-  const tmp = `${file}.tmp`;
+  const jpgTmp = `${file}.tmp`;
+  const pipeline = sharp(file, { failOn: "none" }).rotate().resize(resized);
   if (ext === ".png") {
-    await pipeline.png({ compressionLevel: 9, palette: true }).toFile(tmp);
+    await pipeline.png({ compressionLevel: 9, palette: true }).toFile(jpgTmp);
   } else {
     await pipeline
-      .jpeg({ quality: 72, mozjpeg: true, progressive: true })
-      .toFile(tmp);
+      .jpeg({ quality: 68, mozjpeg: true, progressive: true })
+      .toFile(jpgTmp);
   }
+  const afterJpg = await writeIfSmaller(jpgTmp, file, before);
 
-  const after = (await fs.stat(tmp)).size;
-  if (after < before * 0.98) {
-    await fs.rename(tmp, file);
-    return { file, before, after, saved: before - after };
-  }
-  await fs.unlink(tmp);
-  return { file, before, after: before, saved: 0 };
+  const webpPath = file.replace(/\.(jpe?g|png)$/i, ".webp");
+  const webpTmp = `${webpPath}.tmp`;
+  await sharp(file, { failOn: "none" })
+    .rotate()
+    .resize(resized)
+    .webp({ quality: 68, effort: 5 })
+    .toFile(webpTmp);
+  const afterWebp = await writeIfSmaller(webpTmp, webpPath, Number.MAX_SAFE_INTEGER);
+
+  return { file, before, afterJpg, afterWebp, webpPath };
 }
 
 const files = await walk(ROOT);
@@ -72,14 +93,14 @@ let savedTotal = 0;
 for (const file of files) {
   try {
     const result = await optimize(file);
-    savedTotal += result.saved;
-    if (result.saved > 0) {
-      console.log(
-        `${(result.before / 1024).toFixed(0)}KB → ${(result.after / 1024).toFixed(0)}KB  ${path.relative(process.cwd(), file)}`,
-      );
-    }
+    const saved = Math.max(0, result.before - result.afterJpg);
+    savedTotal += saved;
+    const webpSize = (await fs.stat(result.webpPath)).size;
+    console.log(
+      `${(result.before / 1024).toFixed(0)}KB → jpg ${(result.afterJpg / 1024).toFixed(0)}KB / webp ${(webpSize / 1024).toFixed(0)}KB  ${path.relative(process.cwd(), file)}`,
+    );
   } catch (error) {
     console.warn("skip", file, error.message);
   }
 }
-console.log(`Saved ${(savedTotal / 1024 / 1024).toFixed(2)} MB across ${files.length} images`);
+console.log(`Processed ${files.length} images; jpeg savings ${(savedTotal / 1024 / 1024).toFixed(2)} MB`);

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import heroDesktop from "@/assets/products/hero/hero-desktop.jpg";
-import heroMobile from "@/assets/products/hero/hero-mobile.jpg";
+import heroDesktop from "@/assets/products/hero/hero-desktop.webp";
+import heroMobile from "@/assets/products/hero/hero-mobile.webp";
 
 export function Hero() {
   return (

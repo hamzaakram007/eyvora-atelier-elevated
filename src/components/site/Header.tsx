@@ -6,9 +6,9 @@ import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
 import { SearchOverlay } from "@/components/site/SearchOverlay";
-import hoodies from "@/assets/products/category/hoodies.jpg";
-import trousers from "@/assets/products/category/trousers.jpg";
-import couple from "@/assets/products/couple/couple-2.jpg";
+import hoodies from "@/assets/products/category/hoodies.webp";
+import trousers from "@/assets/products/category/trousers.webp";
+import couple from "@/assets/products/couple/couple-2.webp";
 
 function AnnouncementBar() {
   const item = announcements[0];

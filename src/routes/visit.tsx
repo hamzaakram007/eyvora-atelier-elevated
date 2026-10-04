@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
 import { whatsappConfigured, whatsappLink } from "@/lib/site";
-import visitImg from "@/assets/products/couple/couple-4.jpg";
+import visitImg from "@/assets/products/couple/couple-4.webp";
 
 export const Route = createFileRoute("/visit")({
   head: () => ({

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AboutStory } from "@/components/home/AboutStory";
 import { WhyEyvora } from "@/components/home/WhyEyvora";
 import { Reveal } from "@/components/site/Reveal";
-import hero from "@/assets/products/hero/hero-mobile.jpg";
+import hero from "@/assets/products/hero/hero-mobile.webp";
 
 export const Route = createFileRoute("/about")({
   head: () => ({

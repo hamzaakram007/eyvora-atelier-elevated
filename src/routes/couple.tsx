@@ -15,7 +15,7 @@ import {
 import { useCartStore } from "@/stores/cartStore";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
-import coupleHero from "@/assets/products/couple/contrast/olive-black-grey.jpg";
+import coupleHero from "@/assets/products/couple/contrast/olive-black-grey.webp";
 
 export const Route = createFileRoute("/couple")({
   head: () => ({

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "@/components/site/Reveal";
-import fabric from "@/assets/fabric.jpg";
+import fabric from "@/assets/fabric.webp";
 
 const specs = [
   { label: "Cotton", value: 100, suffix: "%", note: "Long-staple, ring-spun" },

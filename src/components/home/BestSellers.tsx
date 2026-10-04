@@ -12,7 +12,7 @@ export function BestSellers() {
   });
 
   return (
-    <section className="border-t border-border bg-[var(--ivory)]">
+    <section className="content-auto border-t border-border bg-[var(--ivory)]">
       <div className="mx-auto max-w-[1600px] px-5 py-20 lg:px-10 lg:py-28">
         <Reveal className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>

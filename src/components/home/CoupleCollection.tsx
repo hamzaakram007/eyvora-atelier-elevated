@@ -1,18 +1,20 @@
 import { Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
-import couple from "@/assets/products/couple/contrast/olive-black-grey.jpg";
+import couple from "@/assets/products/couple/contrast/olive-black-grey.webp";
 
 export function CoupleCollection() {
   return (
-    <section className="mx-auto max-w-[1600px] px-5 py-20 lg:px-10 lg:py-28">
+    <section className="content-auto mx-auto max-w-[1600px] px-5 py-20 lg:px-10 lg:py-28">
       <div className="grid items-center gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-20">
         <Reveal className="relative overflow-hidden bg-[var(--soft-grey)]">
           <img
             src={couple}
             alt="Couple contrast look — olive and black EYVORA hoodies with grey and black trousers"
             loading="lazy"
-            width={1400}
-            height={1750}
+            decoding="async"
+            width={1000}
+            height={1250}
+            sizes="(max-width: 1024px) 100vw, 55vw"
             className="aspect-[4/5] w-full object-cover lg:aspect-[5/4]"
           />
         </Reveal>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ChevronRight } from "lucide-react";
@@ -6,11 +6,14 @@ import { fetchProductByHandle, fetchProducts, formatPrice } from "@/lib/shopify"
 import { useCartStore } from "@/stores/cartStore";
 import { ProductGrid } from "@/components/site/ProductGrid";
 import { SizeGuideModal } from "@/components/site/SizeGuideModal";
-import { Faq } from "@/components/home/Faq";
 import { useWishlist } from "@/hooks/useWishlist";
 import { isShopifySyncedVariantId, resolveModelGender } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+const Faq = lazy(() =>
+  import("@/components/home/Faq").then((m) => ({ default: m.Faq })),
+);
 
 type ProductSearch = {
   gender?: string | undefined;
@@ -86,7 +89,12 @@ export const Route = createFileRoute("/product/$handle")({
         { name: "twitter:image", content: image },
         { name: "robots", content: "index, follow" },
       ],
-      links: [{ rel: "canonical", href: url }],
+      links: [
+        { rel: "canonical", href: url },
+        ...(image && image !== "https://eyvora.pk/og.jpg"
+          ? [{ rel: "preload", as: "image", href: image }]
+          : []),
+      ],
       scripts,
     };
   },
@@ -262,8 +270,12 @@ function ProductPage() {
                 <img
                   src={images[activeImage]!.node.url}
                   alt={images[activeImage]!.node.altText ?? node.title}
-                  width={1200}
-                  height={1500}
+                  width={900}
+                  height={1125}
+                  sizes="(max-width: 1024px) 100vw, 55vw"
+                  fetchPriority={activeImage === 0 ? "high" : "auto"}
+                  decoding={activeImage === 0 ? "sync" : "async"}
+                  loading={activeImage === 0 ? "eager" : "lazy"}
                   className="aspect-[4/5] w-full object-cover"
                 />
               ) : (
@@ -519,7 +531,9 @@ function ProductPage() {
         </div>
       </div>
 
-      <Faq />
+      <Suspense fallback={null}>
+        <Faq />
+      </Suspense>
       <SizeGuideModal
         open={sizeGuideOpen}
         onOpenChange={setSizeGuideOpen}

@@ -1,10 +1,10 @@
 import { Reveal } from "@/components/site/Reveal";
-import hero from "@/assets/hero.jpg";
-import couple from "@/assets/couple.jpg";
-import fabric from "@/assets/fabric.jpg";
-import about from "@/assets/about.jpg";
-import men from "@/assets/cat-men-hoodies.jpg";
-import women from "@/assets/cat-women-hoodies.jpg";
+import hero from "@/assets/hero.webp";
+import couple from "@/assets/couple.webp";
+import fabric from "@/assets/fabric.webp";
+import about from "@/assets/about.webp";
+import men from "@/assets/cat-men-hoodies.webp";
+import women from "@/assets/cat-women-hoodies.webp";
 
 const tiles = [men, couple, fabric, women, hero, about];
 

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
-import about from "@/assets/products/couple/couple-3.jpg";
+import about from "@/assets/products/couple/couple-3.webp";
 
 export function AboutStory() {
   return (

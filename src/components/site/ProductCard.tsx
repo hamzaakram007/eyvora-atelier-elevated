@@ -49,7 +49,7 @@ export function ProductCard({
   const quickAdd = async () => {
     if (!size || !selectedVariant) {
       toast.message("Select a size", {
-        description: "Choose S, M or L before adding to bag.",
+        description: "Choose S, M, L or XL before adding to bag.",
       });
       return;
     }
@@ -84,10 +84,11 @@ export function ProductCard({
             <img
               src={primary}
               alt={images[0]?.node.altText ?? node.title}
-              loading="lazy"
+              loading={index < 2 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "auto"}
               decoding="async"
-              width={800}
-              height={1000}
+              width={640}
+              height={800}
               sizes="(max-width: 768px) 50vw, 25vw"
               className="absolute inset-0 h-full w-full object-cover transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-hover:opacity-0"
             />
@@ -98,8 +99,8 @@ export function ProductCard({
               alt=""
               loading="lazy"
               decoding="async"
-              width={800}
-              height={1000}
+              width={640}
+              height={800}
               sizes="(max-width: 768px) 50vw, 25vw"
               className="absolute inset-0 hidden h-full w-full scale-105 object-cover opacity-0 transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] md:block group-hover:scale-100 group-hover:opacity-100"
             />

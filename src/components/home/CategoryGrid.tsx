@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
-import hoodies from "@/assets/products/category/hoodies.jpg";
-import trousers from "@/assets/products/category/trousers.jpg";
-import couple from "@/assets/products/couple/couple-2.jpg";
+import hoodies from "@/assets/products/category/hoodies.webp";
+import trousers from "@/assets/products/category/trousers.webp";
+import couple from "@/assets/products/couple/couple-2.webp";
 
 const categories = [
   {
@@ -58,14 +58,14 @@ export function CategoryGrid() {
                 search={cat.search}
                 className="group relative block overflow-hidden bg-[var(--soft-grey)]"
               >
-                <CategoryVisual cat={cat} />
+                <CategoryVisual cat={cat} priority={i === 0} />
               </Link>
             ) : (
               <Link
                 to={cat.to}
                 className="group relative block overflow-hidden bg-[var(--soft-grey)]"
               >
-                <CategoryVisual cat={cat} />
+                <CategoryVisual cat={cat} priority={i === 0} />
               </Link>
             )}
           </Reveal>
@@ -77,8 +77,10 @@ export function CategoryGrid() {
 
 function CategoryVisual({
   cat,
+  priority = false,
 }: {
   cat: { title: string; note: string; img: string };
+  priority?: boolean;
 }) {
   return (
     <>
@@ -86,10 +88,11 @@ function CategoryVisual({
         <img
           src={cat.img}
           alt={`${cat.title} collection — EYVORA essentials`}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
           decoding="async"
-          width={900}
-          height={1125}
+          width={800}
+          height={1000}
           sizes="(max-width: 768px) 100vw, 33vw"
           className="h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
         />
