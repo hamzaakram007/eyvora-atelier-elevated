@@ -520,7 +520,16 @@ function ProductPage() {
       </div>
 
       <Faq />
-      <SizeGuideModal open={sizeGuideOpen} onOpenChange={setSizeGuideOpen} />
+      <SizeGuideModal
+        open={sizeGuideOpen}
+        onOpenChange={setSizeGuideOpen}
+        kind={
+          (node.productType ?? "").toLowerCase().includes("trouser") ||
+          node.handle.includes("trousers")
+            ? "trousers"
+            : "hoodies"
+        }
+      />
     </div>
   );
 }

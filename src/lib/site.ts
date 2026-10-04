@@ -136,7 +136,7 @@ export const announcements = [
 export const faqs = [
   {
     q: "How do EYVORA sizes fit?",
-    a: "Hoodies and trousers are offered in S, M, L and XL. Hoodies come in Olive Green and Black; trousers in Grey and Black. Use the size guide on each product page — measurements appear once EYVORA confirms them.",
+    a: "Hoodies and trousers are offered in S, M, L and XL. Hoodies come in Olive Green and Black; trousers in Grey and Black. Trouser measurements (waist, length, thigh, bottom) are in the size guide on each trousers page.",
   },
   {
     q: "Where do you deliver?",
@@ -215,14 +215,39 @@ export const navLinks = [
   { label: "Visit Us", to: "/visit" as const },
 ];
 
-export const sizeGuideColumns = [
+export type SizeGuideKind = "hoodies" | "trousers";
+
+export const trousersSizeGuideColumns = [
+  "Size",
+  "Waist",
+  "Length",
+  "Thigh",
+  "Bottom",
+] as const;
+
+/** Verified trouser measurements (inches) provided by EYVORA. */
+export const trousersSizeGuideRows: Array<
+  Record<(typeof trousersSizeGuideColumns)[number], string>
+> = [
+  { Size: "S", Waist: "30-32", Length: "41.5", Thigh: "13", Bottom: "10" },
+  { Size: "M", Waist: "32-34", Length: "42", Thigh: "13.5", Bottom: "10" },
+  { Size: "L", Waist: "34-36", Length: "42.5", Thigh: "14", Bottom: "10.5" },
+  { Size: "XL", Waist: "36-38", Length: "43", Thigh: "14", Bottom: "10.5" },
+];
+
+export const hoodiesSizeGuideColumns = [
   "Size",
   "Chest",
   "Length",
-  "Waist",
-  "Hip",
-  "Inseam",
+  "Sleeve",
 ] as const;
 
-/** Measurements stay empty until the client provides verified values. */
-export const sizeGuideRows: Array<Record<(typeof sizeGuideColumns)[number], string>> = [];
+/** Hoodie measurements stay empty until EYVORA confirms verified values. */
+export const hoodiesSizeGuideRows: Array<
+  Record<(typeof hoodiesSizeGuideColumns)[number], string>
+> = [];
+
+/** @deprecated Use trousers/hoodies size guides. Kept for older imports. */
+export const sizeGuideColumns = trousersSizeGuideColumns;
+/** @deprecated Use trousers/hoodies size guides. Kept for older imports. */
+export const sizeGuideRows = trousersSizeGuideRows;
