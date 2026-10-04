@@ -427,13 +427,14 @@ export const useCartStore = create<CartStore>()(
           return null;
         }
 
-        // Always attach BANK7 before Shopify checkout so switching from bag-COD
-        // to Bank Deposit on checkout still keeps the 7% off. The ORDERS_CREATE
-        // webhook removes it again if the paid method is COD.
+        // Apply BANK7 only for bank transfer; remove it for COD so the Shopify
+        // checkout total matches the selected method. The checkout UI extension
+        // re-syncs if the customer switches payment method on Shopify checkout.
         if (cartId && items.every((i) => isShopifySyncedVariantId(i.variantId))) {
           set({ isLoading: true });
           try {
-            const discountCodes = [BANK_TRANSFER_DISCOUNT_CODE];
+            const discountCodes =
+              paymentMethod === "bank" ? [BANK_TRANSFER_DISCOUNT_CODE] : [];
             const discountData = await storefrontApiRequest(
               CART_DISCOUNT_CODES_UPDATE_MUTATION,
               { cartId, discountCodes },
@@ -442,9 +443,11 @@ export const useCartStore = create<CartStore>()(
               discountData?.data?.cartDiscountCodesUpdate?.userErrors || [];
             if (discountErrors.length > 0) {
               console.error("Discount update failed:", discountErrors);
-              toast.message("Could not prepare checkout discount", {
-                description: discountErrors[0]?.message || "Try again in a moment.",
-              });
+              if (paymentMethod === "bank") {
+                toast.message("Could not apply bank transfer discount", {
+                  description: discountErrors[0]?.message || "Try again in a moment.",
+                });
+              }
             } else {
               const nextUrl =
                 discountData?.data?.cartDiscountCodesUpdate?.cart?.checkoutUrl;
@@ -456,16 +459,19 @@ export const useCartStore = create<CartStore>()(
             const note =
               paymentMethod === "bank"
                 ? `Payment preference: Bank transfer (UBL). ${BANK_TRANSFER_DISCOUNT_CODE} 7% discount applied automatically. Customer will send payment proof after checkout.`
-                : `Payment preference: Cash on Delivery (COD). ${BANK_TRANSFER_DISCOUNT_CODE} is attached so Bank Deposit on Shopify checkout still gets 7% off; webhook removes it if COD is the final method.`;
+                : "Payment preference: Cash on Delivery (COD). Full price — switch to Bank Deposit on Shopify checkout for automatic 7% off.";
             await storefrontApiRequest(CART_NOTE_UPDATE_MUTATION, {
               cartId,
               note,
             });
           } catch (error) {
             console.error("Failed to prepare checkout discounts:", error);
-            toast.message("Could not prepare checkout discount", {
-              description: "You can still continue — contact EYVORA if the discount is missing.",
-            });
+            if (paymentMethod === "bank") {
+              toast.message("Could not apply bank transfer discount", {
+                description:
+                  "You can still continue — contact EYVORA if the discount is missing.",
+              });
+            }
           } finally {
             set({ isLoading: false });
           }
@@ -479,11 +485,23 @@ export const useCartStore = create<CartStore>()(
           return null;
         }
 
-        // Always reinforce BANK7 on the checkout URL so COD→Bank Deposit still works.
+        if (paymentMethod === "bank") {
+          try {
+            const withDiscount = new URL(url);
+            withDiscount.searchParams.set("discount", BANK_TRANSFER_DISCOUNT_CODE);
+            return withDiscount.toString();
+          } catch {
+            return url;
+          }
+        }
+
+        // COD: strip any leftover discount query param so checkout opens at full price.
         try {
-          const withDiscount = new URL(url);
-          withDiscount.searchParams.set("discount", BANK_TRANSFER_DISCOUNT_CODE);
-          return withDiscount.toString();
+          const clean = new URL(url);
+          if (clean.searchParams.get("discount")?.toUpperCase() === BANK_TRANSFER_DISCOUNT_CODE) {
+            clean.searchParams.delete("discount");
+          }
+          return clean.toString();
         } catch {
           return url;
         }

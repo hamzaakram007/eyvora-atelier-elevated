@@ -4,19 +4,16 @@ import {
   Text,
   useApplyDiscountCodeChange,
   useDiscountCodes,
+  useInstructions,
   useSelectedPaymentOptions,
 } from "@shopify/ui-extensions-react/checkout";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const DISCOUNT_CODE = "BANK7";
 
 /**
- * EYVORA checkout payment methods:
- * - Cash on Delivery → type paymentOnDelivery / handle with cash|cod
- * - Bank Deposit → type deferred / handle with bank|deposit|manual
- *
- * When a shopper picks COD in the bag (no BANK7) then switches to Bank
- * Deposit here, we add BANK7. Switching back to COD removes it.
+ * Sync BANK7 with the selected Shopify payment method so the checkout
+ * total updates live when the buyer switches COD ↔ Bank Deposit.
  */
 function isCodPayment(type: string, handle: string) {
   const hay = `${type} ${handle}`.toLowerCase();
@@ -30,7 +27,6 @@ function isBankPayment(type: string, handle: string) {
   if (/bank|deposit|moneyorder|money_order|wire|transfer|ubl/.test(h)) {
     return true;
   }
-  // Shopify manual bank deposit is typically type "deferred"
   if (t === "deferred" || t === "manualpayment" || t === "manual") {
     return true;
   }
@@ -40,9 +36,17 @@ function isBankPayment(type: string, handle: string) {
 function Extension() {
   const paymentOptions = useSelectedPaymentOptions();
   const discountCodes = useDiscountCodes();
+  const instructions = useInstructions();
   const applyDiscountCodeChange = useApplyDiscountCodeChange();
   const busy = useRef(false);
-  const lastAction = useRef<string>("");
+  const [status, setStatus] = useState<"idle" | "applying" | "removing" | "error">(
+    "idle",
+  );
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const canUpdateCodes = Boolean(
+    instructions?.discounts?.canUpdateDiscountCodes,
+  );
 
   const selection = useMemo(() => {
     const opts = paymentOptions || [];
@@ -56,7 +60,7 @@ function Extension() {
   );
 
   useEffect(() => {
-    if (busy.current || selection.empty) return;
+    if (busy.current || selection.empty || !canUpdateCodes) return;
 
     const desired =
       selection.bank && !hasCode
@@ -65,29 +69,36 @@ function Extension() {
           ? "remove"
           : "noop";
 
-    if (desired === "noop" || lastAction.current === `${desired}-${hasCode}`) {
+    if (desired === "noop") {
+      setStatus("idle");
       return;
     }
 
     const run = async () => {
       busy.current = true;
+      setStatus(desired === "add" ? "applying" : "removing");
+      setErrorMessage("");
       try {
-        if (desired === "add") {
-          await applyDiscountCodeChange({
-            type: "addDiscountCode",
-            code: DISCOUNT_CODE,
-          });
-          lastAction.current = `add-${true}`;
-        } else if (desired === "remove") {
-          await applyDiscountCodeChange({
-            type: "removeDiscountCode",
-            code: DISCOUNT_CODE,
-          });
-          lastAction.current = `remove-${false}`;
+        const result = await applyDiscountCodeChange(
+          desired === "add"
+            ? { type: "addDiscountCode", code: DISCOUNT_CODE }
+            : { type: "removeDiscountCode", code: DISCOUNT_CODE },
+        );
+        if (result && "type" in result && result.type === "error") {
+          setStatus("error");
+          setErrorMessage(
+            ("message" in result && String(result.message)) ||
+              "Could not update discount",
+          );
+        } else {
+          setStatus("idle");
         }
       } catch (error) {
         console.error("Bank transfer discount sync failed", error);
-        lastAction.current = "";
+        setStatus("error");
+        setErrorMessage(
+          error instanceof Error ? error.message : "Could not update discount",
+        );
       } finally {
         busy.current = false;
       }
@@ -96,31 +107,53 @@ function Extension() {
     void run();
   }, [
     applyDiscountCodeChange,
+    canUpdateCodes,
     hasCode,
     selection.bank,
     selection.cod,
     selection.empty,
   ]);
 
+  if (!canUpdateCodes) {
+    return null;
+  }
+
   if (selection.bank) {
     return (
-      <Banner status="success" title="7% OFF applied">
+      <Banner
+        status={status === "error" ? "critical" : "success"}
+        title={hasCode ? "7% OFF applied" : "Applying 7% OFF…"}
+      >
         <Text emphasis="bold">7% OFF</Text>
         <Text>
           {" "}
-          is applied automatically for Bank Deposit — even if you chose COD in
-          your bag first. No discount code needed.
+          {hasCode
+            ? "is applied for Bank Deposit. Your total updates automatically."
+            : "is being applied for Bank Deposit — your total will update in a moment."}
         </Text>
+        {status === "error" && errorMessage ? (
+          <Text>{` ${errorMessage}`}</Text>
+        ) : null}
       </Banner>
     );
   }
 
-  if (selection.cod && hasCode) {
+  if (selection.cod) {
+    if (hasCode || status === "removing") {
+      return (
+        <Banner status="info" title="Updating total for Cash on Delivery">
+          <Text>
+            Removing the bank-transfer 7% off so Cash on Delivery is charged at
+            full price.
+          </Text>
+        </Banner>
+      );
+    }
     return (
-      <Banner status="info" title="Updating total">
+      <Banner status="info" title="Cash on Delivery">
         <Text>
-          Bank transfer discount is being removed because Cash on Delivery was
-          selected.
+          Full price for COD. Switch to Bank Deposit anytime for automatic 7%
+          off.
         </Text>
       </Banner>
     );
