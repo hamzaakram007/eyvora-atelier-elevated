@@ -113,7 +113,7 @@ function CheckoutSuccessPage() {
           </div>
           <div className="flex justify-between border-t border-border pt-3 text-base font-medium">
             <span className="tracking-[0.14em] uppercase">Total due</span>
-            <span className={isBank ? "text-red-600" : undefined}>
+            <span className={isBank ? "text-emerald-700" : undefined}>
               {Number.isFinite(amount)
                 ? formatPrice(amount, currency || "PKR")
                 : "—"}
@@ -136,7 +136,7 @@ function CheckoutSuccessPage() {
                 href={proofHref}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-4 flex w-full items-center justify-center bg-red-600 py-3.5 text-[0.625rem] tracking-[0.24em] text-white uppercase"
+                className="mt-4 flex w-full items-center justify-center bg-emerald-700 py-3.5 text-[0.625rem] tracking-[0.24em] text-white uppercase hover:bg-emerald-800"
               >
                 Send payment proof
               </a>

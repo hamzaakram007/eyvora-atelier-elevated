@@ -257,17 +257,12 @@ export function CartDrawer() {
                   className={cn(
                     "relative border px-3 py-3 text-left text-[0.625rem] leading-snug tracking-[0.12em] uppercase transition-colors",
                     paymentMethod === "bank"
-                      ? "border-red-600 bg-red-50 text-[var(--ink)]"
-                      : "border-border hover:border-red-600",
+                      ? "border-emerald-700 bg-emerald-50 text-[var(--ink)]"
+                      : "border-border hover:border-emerald-700",
                   )}
                 >
                   <span className="block">Bank transfer</span>
-                  <span
-                    className={cn(
-                      "mt-1.5 inline-block text-[0.7rem] font-semibold tracking-[0.18em]",
-                      paymentMethod === "bank" ? "text-red-600" : "text-red-600",
-                    )}
-                  >
+                  <span className="mt-1.5 inline-block text-[0.7rem] font-semibold tracking-[0.18em] text-emerald-700">
                     {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF
                   </span>
                 </button>
@@ -279,7 +274,7 @@ export function CartDrawer() {
                   <span>{formatPrice(subtotal, currency)}</span>
                 </div>
                 {paymentMethod === "bank" && (
-                  <div className="flex items-center justify-between font-semibold text-red-600">
+                  <div className="flex items-center justify-between font-semibold text-emerald-700">
                     <span className="tracking-[0.12em] uppercase">
                       {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF · Bank transfer
                     </span>
@@ -292,7 +287,7 @@ export function CartDrawer() {
                 </div>
                 <div className="flex items-center justify-between font-medium">
                   <span className="tracking-[0.16em] uppercase">Total</span>
-                  <span className={cn(paymentMethod === "bank" && "text-red-600")}>
+                  <span className={cn(paymentMethod === "bank" && "text-emerald-700")}>
                     {formatPrice(payable, currency)}
                   </span>
                 </div>
@@ -328,7 +323,7 @@ export function CartDrawer() {
                 className={cn(
                   "mt-5 flex w-full items-center justify-center py-4 text-[0.625rem] tracking-[0.28em] uppercase disabled:opacity-40",
                   paymentMethod === "bank"
-                    ? "bg-red-600 text-white hover:bg-red-700"
+                    ? "bg-emerald-700 text-white hover:bg-emerald-800"
                     : "bg-[var(--ink)] text-[var(--ivory)]",
                 )}
               >
