@@ -207,26 +207,38 @@ export function CartDrawer() {
                 Payment method
               </p>
               <div className="mt-3 grid grid-cols-2 gap-2">
-                {(
-                  [
-                    ["cod", "Cash on Delivery"],
-                    ["bank", `Bank transfer · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off`],
-                  ] as const
-                ).map(([key, label]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setPaymentMethod(key)}
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("cod")}
+                  className={cn(
+                    "border px-3 py-3 text-left text-[0.625rem] leading-snug tracking-[0.12em] uppercase transition-colors",
+                    paymentMethod === "cod"
+                      ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                      : "border-border hover:border-foreground",
+                  )}
+                >
+                  Cash on Delivery
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("bank")}
+                  className={cn(
+                    "relative border px-3 py-3 text-left text-[0.625rem] leading-snug tracking-[0.12em] uppercase transition-colors",
+                    paymentMethod === "bank"
+                      ? "border-red-600 bg-red-50 text-[var(--ink)]"
+                      : "border-border hover:border-red-600",
+                  )}
+                >
+                  <span className="block">Bank transfer</span>
+                  <span
                     className={cn(
-                      "border px-3 py-3 text-left text-[0.625rem] leading-snug tracking-[0.12em] uppercase transition-colors",
-                      paymentMethod === key
-                        ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
-                        : "border-border hover:border-foreground",
+                      "mt-1.5 inline-block text-[0.7rem] font-semibold tracking-[0.18em]",
+                      paymentMethod === "bank" ? "text-red-600" : "text-red-600",
                     )}
                   >
-                    {label}
-                  </button>
-                ))}
+                    {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF
+                  </span>
+                </button>
               </div>
 
               <div className="mt-5 space-y-2 text-sm">
@@ -235,9 +247,9 @@ export function CartDrawer() {
                   <span>{formatPrice(subtotal, currency)}</span>
                 </div>
                 {paymentMethod === "bank" && (
-                  <div className="flex items-center justify-between text-muted-foreground">
+                  <div className="flex items-center justify-between font-semibold text-red-600">
                     <span className="tracking-[0.12em] uppercase">
-                      Bank transfer {BANK_TRANSFER_DISCOUNT_PERCENT}% off
+                      {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF · Bank transfer
                     </span>
                     <span>-{formatPrice(bankDiscount, currency)}</span>
                   </div>
@@ -248,36 +260,70 @@ export function CartDrawer() {
                 </div>
                 <div className="flex items-center justify-between font-medium">
                   <span className="tracking-[0.16em] uppercase">Total</span>
-                  <span>{formatPrice(payable, currency)}</span>
+                  <span className={cn(paymentMethod === "bank" && "text-red-600")}>
+                    {formatPrice(payable, currency)}
+                  </span>
                 </div>
               </div>
 
-              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                {allSynced && !SHOPIFY_CHECKOUT_LOCKED
-                  ? paymentMethod === "bank"
-                    ? `${BANK_TRANSFER_DISCOUNT_PERCENT}% off is applied automatically when you continue with bank transfer — no discount code needed. Choose Bank deposit at Shopify checkout, then send payment proof.`
-                    : "Free shipping · tax-free prices. Cash on Delivery collected by the courier."
-                  : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}.`}{" "}
-                <Link
-                  to="/payments"
-                  onClick={() => setOpen(false)}
-                  className="underline underline-offset-2"
-                >
-                  Payment details
-                </Link>
-              </p>
+              {paymentMethod === "bank" && (
+                <p className="mt-3 border border-red-600/30 bg-red-50 px-3 py-2.5 text-xs font-medium leading-relaxed text-red-700">
+                  <span className="font-semibold tracking-[0.14em] uppercase">
+                    {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF applied
+                  </span>
+                  {" — "}
+                  automatically on bank transfer. No code needed. Choose Bank deposit at Shopify
+                  checkout, then send payment proof.
+                </p>
+              )}
+
+              {paymentMethod !== "bank" && (
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                  {allSynced && !SHOPIFY_CHECKOUT_LOCKED
+                    ? "Free shipping · tax-free prices. Cash on Delivery collected by the courier. "
+                    : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}. `}
+                  <Link
+                    to="/payments"
+                    onClick={() => setOpen(false)}
+                    className="underline underline-offset-2"
+                  >
+                    Payment details
+                  </Link>
+                </p>
+              )}
+              {paymentMethod === "bank" && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  <Link
+                    to="/payments"
+                    onClick={() => setOpen(false)}
+                    className="underline underline-offset-2"
+                  >
+                    UBL bank details
+                  </Link>
+                </p>
+              )}
               <button
                 type="button"
                 onClick={handleCheckout}
                 disabled={isLoading || items.length === 0 || !getCheckoutUrl()}
-                className="mt-5 flex w-full items-center justify-center bg-[var(--ink)] py-4 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)] uppercase disabled:opacity-40"
+                className={cn(
+                  "mt-5 flex w-full items-center justify-center py-4 text-[0.625rem] tracking-[0.28em] uppercase disabled:opacity-40",
+                  paymentMethod === "bank"
+                    ? "bg-red-600 text-white hover:bg-red-700"
+                    : "bg-[var(--ink)] text-[var(--ivory)]",
+                )}
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : allSynced && !SHOPIFY_CHECKOUT_LOCKED ? (
-                  paymentMethod === "bank"
-                    ? `Checkout · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off`
-                    : "Checkout · Cash on Delivery"
+                  paymentMethod === "bank" ? (
+                    <span>
+                      Checkout ·{" "}
+                      <span className="font-semibold">{BANK_TRANSFER_DISCOUNT_PERCENT}% OFF</span>
+                    </span>
+                  ) : (
+                    "Checkout · Cash on Delivery"
+                  )
                 ) : getCheckoutUrl() ? (
                   `Order via ${orderChannelLabel()}`
                 ) : (
