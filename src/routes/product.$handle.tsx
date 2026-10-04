@@ -16,35 +16,78 @@ type ProductSearch = {
   gender?: string | undefined;
 };
 
+function titleFromHandle(handle: string) {
+  return handle
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export const Route = createFileRoute("/product/$handle")({
   validateSearch: (search: Record<string, unknown>): ProductSearch => ({
     gender: typeof search.gender === "string" ? search.gender : undefined,
   }),
-  head: ({ params }) => {
-    const name = params.handle
-      .split("-")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
+  loaderDeps: ({ search }) => ({ gender: search.gender }),
+  loader: async ({ params, deps }) => {
+    const product = await fetchProductByHandle(
+      params.handle,
+      resolveModelGender(deps.gender),
+    );
+    return { product };
+  },
+  head: ({ params, loaderData }) => {
+    const node = loaderData?.product?.node;
+    const name = node?.title ?? titleFromHandle(params.handle);
+    const description =
+      node?.description?.slice(0, 155) ||
+      `Shop the ${name} from EYVORA. Sizes S, M, L with Cash on Delivery across Pakistan. Priced in PKR.`;
+    const image =
+      node?.images.edges[0]?.node.url || "https://eyvora.pk/og.jpg";
+    const url = `https://eyvora.pk/product/${params.handle}`;
+    const price = node?.priceRange.minVariantPrice;
+    const scripts = node
+      ? [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Product",
+              name: node.title,
+              description: node.description,
+              image: node.images.edges.map((i) => i.node.url),
+              sku: node.handle,
+              brand: { "@type": "Brand", name: "EYVORA" },
+              offers: {
+                "@type": "Offer",
+                priceCurrency: price?.currencyCode ?? "PKR",
+                price: price?.amount ?? "0",
+                availability: node.availableForSale
+                  ? "https://schema.org/InStock"
+                  : "https://schema.org/OutOfStock",
+                url,
+              },
+            }),
+          },
+        ]
+      : [];
     return {
       meta: [
         { title: `${name} | Buy Online Pakistan — EYVORA` },
-        {
-          name: "description",
-          content: `Shop the ${name} from EYVORA. Sizes S, M, L with Cash on Delivery across Pakistan. Priced in PKR.`,
-        },
+        { name: "description", content: description },
         { property: "og:title", content: `${name} — EYVORA` },
         {
           property: "og:description",
           content: `${name} by EYVORA. Everyday essentials with COD and bank transfer.`,
         },
-        { property: "og:url", content: `https://eyvora.pk/product/${params.handle}` },
-        { property: "og:image", content: "https://eyvora.pk/og.jpg" },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: image },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: image },
         { name: "robots", content: "index, follow" },
       ],
-      links: [
-        { rel: "canonical", href: `https://eyvora.pk/product/${params.handle}` },
-      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts,
     };
   },
   component: ProductPage,
@@ -53,6 +96,7 @@ export const Route = createFileRoute("/product/$handle")({
 function ProductPage() {
   const { handle } = Route.useParams();
   const search = Route.useSearch();
+  const { product: initialProduct } = Route.useLoaderData();
   const navigate = useNavigate({ from: "/product/$handle" });
   const modelGender = resolveModelGender(search.gender);
   const [qty, setQty] = useState(1);
@@ -68,6 +112,7 @@ function ProductPage() {
   const { data: product, isLoading: loadingProduct } = useQuery({
     queryKey: ["product", handle, modelGender ?? "default"],
     queryFn: () => fetchProductByHandle(handle, modelGender),
+    initialData: initialProduct ?? undefined,
   });
 
   const { data: related } = useQuery({
@@ -173,31 +218,8 @@ function ProductPage() {
     });
   };
 
-  const productJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: node.title,
-    description: node.description,
-    image: images.map((i) => i.node.url),
-    sku: node.handle,
-    brand: { "@type": "Brand", name: "EYVORA" },
-    offers: {
-      "@type": "Offer",
-      priceCurrency: price.currencyCode,
-      price: price.amount,
-      availability: node.availableForSale
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      url: `https://eyvora.pk/product/${node.handle}`,
-    },
-  };
-
   return (
     <div className="pt-28 lg:pt-36">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
-      />
       <div className="mx-auto max-w-[1600px] px-5 lg:px-10">
         <nav className="flex items-center gap-2 py-6 text-[0.625rem] tracking-[0.22em] text-muted-foreground uppercase">
           <Link to="/" className="hover:text-foreground">

@@ -13,7 +13,9 @@ export const Route = createFileRoute("/visit")({
           "Visit EYVORA studio details will appear here once the client confirms locations and hours.",
       },
       { property: "og:title", content: "Visit Us — EYVORA" },
+      { property: "og:url", content: "https://eyvora.pk/visit" },
     ],
+    links: [{ rel: "canonical", href: "https://eyvora.pk/visit" }],
   }),
   component: Visit,
 });

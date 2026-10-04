@@ -93,7 +93,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "author", content: "EYVORA" },
       { property: "og:site_name", content: "EYVORA" },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://eyvora.pk/" },
       {
         property: "og:title",
         content: "EYVORA — Premium Hoodies & Trousers in Pakistan",
@@ -118,7 +117,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "canonical", href: "https://eyvora.pk/" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/favicon.png" },
       { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },

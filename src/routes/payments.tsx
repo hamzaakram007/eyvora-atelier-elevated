@@ -22,7 +22,9 @@ export const Route = createFileRoute("/payments")({
           "Pay EYVORA with Cash on Delivery or bank transfer to UBL. Account details and other Pakistan payment options.",
       },
       { property: "og:title", content: "Payment Methods — EYVORA" },
+      { property: "og:url", content: "https://eyvora.pk/payments" },
     ],
+    links: [{ rel: "canonical", href: "https://eyvora.pk/payments" }],
   }),
   component: PaymentsPage,
 });

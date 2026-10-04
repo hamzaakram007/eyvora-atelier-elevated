@@ -15,7 +15,9 @@ export const Route = createFileRoute("/wishlist")({
       },
       { property: "og:title", content: "Your EYVORA Wishlist" },
       { property: "og:description", content: "The EYVORA pieces you've saved." },
+      { name: "robots", content: "noindex, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://eyvora.pk/wishlist" }],
   }),
   component: Wishlist,
 });

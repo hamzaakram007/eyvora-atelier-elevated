@@ -18,10 +18,12 @@ export const Route = createFileRoute("/contact")({
       {
         name: "description",
         content:
-          "Contact EYVORA for product questions, sizing help and order support.",
+          "Contact EYVORA for product questions, sizing help and order support. WhatsApp 0316 1609389 · eyvorapk@gmail.com.",
       },
       { property: "og:title", content: "Contact — EYVORA" },
+      { property: "og:url", content: "https://eyvora.pk/contact" },
     ],
+    links: [{ rel: "canonical", href: "https://eyvora.pk/contact" }],
   }),
   component: Contact,
 });

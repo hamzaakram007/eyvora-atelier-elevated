@@ -32,7 +32,10 @@ export const Route = createFileRoute("/couple")({
         content:
           "Signature contrast outfits for two. Olive with black, black with grey — independent sizes for each person.",
       },
+      { property: "og:url", content: "https://eyvora.pk/couple" },
+      { property: "og:image", content: "https://eyvora.pk/og.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://eyvora.pk/couple" }],
   }),
   component: CouplePage,
 });

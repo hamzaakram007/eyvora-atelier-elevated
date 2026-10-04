@@ -53,6 +53,7 @@ export const Route = createFileRoute("/shop")({
             "Browse EYVORA hoodies and trousers for Men, Women and Couple. Filter by size, colour and availability. Pakistan COD available.",
         },
         { property: "og:title", content: title },
+        { property: "og:url", content: "https://eyvora.pk/shop" },
         { property: "og:image", content: "https://eyvora.pk/og.jpg" },
         { name: "robots", content: "index, follow" },
       ],

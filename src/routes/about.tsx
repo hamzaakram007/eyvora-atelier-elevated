@@ -18,7 +18,9 @@ export const Route = createFileRoute("/about")({
         property: "og:description",
         content: "Everyday essentials. Elevated.",
       },
+      { property: "og:url", content: "https://eyvora.pk/about" },
     ],
+    links: [{ rel: "canonical", href: "https://eyvora.pk/about" }],
   }),
   component: About,
 });
