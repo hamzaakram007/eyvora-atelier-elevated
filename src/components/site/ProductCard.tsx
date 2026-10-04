@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Heart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice, type ShopifyProduct } from "@/lib/shopify";
+import { cardImageUrl, productSrcSet } from "@/lib/image-variants";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
@@ -11,15 +12,23 @@ export function ProductCard({
   product,
   index = 0,
   gender,
+  /** When false, never mark images as LCP candidates (e.g. related rail). */
+  prioritize = true,
 }: {
   product: ShopifyProduct;
   index?: number;
   gender?: string;
+  prioritize?: boolean;
 }) {
   const node = product.node;
   const images = node.images.edges;
-  const primary = images[0]?.node.url;
-  const secondary = images[1]?.node.url ?? primary;
+  const primaryFull = images[0]?.node.url;
+  const secondaryFull = images[1]?.node.url ?? primaryFull;
+  const primary = cardImageUrl(primaryFull) || primaryFull;
+  const secondary = cardImageUrl(secondaryFull) || secondaryFull;
+  const primarySrcSet = productSrcSet(primaryFull);
+  const secondarySrcSet = productSrcSet(secondaryFull);
+  const eager = prioritize && index < 2;
   const addItem = useCartStore((s) => s.addItem);
   const setCartOpen = useCartStore((s) => s.setOpen);
   const wishlisted = useWishlist((s) => s.handles.includes(node.handle));
@@ -83,25 +92,27 @@ export function ProductCard({
           {primary && (
             <img
               src={primary}
+              srcSet={primarySrcSet}
               alt={images[0]?.node.altText ?? node.title}
-              loading={index < 2 ? "eager" : "lazy"}
-              fetchPriority={index === 0 ? "high" : "auto"}
+              loading={eager ? "eager" : "lazy"}
+              fetchPriority={prioritize && index === 0 ? "high" : "auto"}
               decoding="async"
-              width={640}
-              height={800}
-              sizes="(max-width: 768px) 50vw, 25vw"
+              width={420}
+              height={525}
+              sizes="(max-width: 768px) 45vw, 22vw"
               className="absolute inset-0 h-full w-full object-cover transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-hover:opacity-0"
             />
           )}
           {secondary && (
             <img
               src={secondary}
+              srcSet={secondarySrcSet}
               alt=""
               loading="lazy"
               decoding="async"
-              width={640}
-              height={800}
-              sizes="(max-width: 768px) 50vw, 25vw"
+              width={420}
+              height={525}
+              sizes="(max-width: 768px) 45vw, 22vw"
               className="absolute inset-0 hidden h-full w-full scale-105 object-cover opacity-0 transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] md:block group-hover:scale-100 group-hover:opacity-100"
             />
           )}

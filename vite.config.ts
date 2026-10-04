@@ -24,9 +24,12 @@ export default defineConfig({
           if (!id.includes("node_modules")) return;
           if (id.includes("@tanstack")) return "tanstack";
           if (id.includes("lucide-react")) return "icons";
-          if (id.includes("zustand") || id.includes("@tanstack/react-query")) {
-            return "state";
+          if (id.includes("zustand")) return "state";
+          // Keep Radix dialog/sheet out of the critical product path until opened.
+          if (id.includes("@radix-ui/react-dialog") || id.includes("@radix-ui/react-portal")) {
+            return "radix-dialog";
           }
+          if (id.includes("@radix-ui")) return "radix";
         },
       },
     },

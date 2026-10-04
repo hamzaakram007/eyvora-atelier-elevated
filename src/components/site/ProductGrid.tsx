@@ -14,6 +14,7 @@ export function ProductGrid({
   emptyNote = "No products found.",
   columns = "lg:grid-cols-4",
   gender,
+  prioritizeImages = true,
 }: {
   products?: ShopifyProduct[];
   /** Prefer this when each card needs its own Men/Women gallery. */
@@ -23,6 +24,8 @@ export function ProductGrid({
   columns?: string;
   /** Shared gender for all cards when `items` is not provided. */
   gender?: string;
+  /** Set false for below-fold rails so cards never compete with page LCP. */
+  prioritizeImages?: boolean;
 }) {
   const resolved: ProductGridItem[] =
     items ??
@@ -60,7 +63,12 @@ export function ProductGrid({
     <div className={`grid grid-cols-2 gap-x-5 gap-y-14 ${columns}`}>
       {resolved.map((item, i) => (
         <Reveal key={item.product.node.id} delay={(i % 4) * 90} as="div">
-          <ProductCard product={item.product} index={i} gender={item.gender} />
+          <ProductCard
+            product={item.product}
+            index={i}
+            gender={item.gender}
+            prioritize={prioritizeImages}
+          />
         </Reveal>
       ))}
     </div>

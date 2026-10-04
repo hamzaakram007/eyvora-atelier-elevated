@@ -4,15 +4,24 @@ import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ChevronRight } from "lucide-react";
 import { fetchProductByHandle, fetchProducts, formatPrice } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
-import { ProductGrid } from "@/components/site/ProductGrid";
-import { SizeGuideModal } from "@/components/site/SizeGuideModal";
 import { useWishlist } from "@/hooks/useWishlist";
-import { isShopifySyncedVariantId, resolveModelGender } from "@/lib/catalog";
+import { resolveModelGender } from "@/lib/catalog";
+import { cardImageUrl, productSrcSet, thumbImageUrl } from "@/lib/image-variants";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const Faq = lazy(() =>
   import("@/components/home/Faq").then((m) => ({ default: m.Faq })),
+);
+const SizeGuideModal = lazy(() =>
+  import("@/components/site/SizeGuideModal").then((m) => ({
+    default: m.SizeGuideModal,
+  })),
+);
+const ProductGrid = lazy(() =>
+  import("@/components/site/ProductGrid").then((m) => ({
+    default: m.ProductGrid,
+  })),
 );
 
 type ProductSearch = {
@@ -44,8 +53,9 @@ export const Route = createFileRoute("/product/$handle")({
     const description =
       node?.description?.slice(0, 155) ||
       `Shop the ${name} from EYVORA. Sizes S, M, L, XL with Cash on Delivery across Pakistan. Priced in PKR.`;
-    const image =
+    const imageFull =
       node?.images.edges[0]?.node.url || "https://eyvora.pk/og.jpg";
+    const imageCard = cardImageUrl(imageFull) || imageFull;
     const url = `https://eyvora.pk/product/${params.handle}`;
     const price = node?.priceRange.minVariantPrice;
     const scripts = node
@@ -84,15 +94,22 @@ export const Route = createFileRoute("/product/$handle")({
         },
         { property: "og:type", content: "product" },
         { property: "og:url", content: url },
-        { property: "og:image", content: image },
+        { property: "og:image", content: imageFull },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:image", content: image },
+        { name: "twitter:image", content: imageFull },
         { name: "robots", content: "index, follow" },
       ],
       links: [
         { rel: "canonical", href: url },
-        ...(image && image !== "https://eyvora.pk/og.jpg"
-          ? [{ rel: "preload", as: "image", href: image }]
+        ...(imageFull && imageFull !== "https://eyvora.pk/og.jpg"
+          ? [
+              {
+                rel: "preload",
+                as: "image" as const,
+                href: imageCard,
+                fetchPriority: "high" as const,
+              },
+            ]
           : []),
       ],
       scripts,
@@ -111,24 +128,48 @@ function ProductPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [loadRelated, setLoadRelated] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
   const isLoading = useCartStore((s) => s.isLoading);
   const wishlisted = useWishlist((s) => s.handles.includes(handle));
   const toggleWishlist = useWishlist((s) => s.toggle);
 
-  const { data: product, isLoading: loadingProduct } = useQuery({
+  const { data: product } = useQuery({
     queryKey: ["product", handle, modelGender ?? "default"],
     queryFn: () => fetchProductByHandle(handle, modelGender),
     initialData: initialProduct ?? undefined,
+    staleTime: 60_000,
   });
+
+  // Defer related catalogue work until after first paint / idle.
+  useEffect(() => {
+    let cancelled = false;
+    const enable = () => {
+      if (!cancelled) setLoadRelated(true);
+    };
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(enable, { timeout: 1800 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(id);
+      };
+    }
+    const t = window.setTimeout(enable, 1200);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, [handle]);
 
   const { data: related } = useQuery({
     queryKey: ["products", "related", modelGender ?? "default"],
     queryFn: () => fetchProducts(8, undefined, modelGender),
+    enabled: loadRelated,
+    staleTime: 60_000,
   });
 
-  const node = product?.node;
+  const node = product?.node ?? initialProduct?.node;
   const images = node?.images.edges ?? [];
   const variants = node?.variants.edges ?? [];
 
@@ -150,21 +191,6 @@ function ProductPage() {
     setSelected({});
     setQty(1);
   }, [handle, modelGender]);
-
-  if (loadingProduct) {
-    return (
-      <div className="mx-auto max-w-[1600px] px-5 pt-40 lg:px-10">
-        <div className="grid animate-pulse gap-10 lg:grid-cols-2">
-          <div className="aspect-[4/5] bg-[var(--soft-grey)]" />
-          <div className="space-y-4 py-10">
-            <div className="h-8 w-2/3 bg-[var(--soft-grey)]" />
-            <div className="h-4 w-1/4 bg-[var(--soft-grey)]" />
-            <div className="h-24 w-full bg-[var(--soft-grey)]" />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (!node) {
     return (
@@ -248,6 +274,8 @@ function ProductPage() {
                 {images.map((img, i) => (
                   <button
                     key={img.node.url}
+                    type="button"
+                    aria-label={`Show image ${i + 1}: ${img.node.altText ?? node.title}`}
                     onMouseEnter={() => setActiveImage(i)}
                     onClick={() => setActiveImage(i)}
                     className={cn(
@@ -256,9 +284,12 @@ function ProductPage() {
                     )}
                   >
                     <img
-                      src={img.node.url}
-                      alt={img.node.altText ?? node.title}
+                      src={thumbImageUrl(img.node.url) || img.node.url}
+                      alt=""
+                      width={80}
+                      height={100}
                       loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover"
                     />
                   </button>
@@ -268,13 +299,17 @@ function ProductPage() {
             <div className="flex-1 overflow-hidden bg-[var(--soft-grey)]">
               {images[activeImage] ? (
                 <img
-                  src={images[activeImage]!.node.url}
+                  src={
+                    cardImageUrl(images[activeImage]!.node.url) ||
+                    images[activeImage]!.node.url
+                  }
+                  srcSet={productSrcSet(images[activeImage]!.node.url)}
                   alt={images[activeImage]!.node.altText ?? node.title}
-                  width={900}
-                  height={1125}
-                  sizes="(max-width: 1024px) 100vw, 55vw"
+                  width={840}
+                  height={1050}
+                  sizes="(max-width: 1024px) 92vw, 55vw"
                   fetchPriority={activeImage === 0 ? "high" : "auto"}
-                  decoding={activeImage === 0 ? "sync" : "async"}
+                  decoding="async"
                   loading={activeImage === 0 ? "eager" : "lazy"}
                   className="aspect-[4/5] w-full object-cover"
                 />
@@ -286,6 +321,8 @@ function ProductPage() {
                   {images.map((img, i) => (
                     <button
                       key={img.node.url}
+                      type="button"
+                      aria-label={`Show image ${i + 1}`}
                       onClick={() => setActiveImage(i)}
                       className={cn(
                         "h-20 w-16 shrink-0 overflow-hidden border",
@@ -293,8 +330,12 @@ function ProductPage() {
                       )}
                     >
                       <img
-                        src={img.node.url}
+                        src={thumbImageUrl(img.node.url) || img.node.url}
                         alt=""
+                        width={64}
+                        height={80}
+                        loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-cover"
                       />
                     </button>
@@ -510,10 +551,26 @@ function ProductPage() {
           <h2 className="font-display mt-4 mb-12 text-[clamp(1.75rem,3vw,2.5rem)]">
             Complete the look
           </h2>
-          <ProductGrid
-            products={(related ?? []).filter((p) => p.node.handle !== handle).slice(0, 4)}
-            gender={modelGender}
-          />
+          <Suspense
+            fallback={
+              <div className="grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="aspect-[4/5] bg-[var(--sand)]" />
+                  </div>
+                ))}
+              </div>
+            }
+          >
+            <ProductGrid
+              products={(related ?? [])
+                .filter((p) => p.node.handle !== handle)
+                .slice(0, 4)}
+              gender={modelGender}
+              prioritizeImages={false}
+              loading={!loadRelated || related == null}
+            />
+          </Suspense>
         </section>
       </div>
 
@@ -538,16 +595,20 @@ function ProductPage() {
       <Suspense fallback={null}>
         <Faq />
       </Suspense>
-      <SizeGuideModal
-        open={sizeGuideOpen}
-        onOpenChange={setSizeGuideOpen}
-        kind={
-          (node.productType ?? "").toLowerCase().includes("trouser") ||
-          node.handle.includes("trousers")
-            ? "trousers"
-            : "hoodies"
-        }
-      />
+      {sizeGuideOpen && (
+        <Suspense fallback={null}>
+          <SizeGuideModal
+            open={sizeGuideOpen}
+            onOpenChange={setSizeGuideOpen}
+            kind={
+              (node.productType ?? "").toLowerCase().includes("trouser") ||
+              node.handle.includes("trousers")
+                ? "trousers"
+                : "hoodies"
+            }
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
