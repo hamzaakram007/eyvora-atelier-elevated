@@ -427,12 +427,13 @@ export const useCartStore = create<CartStore>()(
           return null;
         }
 
-        // Synced Shopify carts: apply/remove bank-transfer discount before checkout.
+        // Always attach BANK7 before Shopify checkout so switching from bag-COD
+        // to Bank Deposit on checkout still keeps the 7% off. The ORDERS_CREATE
+        // webhook removes it again if the paid method is COD.
         if (cartId && items.every((i) => isShopifySyncedVariantId(i.variantId))) {
           set({ isLoading: true });
           try {
-            const discountCodes =
-              paymentMethod === "bank" ? [BANK_TRANSFER_DISCOUNT_CODE] : [];
+            const discountCodes = [BANK_TRANSFER_DISCOUNT_CODE];
             const discountData = await storefrontApiRequest(
               CART_DISCOUNT_CODES_UPDATE_MUTATION,
               { cartId, discountCodes },
@@ -441,11 +442,9 @@ export const useCartStore = create<CartStore>()(
               discountData?.data?.cartDiscountCodesUpdate?.userErrors || [];
             if (discountErrors.length > 0) {
               console.error("Discount update failed:", discountErrors);
-              if (paymentMethod === "bank") {
-                toast.message("Could not apply bank transfer discount", {
-                  description: discountErrors[0]?.message || "Try again in a moment.",
-                });
-              }
+              toast.message("Could not prepare checkout discount", {
+                description: discountErrors[0]?.message || "Try again in a moment.",
+              });
             } else {
               const nextUrl =
                 discountData?.data?.cartDiscountCodesUpdate?.cart?.checkoutUrl;
@@ -457,18 +456,16 @@ export const useCartStore = create<CartStore>()(
             const note =
               paymentMethod === "bank"
                 ? `Payment preference: Bank transfer (UBL). ${BANK_TRANSFER_DISCOUNT_CODE} 7% discount applied automatically. Customer will send payment proof after checkout.`
-                : "Payment preference: Cash on Delivery (COD).";
+                : `Payment preference: Cash on Delivery (COD). ${BANK_TRANSFER_DISCOUNT_CODE} is attached so Bank Deposit on Shopify checkout still gets 7% off; webhook removes it if COD is the final method.`;
             await storefrontApiRequest(CART_NOTE_UPDATE_MUTATION, {
               cartId,
               note,
             });
           } catch (error) {
             console.error("Failed to prepare checkout discounts:", error);
-            if (paymentMethod === "bank") {
-              toast.message("Could not apply bank transfer discount", {
-                description: "You can still continue — contact EYVORA if the discount is missing.",
-              });
-            }
+            toast.message("Could not prepare checkout discount", {
+              description: "You can still continue — contact EYVORA if the discount is missing.",
+            });
           } finally {
             set({ isLoading: false });
           }
@@ -482,17 +479,14 @@ export const useCartStore = create<CartStore>()(
           return null;
         }
 
-        // Reinforce discount on the checkout URL for bank transfer.
-        if (paymentMethod === "bank") {
-          try {
-            const withDiscount = new URL(url);
-            withDiscount.searchParams.set("discount", BANK_TRANSFER_DISCOUNT_CODE);
-            return withDiscount.toString();
-          } catch {
-            return url;
-          }
+        // Always reinforce BANK7 on the checkout URL so COD→Bank Deposit still works.
+        try {
+          const withDiscount = new URL(url);
+          withDiscount.searchParams.set("discount", BANK_TRANSFER_DISCOUNT_CODE);
+          return withDiscount.toString();
+        } catch {
+          return url;
         }
-        return url;
       },
 
       syncCart: async () => {

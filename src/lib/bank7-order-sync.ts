@@ -229,6 +229,17 @@ async function removeBankDiscountIfPresent(
       orderEditBegin(id: $id) {
         calculatedOrder {
           id
+          discountApplications(first: 20) {
+            edges {
+              node {
+                ... on CalculatedDiscountApplication {
+                  id
+                  description
+                  value { ... on PricingPercentageValue { percentage } }
+                }
+              }
+            }
+          }
           lineItems(first: 50) {
             edges {
               node {
@@ -265,31 +276,57 @@ async function removeBankDiscountIfPresent(
   const calculated = began.orderEditBegin?.calculatedOrder;
   if (!calculated?.id) return null;
 
-  let removed = 0;
+  const candidates: Array<{ id?: string; description?: string; percentage?: number }> =
+    [];
   for (const edge of calculated.lineItems.edges || []) {
     for (const alloc of edge.node.calculatedDiscountAllocations || []) {
       const app = alloc.discountApplication;
-      const desc = (app?.description || "").toLowerCase();
-      const pct = app?.value?.percentage;
-      const isBankDisc =
-        desc.includes("bank transfer") ||
-        desc.includes("bank7") ||
-        pct === DISCOUNT_PERCENT;
-      if (!isBankDisc || !app?.id) continue;
-
-      const result = await adminGraphql(
-        domain,
-        token,
-        `mutation orderEditRemoveDiscount($id: ID!, $discountApplicationId: ID!) {
-          orderEditRemoveDiscount(id: $id, discountApplicationId: $discountApplicationId) {
-            userErrors { field message }
-          }
-        }`,
-        { id: calculated.id, discountApplicationId: app.id },
-      );
-      const errors = result.orderEditRemoveDiscount?.userErrors || [];
-      if (!errors.length) removed += 1;
+      if (app) {
+        candidates.push({
+          id: app.id,
+          description: app.description,
+          percentage: app.value?.percentage,
+        });
+      }
     }
+  }
+  for (const edge of calculated.discountApplications?.edges || []) {
+    const app = edge.node;
+    if (app) {
+      candidates.push({
+        id: app.id,
+        description: app.description,
+        percentage: app.value?.percentage,
+      });
+    }
+  }
+
+  const seen = new Set<string>();
+  let removed = 0;
+  for (const app of candidates) {
+    if (!app?.id || seen.has(app.id)) continue;
+    const desc = (app.description || "").toLowerCase();
+    const pct = app.percentage;
+    const isBankDisc =
+      desc.includes("bank transfer") ||
+      desc.includes("bank7") ||
+      desc.includes(DISCOUNT_CODE.toLowerCase()) ||
+      pct === DISCOUNT_PERCENT;
+    if (!isBankDisc) continue;
+    seen.add(app.id);
+
+    const result = await adminGraphql(
+      domain,
+      token,
+      `mutation orderEditRemoveDiscount($id: ID!, $discountApplicationId: ID!) {
+        orderEditRemoveDiscount(id: $id, discountApplicationId: $discountApplicationId) {
+          userErrors { field message }
+        }
+      }`,
+      { id: calculated.id, discountApplicationId: app.id },
+    );
+    const errors = result.orderEditRemoveDiscount?.userErrors || [];
+    if (!errors.length) removed += 1;
   }
 
   if (removed > 0) {
