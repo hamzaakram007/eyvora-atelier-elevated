@@ -485,8 +485,9 @@ function ProductPage() {
               <details>
                 <summary className="cursor-pointer tracking-[0.08em] uppercase">Delivery</summary>
                 <p className="mt-3 leading-relaxed">
-                  Free shipping across Pakistan. Prices are tax-free. Pay by COD or save 7% with
-                  bank transfer (code BANK7) — details on the Payments page.
+                  Free shipping across Pakistan. Prices are tax-free. Pay by COD, or choose bank
+                  transfer in your bag for 7% off applied automatically — details on the Payments
+                  page.
                 </p>
               </details>
               <details>

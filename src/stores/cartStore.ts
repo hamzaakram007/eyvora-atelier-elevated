@@ -3,7 +3,13 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
 import { isShopifySyncedVariantId } from "@/lib/catalog";
 import { storefrontApiRequest, type ShopifyProduct } from "@/lib/shopify";
-import { orderChannelLabel, orderLink } from "@/lib/site";
+import {
+  BANK_TRANSFER_DISCOUNT_CODE,
+  orderChannelLabel,
+  orderLink,
+} from "@/lib/site";
+
+export type CheckoutPaymentMethod = "cod" | "bank";
 
 export interface CartItem {
   lineId: string | null;
@@ -59,6 +65,28 @@ const CART_LINES_REMOVE_MUTATION = `
   mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
     cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
       cart { id }
+      userErrors { field message }
+    }
+  }
+`;
+
+const CART_DISCOUNT_CODES_UPDATE_MUTATION = `
+  mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!) {
+    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+      cart {
+        id
+        checkoutUrl
+        discountCodes { code applicable }
+      }
+      userErrors { field message }
+    }
+  }
+`;
+
+const CART_NOTE_UPDATE_MUTATION = `
+  mutation cartNoteUpdate($cartId: ID!, $note: String!) {
+    cartNoteUpdate(cartId: $cartId, note: $note) {
+      cart { id checkoutUrl }
       userErrors { field message }
     }
   }
@@ -189,8 +217,11 @@ interface CartStore {
   clearCart: () => void;
   syncCart: () => Promise<void>;
   getCheckoutUrl: () => string | null;
-  /** Returns a Shopify checkout URL (rewritten off the Vercel domain). */
-  prepareCheckout: () => Promise<string | null>;
+  /**
+   * Returns a Shopify checkout URL (rewritten off the Vercel domain).
+   * Bank transfer automatically applies the BANK7 cart discount — no code entry needed.
+   */
+  prepareCheckout: (paymentMethod?: CheckoutPaymentMethod) => Promise<string | null>;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -389,11 +420,58 @@ export const useCartStore = create<CartStore>()(
         return null;
       },
 
-      prepareCheckout: async () => {
-        const { items } = get();
+      prepareCheckout: async (paymentMethod = "cod") => {
+        const { items, cartId } = get();
         if (items.length === 0) {
           toast.message("Your bag is empty");
           return null;
+        }
+
+        // Synced Shopify carts: apply/remove bank-transfer discount before checkout.
+        if (cartId && items.every((i) => isShopifySyncedVariantId(i.variantId))) {
+          set({ isLoading: true });
+          try {
+            const discountCodes =
+              paymentMethod === "bank" ? [BANK_TRANSFER_DISCOUNT_CODE] : [];
+            const discountData = await storefrontApiRequest(
+              CART_DISCOUNT_CODES_UPDATE_MUTATION,
+              { cartId, discountCodes },
+            );
+            const discountErrors: UserError[] =
+              discountData?.data?.cartDiscountCodesUpdate?.userErrors || [];
+            if (discountErrors.length > 0) {
+              console.error("Discount update failed:", discountErrors);
+              if (paymentMethod === "bank") {
+                toast.message("Could not apply bank transfer discount", {
+                  description: discountErrors[0]?.message || "Try again in a moment.",
+                });
+              }
+            } else {
+              const nextUrl =
+                discountData?.data?.cartDiscountCodesUpdate?.cart?.checkoutUrl;
+              if (nextUrl) {
+                set({ checkoutUrl: formatCheckoutUrl(nextUrl) });
+              }
+            }
+
+            const note =
+              paymentMethod === "bank"
+                ? `Payment preference: Bank transfer (UBL). ${BANK_TRANSFER_DISCOUNT_CODE} 7% discount applied automatically. Customer will send payment proof after checkout.`
+                : "Payment preference: Cash on Delivery (COD).";
+            await storefrontApiRequest(CART_NOTE_UPDATE_MUTATION, {
+              cartId,
+              note,
+            });
+          } catch (error) {
+            console.error("Failed to prepare checkout discounts:", error);
+            if (paymentMethod === "bank") {
+              toast.message("Could not apply bank transfer discount", {
+                description: "You can still continue — contact EYVORA if the discount is missing.",
+              });
+            }
+          } finally {
+            set({ isLoading: false });
+          }
         }
 
         const url = get().getCheckoutUrl();
@@ -402,6 +480,17 @@ export const useCartStore = create<CartStore>()(
             description: "Add items again, then try Checkout.",
           });
           return null;
+        }
+
+        // Reinforce discount on the checkout URL for bank transfer.
+        if (paymentMethod === "bank") {
+          try {
+            const withDiscount = new URL(url);
+            withDiscount.searchParams.set("discount", BANK_TRANSFER_DISCOUNT_CODE);
+            return withDiscount.toString();
+          } catch {
+            return url;
+          }
         }
         return url;
       },

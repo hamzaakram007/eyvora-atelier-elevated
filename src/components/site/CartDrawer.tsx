@@ -1,12 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Loader2, Minus, Plus, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useCartStore } from "@/stores/cartStore";
+import {
+  useCartStore,
+  type CheckoutPaymentMethod,
+} from "@/stores/cartStore";
 import { fetchProducts, formatPrice } from "@/lib/shopify";
 import { isShopifySyncedVariantId } from "@/lib/catalog";
-import { orderChannelLabel, SHOPIFY_CHECKOUT_LOCKED } from "@/lib/site";
+import {
+  BANK_TRANSFER_DISCOUNT_PERCENT,
+  orderChannelLabel,
+  SHOPIFY_CHECKOUT_LOCKED,
+} from "@/lib/site";
+import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
   const {
@@ -20,6 +28,8 @@ export function CartDrawer() {
     prepareCheckout,
     syncCart,
   } = useCartStore();
+  const [paymentMethod, setPaymentMethod] =
+    useState<CheckoutPaymentMethod>("cod");
 
   const { data: upsell } = useQuery({
     queryKey: ["products", "upsell"],
@@ -43,8 +53,12 @@ export function CartDrawer() {
     if (isOpen) syncCart();
   }, [isOpen, syncCart]);
 
+  const bankDiscount = (subtotal * BANK_TRANSFER_DISCOUNT_PERCENT) / 100;
+  const payable =
+    paymentMethod === "bank" ? Math.max(0, subtotal - bankDiscount) : subtotal;
+
   const handleCheckout = async () => {
-    const checkoutUrl = await prepareCheckout();
+    const checkoutUrl = await prepareCheckout(paymentMethod);
     if (!checkoutUrl) return;
     // Same-tab navigation avoids popup blockers on async checkout.
     setOpen(false);
@@ -189,13 +203,60 @@ export function CartDrawer() {
             </div>
 
             <div className="border-t border-border px-6 py-5">
-              <div className="flex items-center justify-between text-sm">
-                <span className="tracking-[0.16em] uppercase">Subtotal</span>
-                <span>{formatPrice(subtotal, currency)}</span>
+              <p className="text-[0.625rem] tracking-[0.22em] uppercase text-muted-foreground">
+                Payment method
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {(
+                  [
+                    ["cod", "Cash on Delivery"],
+                    ["bank", `Bank transfer · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off`],
+                  ] as const
+                ).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setPaymentMethod(key)}
+                    className={cn(
+                      "border px-3 py-3 text-left text-[0.625rem] leading-snug tracking-[0.12em] uppercase transition-colors",
+                      paymentMethod === key
+                        ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                        : "border-border hover:border-foreground",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
+
+              <div className="mt-5 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="tracking-[0.16em] uppercase">Subtotal</span>
+                  <span>{formatPrice(subtotal, currency)}</span>
+                </div>
+                {paymentMethod === "bank" && (
+                  <div className="flex items-center justify-between text-muted-foreground">
+                    <span className="tracking-[0.12em] uppercase">
+                      Bank transfer {BANK_TRANSFER_DISCOUNT_PERCENT}% off
+                    </span>
+                    <span>-{formatPrice(bankDiscount, currency)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="tracking-[0.16em] uppercase">Shipping</span>
+                  <span>Free</span>
+                </div>
+                <div className="flex items-center justify-between font-medium">
+                  <span className="tracking-[0.16em] uppercase">Total</span>
+                  <span>{formatPrice(payable, currency)}</span>
+                </div>
+              </div>
+
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                 {allSynced && !SHOPIFY_CHECKOUT_LOCKED
-                  ? "Free shipping · tax-free prices. Pay COD or save 7% with bank transfer (code BANK7) at checkout."
+                  ? paymentMethod === "bank"
+                    ? `${BANK_TRANSFER_DISCOUNT_PERCENT}% off is applied automatically when you continue with bank transfer — no discount code needed. Choose Bank deposit at Shopify checkout, then send payment proof.`
+                    : "Free shipping · tax-free prices. Cash on Delivery collected by the courier."
                   : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}.`}{" "}
                 <Link
                   to="/payments"
@@ -214,7 +275,9 @@ export function CartDrawer() {
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : allSynced && !SHOPIFY_CHECKOUT_LOCKED ? (
-                  "Checkout"
+                  paymentMethod === "bank"
+                    ? `Checkout · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off`
+                    : "Checkout · Cash on Delivery"
                 ) : getCheckoutUrl() ? (
                   `Order via ${orderChannelLabel()}`
                 ) : (

@@ -107,8 +107,8 @@ export const PAYMENT_METHODS = [
   {
     id: "bank",
     title: "Bank transfer — 7% off",
-    summary: `Pay by UBL bank transfer and save ${BANK_TRANSFER_DISCOUNT_PERCENT}% with code ${BANK_TRANSFER_DISCOUNT_CODE}.`,
-    details: `Select Bank deposit / manual payment at checkout, then apply discount code ${BANK_TRANSFER_DISCOUNT_CODE} for ${BANK_TRANSFER_DISCOUNT_PERCENT}% off. After transfer, email or WhatsApp your order number and payment screenshot so we can confirm and dispatch.`,
+    summary: `Pay by UBL bank transfer and get ${BANK_TRANSFER_DISCOUNT_PERCENT}% off automatically — no discount code needed.`,
+    details: `In your bag, choose Bank transfer and continue to checkout — the ${BANK_TRANSFER_DISCOUNT_PERCENT}% discount is applied for you. At Shopify checkout select Bank deposit / manual payment, transfer the discounted total to UBL, then email or WhatsApp your order number and payment screenshot so we can confirm and dispatch.`,
   },
 ] as const;
 
@@ -137,7 +137,7 @@ export const RECOMMENDED_PAYMENT_OPTIONS = [
 
 export const announcements = [
   {
-    text: `Free shipping · Tax-free prices · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off bank transfer (code ${BANK_TRANSFER_DISCOUNT_CODE})`,
+    text: `Free shipping · Tax-free prices · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off when you choose bank transfer`,
     href: "/payments",
   },
 ];
@@ -169,19 +169,19 @@ export const faqs = [
   },
   {
     q: "Which payment methods are available?",
-    a: `EYVORA accepts Cash on Delivery and bank transfer to United Bank Limited (UBL). Bank transfer includes ${BANK_TRANSFER_DISCOUNT_PERCENT}% off with code ${BANK_TRANSFER_DISCOUNT_CODE}. Full account details are on the Payments page.`,
+    a: `EYVORA accepts Cash on Delivery and bank transfer to United Bank Limited (UBL). Choose bank transfer in your bag and ${BANK_TRANSFER_DISCOUNT_PERCENT}% off is applied automatically. Full account details are on the Payments page.`,
   },
   {
     q: "Do you offer Cash on Delivery?",
-    a: "Yes. Choose Cash on Delivery at checkout and pay the courier in cash when your order arrives. Shipping stays free.",
+    a: "Yes. Choose Cash on Delivery in your bag / at checkout and pay the courier in cash when your order arrives. Shipping stays free.",
   },
   {
     q: "How do I get 7% off with bank transfer?",
-    a: `At Shopify checkout choose bank deposit / manual payment, then apply code ${BANK_TRANSFER_DISCOUNT_CODE} for ${BANK_TRANSFER_DISCOUNT_PERCENT}% off. Transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}) and send your order number plus payment screenshot to EYVORA.`,
+    a: `Open your bag, select Bank transfer, then continue to checkout — the ${BANK_TRANSFER_DISCOUNT_PERCENT}% discount is applied automatically (no code to type). At Shopify checkout choose Bank deposit / manual payment, transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}), and send your order number plus payment screenshot to EYVORA.`,
   },
   {
     q: "How do I pay by bank transfer?",
-    a: `Transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}). Apply code ${BANK_TRANSFER_DISCOUNT_CODE} at checkout for ${BANK_TRANSFER_DISCOUNT_PERCENT}% off, then send your order number and payment screenshot to EYVORA so we can confirm the order.`,
+    a: `Choose Bank transfer in your bag so the ${BANK_TRANSFER_DISCOUNT_PERCENT}% off is applied, complete checkout with Bank deposit, then transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}). Send your order number and payment screenshot to EYVORA so we can confirm the order.`,
   },
   {
     q: "How can I track my order?",

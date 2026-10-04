@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { Reveal } from "@/components/site/Reveal";
 import {
   BANK_TRANSFER,
-  BANK_TRANSFER_DISCOUNT_CODE,
   BANK_TRANSFER_DISCOUNT_PERCENT,
   CONTACT_EMAIL,
   PAYMENT_METHODS,
@@ -21,7 +20,7 @@ export const Route = createFileRoute("/payments")({
       {
         name: "description",
         content:
-          "Pay EYVORA with free shipping and tax-free prices. Cash on Delivery or UBL bank transfer with 7% off (code BANK7).",
+          "Pay EYVORA with free shipping and tax-free prices. Cash on Delivery or UBL bank transfer with 7% off applied automatically.",
       },
       { property: "og:title", content: "Payment Methods — EYVORA" },
       { property: "og:url", content: "https://eyvora.pk/payments" },
@@ -58,8 +57,8 @@ function PaymentsPage() {
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             Free shipping and tax-free prices on every order. Pay by Cash on Delivery, or choose
-            UBL bank transfer and save {BANK_TRANSFER_DISCOUNT_PERCENT}% with code{" "}
-            <strong className="text-foreground">{BANK_TRANSFER_DISCOUNT_CODE}</strong>.
+            UBL bank transfer in your bag — {BANK_TRANSFER_DISCOUNT_PERCENT}% off is applied
+            automatically (no discount code to enter).
           </p>
         </header>
 
@@ -80,18 +79,6 @@ function PaymentsPage() {
                   <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                     {method.details}
                   </p>
-                  {method.id === "bank" ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        copyText("Discount code", BANK_TRANSFER_DISCOUNT_CODE)
-                      }
-                      className="mt-5 inline-flex items-center gap-2 border border-border px-3 py-2 text-[0.625rem] tracking-[0.16em] uppercase"
-                    >
-                      <Copy className="h-3 w-3" strokeWidth={1.4} />
-                      Copy code {BANK_TRANSFER_DISCOUNT_CODE}
-                    </button>
-                  ) : null}
                 </div>
               </div>
             </Reveal>
@@ -132,10 +119,11 @@ function PaymentsPage() {
             ))}
           </dl>
           <p className="mt-8 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Apply code <strong className="text-foreground">{BANK_TRANSFER_DISCOUNT_CODE}</strong>{" "}
-            at checkout for {BANK_TRANSFER_DISCOUNT_PERCENT}% off, transfer the discounted total,
-            then send your <strong className="text-foreground">order number</strong> and payment
-            screenshot so we can mark the order paid and dispatch.
+            Choose <strong className="text-foreground">Bank transfer</strong> in your bag so the{" "}
+            {BANK_TRANSFER_DISCOUNT_PERCENT}% discount is applied automatically, transfer the
+            discounted total, then send your{" "}
+            <strong className="text-foreground">order number</strong> and payment screenshot so we
+            can mark the order paid and dispatch.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             {proofLink ? (
