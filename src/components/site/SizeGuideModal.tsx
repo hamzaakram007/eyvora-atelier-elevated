@@ -36,7 +36,7 @@ export function SizeGuideModal({
         <p className="text-sm leading-relaxed text-muted-foreground">
           {isTrousers
             ? "Measurements in inches. Waist is shown as a range — pick the size that matches your usual waist."
-            : "Measurements are shown only when verified values are provided by EYVORA. No estimated figures are published here."}
+            : "Measurements in inches. Chest is measured across the garment; compare with a hoodie you already like."}
         </p>
         {rows.length === 0 ? (
           <div className="mt-6 border border-dashed border-border px-6 py-10 text-center">

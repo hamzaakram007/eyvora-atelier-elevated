@@ -136,7 +136,7 @@ export const announcements = [
 export const faqs = [
   {
     q: "How do EYVORA sizes fit?",
-    a: "Hoodies and trousers are offered in S, M, L and XL. Hoodies come in Olive Green and Black; trousers in Grey and Black. Trouser measurements (waist, length, thigh, bottom) are in the size guide on each trousers page.",
+    a: "Hoodies and trousers are offered in S, M, L and XL. Hoodies come in Olive Green and Black; trousers in Grey and Black. Full measurements are in the size guide on each product page (hoodies: chest, length, shoulder, sleeves; trousers: waist, length, thigh, bottom).",
   },
   {
     q: "Where do you deliver?",
@@ -239,13 +239,19 @@ export const hoodiesSizeGuideColumns = [
   "Size",
   "Chest",
   "Length",
-  "Sleeve",
+  "Shoulder",
+  "Sleeves",
 ] as const;
 
-/** Hoodie measurements stay empty until EYVORA confirms verified values. */
+/** Verified hoodie measurements (inches) provided by EYVORA. */
 export const hoodiesSizeGuideRows: Array<
   Record<(typeof hoodiesSizeGuideColumns)[number], string>
-> = [];
+> = [
+  { Size: "S", Chest: "25.5", Length: "26", Shoulder: "9", Sleeves: "20" },
+  { Size: "M", Chest: "25.5", Length: "26.5", Shoulder: "9", Sleeves: "20.5" },
+  { Size: "L", Chest: "26", Length: "27.5", Shoulder: "9.5", Sleeves: "21.5" },
+  { Size: "XL", Chest: "26.5", Length: "28.5", Shoulder: "9.5", Sleeves: "22" },
+];
 
 /** @deprecated Use trousers/hoodies size guides. Kept for older imports. */
 export const sizeGuideColumns = trousersSizeGuideColumns;
