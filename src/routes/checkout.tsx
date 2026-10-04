@@ -9,12 +9,12 @@ import {
 import { formatPrice } from "@/lib/shopify";
 import { isShopifySyncedVariantId } from "@/lib/catalog";
 import {
-  BANK_TRANSFER,
   BANK_TRANSFER_DISCOUNT_PERCENT,
   normalizePakistanPhone,
   orderChannelLabel,
   orderLink,
 } from "@/lib/site";
+import { BankTransferDetails } from "@/components/site/BankTransferDetails";
 import { cn } from "@/lib/utils";
 
 type CheckoutSearch = {
@@ -375,22 +375,11 @@ function CheckoutPage() {
               </div>
 
               {paymentMethod === "bank" && (
-                <div className="mt-4 border border-red-600/30 bg-red-50 px-4 py-3 text-xs leading-relaxed text-red-800">
-                  <p className="font-semibold tracking-[0.14em] uppercase">
-                    {BANK_TRANSFER_DISCOUNT_PERCENT}% off applied to your total
-                  </p>
-                  <p className="mt-2 text-red-700/90">
-                    Transfer to {BANK_TRANSFER.bankName} · Account {BANK_TRANSFER.accountNumber}{" "}
-                    · {BANK_TRANSFER.accountTitle}. After placing the order, send the order
-                    number and payment screenshot to EYVORA.
-                  </p>
-                  <Link
-                    to="/payments"
-                    className="mt-2 inline-block underline underline-offset-2"
-                  >
-                    Full bank details
-                  </Link>
-                </div>
+                <BankTransferDetails
+                  className="mt-4"
+                  amountLabel={formatPrice(payable, currency)}
+                  note={`Transfer ${formatPrice(payable, currency)} after you place this order, then send your order number and payment screenshot to EYVORA.`}
+                />
               )}
             </section>
           </div>
@@ -445,6 +434,14 @@ function CheckoutPage() {
                 </span>
               </div>
             </div>
+
+            {paymentMethod === "bank" && (
+              <BankTransferDetails
+                className="mt-5"
+                compact
+                amountLabel={formatPrice(payable, currency)}
+              />
+            )}
 
             <button
               type="submit"

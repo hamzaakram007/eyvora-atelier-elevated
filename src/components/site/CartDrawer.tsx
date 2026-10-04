@@ -15,6 +15,7 @@ import {
   orderLink,
   SHOPIFY_CHECKOUT_LOCKED,
 } from "@/lib/site";
+import { BankTransferDetails } from "@/components/site/BankTransferDetails";
 import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
@@ -298,20 +299,18 @@ export function CartDrawer() {
               </div>
 
               {paymentMethod === "bank" && (
-                <p className="mt-3 border border-red-600/30 bg-red-50 px-3 py-2.5 text-xs font-medium leading-relaxed text-red-700">
-                  <span className="font-semibold tracking-[0.14em] uppercase">
-                    {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF applied
-                  </span>
-                  {" — "}
-                  your checkout total updates live. No discount code needed. Send payment proof
-                  after placing the order.
-                </p>
+                <BankTransferDetails
+                  className="mt-3"
+                  compact
+                  amountLabel={formatPrice(payable, currency)}
+                  note={`Transfer this amount after checkout. No discount code needed — ${BANK_TRANSFER_DISCOUNT_PERCENT}% off is already in your total. Send order number + payment screenshot to EYVORA.`}
+                />
               )}
 
               {paymentMethod !== "bank" && (
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                   {allSynced && !SHOPIFY_CHECKOUT_LOCKED
-                    ? "Free shipping · tax-free prices. Cash on Delivery is full price. Switch to Bank transfer above (or on checkout) and the total updates with 7% off instantly. "
+                    ? "Free shipping · tax-free prices. Cash on Delivery is full price. Switch to Bank transfer above and UBL account details appear with 7% off. "
                     : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}. `}
                   <Link
                     to="/payments"
@@ -319,19 +318,6 @@ export function CartDrawer() {
                     className="underline underline-offset-2"
                   >
                     Payment details
-                  </Link>
-                </p>
-              )}
-              {paymentMethod === "bank" && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  On checkout you can switch back to COD anytime — the{" "}
-                  {BANK_TRANSFER_DISCOUNT_PERCENT}% off is removed and the total updates live.{" "}
-                  <Link
-                    to="/payments"
-                    onClick={() => setOpen(false)}
-                    className="underline underline-offset-2"
-                  >
-                    UBL bank details
                   </Link>
                 </p>
               )}

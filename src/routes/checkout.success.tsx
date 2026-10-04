@@ -1,14 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Copy } from "lucide-react";
-import { toast } from "sonner";
 import {
-  BANK_TRANSFER,
-  BANK_TRANSFER_DISCOUNT_PERCENT,
   emailLink,
   whatsappConfigured,
   whatsappLink,
 } from "@/lib/site";
 import { formatPrice } from "@/lib/shopify";
+import { BankTransferDetails } from "@/components/site/BankTransferDetails";
 
 type SuccessSearch = {
   order?: string;
@@ -37,13 +34,6 @@ export const Route = createFileRoute("/checkout/success")({
   }),
   component: CheckoutSuccessPage,
 });
-
-function copyText(label: string, value: string) {
-  void navigator.clipboard.writeText(value).then(
-    () => toast.success(`${label} copied`),
-    () => toast.message("Copy manually", { description: value }),
-  );
-}
 
 function CheckoutSuccessPage() {
   const { order, total, currency, payment, discount } = Route.useSearch();
@@ -132,43 +122,21 @@ function CheckoutSuccessPage() {
         </div>
 
         {isBank && (
-          <section className="mt-8 border border-red-600/30 bg-red-50 p-6">
-            <h2 className="text-[0.7rem] font-semibold tracking-[0.22em] text-red-800 uppercase">
-              Transfer {BANK_TRANSFER_DISCOUNT_PERCENT}% off total to UBL
-            </h2>
-            <ul className="mt-4 space-y-3 text-sm text-red-900">
-              {(
-                [
-                  ["Bank", BANK_TRANSFER.bankName],
-                  ["Account title", BANK_TRANSFER.accountTitle],
-                  ["Account number", BANK_TRANSFER.accountNumber],
-                  ["IBAN", BANK_TRANSFER.iban],
-                ] as const
-              ).map(([label, value]) => (
-                <li key={label} className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[0.65rem] tracking-[0.16em] uppercase opacity-70">
-                      {label}
-                    </p>
-                    <p className="mt-0.5 font-medium">{value}</p>
-                  </div>
-                  <button
-                    type="button"
-                    aria-label={`Copy ${label}`}
-                    onClick={() => copyText(label, value)}
-                    className="mt-1 text-red-800"
-                  >
-                    <Copy className="h-3.5 w-3.5" strokeWidth={1.4} />
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <section className="mt-8">
+            <BankTransferDetails
+              amountLabel={
+                Number.isFinite(amount)
+                  ? formatPrice(amount, currency || "PKR")
+                  : undefined
+              }
+              note={`Transfer for order ${order}, then send your order number and payment screenshot to EYVORA.`}
+            />
             {proofHref && (
               <a
                 href={proofHref}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-6 flex w-full items-center justify-center bg-red-600 py-3.5 text-[0.625rem] tracking-[0.24em] text-white uppercase"
+                className="mt-4 flex w-full items-center justify-center bg-red-600 py-3.5 text-[0.625rem] tracking-[0.24em] text-white uppercase"
               >
                 Send payment proof
               </a>
