@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Buy EYVORA premium hoodies and trousers in Pakistan. Olive and black hoodies, grey and black trousers. Couple looks, COD and UBL bank transfer.",
+          "Buy EYVORA premium hoodies and trousers in Pakistan. Free shipping, tax-free prices, couple looks, COD and 7% off bank transfer.",
       },
       {
         property: "og:title",

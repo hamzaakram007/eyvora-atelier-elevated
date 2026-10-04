@@ -195,7 +195,7 @@ export function CartDrawer() {
               </div>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                 {allSynced && !SHOPIFY_CHECKOUT_LOCKED
-                  ? "Shipping from PKR 250. Phone and payment (COD / UBL bank transfer) are collected on Shopify checkout."
+                  ? "Free shipping · tax-free prices. Pay COD or save 7% with bank transfer (code BANK7) at checkout."
                   : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}.`}{" "}
                 <Link
                   to="/payments"

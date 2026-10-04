@@ -19,7 +19,7 @@ const steps: Array<{ key: keyof Answers; label: string; options: string[] }> = [
   {
     key: "preference",
     label: "Style preference",
-    options: ["Men", "Women", "Shared / Couple"],
+    options: ["Hoodies", "Trousers", "Couple look"],
   },
   {
     key: "fit",
@@ -59,7 +59,9 @@ function scoreProduct(product: ShopifyProduct, answers: Answers) {
     score += 3;
   }
   if (answers.occasion && hay.includes("essentials")) score += 1;
-  if (answers.preference === "Shared / Couple" && hay.includes("couple")) score += 1;
+  if (answers.preference === "Couple look" && hay.includes("couple")) score += 1;
+  if (answers.preference === "Hoodies" && hay.includes("hoodie")) score += 2;
+  if (answers.preference === "Trousers" && hay.includes("trouser")) score += 2;
   return score;
 }
 

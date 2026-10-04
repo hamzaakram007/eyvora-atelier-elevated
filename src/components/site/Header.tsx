@@ -13,10 +13,11 @@ import couple from "@/assets/products/couple/couple-2.webp";
 function AnnouncementBar() {
   const item = announcements[0];
   if (!item) return null;
+  const to = item.href === "/payments" ? ("/payments" as const) : ("/shop" as const);
   return (
     <div className="bg-[var(--ink)] py-2.5 text-center text-[var(--ivory)]">
       <Link
-        to="/shop"
+        to={to}
         className="text-[0.625rem] tracking-[0.28em] uppercase opacity-90 transition-opacity hover:opacity-100"
       >
         {item.text}
@@ -32,13 +33,10 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
         <p className="eyebrow mb-5">Collections</p>
         <ul className="space-y-3">
           {[
-            { label: "Men", search: { gender: "men" as const } },
-            { label: "Women", search: { gender: "women" as const } },
-            { label: "Couple Collection", to: "/couple" as const },
-            // Category views intentionally omit gender so both Men + Women cards show.
+            { label: "Shop All", search: { gender: undefined, category: undefined } },
             { label: "Hoodies", search: { category: "hoodies" as const, gender: undefined } },
             { label: "Trousers", search: { category: "trousers" as const, gender: undefined } },
-            { label: "Shop All", search: { gender: undefined, category: undefined } },
+            { label: "Couple Collection", to: "/couple" as const },
           ].map((item) => (
             <li key={item.label}>
               {"to" in item && item.to ? (
@@ -63,13 +61,8 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
         <p className="eyebrow mb-5">Explore</p>
         <ul className="space-y-3">
           <li>
-            <Link to="/shop" search={{ gender: "men" }} onClick={onNavigate} className="rule-link text-[0.95rem]">
-              Men
-            </Link>
-          </li>
-          <li>
-            <Link to="/shop" search={{ gender: "women" }} onClick={onNavigate} className="rule-link text-[0.95rem]">
-              Women
+            <Link to="/payments" onClick={onNavigate} className="rule-link text-[0.95rem]">
+              Payments
             </Link>
           </li>
           <li>
@@ -203,11 +196,14 @@ export function Header() {
               >
                 Collections
               </button>
-              <Link to="/shop" search={{ gender: "men" }} className="rule-link">
-                Men
+              <Link to="/shop" search={{}} className="rule-link">
+                Shop All
               </Link>
-              <Link to="/shop" search={{ gender: "women" }} className="rule-link">
-                Women
+              <Link to="/shop" search={{ category: "hoodies" }} className="rule-link">
+                Hoodies
+              </Link>
+              <Link to="/shop" search={{ category: "trousers" }} className="rule-link">
+                Trousers
               </Link>
               <Link to="/couple" className="rule-link">
                 Couple
@@ -335,9 +331,6 @@ export function Header() {
                 to: "/shop",
                 search: { gender: undefined, category: undefined },
               },
-              { label: "Men", to: "/shop", search: { gender: "men" } },
-              { label: "Women", to: "/shop", search: { gender: "women" } },
-              { label: "Couple", to: "/couple", search: undefined },
               {
                 label: "Hoodies",
                 to: "/shop",
@@ -348,6 +341,7 @@ export function Header() {
                 to: "/shop",
                 search: { category: "trousers", gender: undefined },
               },
+              { label: "Couple", to: "/couple", search: undefined },
               { label: "Wishlist", to: "/wishlist", search: undefined },
               { label: "About Us", to: "/about", search: undefined },
               { label: "Payments", to: "/payments", search: undefined },

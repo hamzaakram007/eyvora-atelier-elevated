@@ -54,8 +54,8 @@ export function Footer() {
           <div className="max-w-md">
             <p className="font-display text-3xl tracking-[0.28em]">EYVORA</p>
             <p className="mt-6 text-sm leading-relaxed text-[var(--ivory)]/60">
-              Premium hoodies and trousers for modern everyday wear. Quiet, editorial, and built
-              around authentic product photography.
+              Premium hoodies and trousers for modern everyday wear. Free shipping, tax-free
+              prices, and 7% off with bank transfer.
             </p>
             <form
               className="mt-10 flex max-w-sm items-center gap-4 border-b border-[var(--ivory)]/25 pb-3"

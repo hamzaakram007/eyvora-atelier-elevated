@@ -85,21 +85,30 @@ export const BANK_TRANSFER = {
   iban: "PK02UNIL0109000321342838",
 } as const;
 
+/** Free Pakistan shipping — keep Shopify shipping rates at PKR 0 to match. */
+export const FREE_SHIPPING = true;
+
+/** Listed prices include no tax / GST — products are sold tax-free. */
+export const TAX_FREE = true;
+
+/** Bank transfer incentive (apply code at Shopify checkout). */
+export const BANK_TRANSFER_DISCOUNT_PERCENT = 7;
+export const BANK_TRANSFER_DISCOUNT_CODE = "BANK7";
+
 /** Payment methods EYVORA offers (enable matching methods in Shopify Admin too). */
 export const PAYMENT_METHODS = [
   {
     id: "cod",
     title: "Cash on Delivery (COD)",
-    summary: "Pay in cash when your order is delivered in Pakistan.",
+    summary: "Pay in cash when your order is delivered in Pakistan. Shipping is free.",
     details:
-      "Select Cash on Delivery at Shopify checkout. Keep the exact amount ready for the courier.",
+      "Select Cash on Delivery at Shopify checkout. Keep the exact amount ready for the courier. Prices are tax-free.",
   },
   {
     id: "bank",
-    title: "Bank transfer (manual payment)",
-    summary: "Transfer to our UBL account, then share payment proof with your order number.",
-    details:
-      "Select Bank deposit / manual payment at checkout (once enabled in Shopify Admin). After transfer, email or WhatsApp your order number and screenshot so we can confirm and dispatch.",
+    title: "Bank transfer — 7% off",
+    summary: `Pay by UBL bank transfer and save ${BANK_TRANSFER_DISCOUNT_PERCENT}% with code ${BANK_TRANSFER_DISCOUNT_CODE}.`,
+    details: `Select Bank deposit / manual payment at checkout, then apply discount code ${BANK_TRANSFER_DISCOUNT_CODE} for ${BANK_TRANSFER_DISCOUNT_PERCENT}% off. After transfer, email or WhatsApp your order number and payment screenshot so we can confirm and dispatch.`,
   },
 ] as const;
 
@@ -128,8 +137,8 @@ export const RECOMMENDED_PAYMENT_OPTIONS = [
 
 export const announcements = [
   {
-    text: "EYVORA Essentials — hoodies PKR 4,399 · trousers PKR 2,499. Free-feeling delivery from PKR 250.",
-    href: "/shop",
+    text: `Free shipping · Tax-free prices · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off bank transfer (code ${BANK_TRANSFER_DISCOUNT_CODE})`,
+    href: "/payments",
   },
 ];
 
@@ -140,7 +149,15 @@ export const faqs = [
   },
   {
     q: "Where do you deliver?",
-    a: "EYVORA currently focuses on Pakistan. Delivery timelines and rates are confirmed at Shopify checkout once shipping is configured by the merchant.",
+    a: "EYVORA delivers across Pakistan with free shipping on every order.",
+  },
+  {
+    q: "Is shipping really free?",
+    a: "Yes. EYVORA offers free shipping on all Pakistan orders — no minimum spend.",
+  },
+  {
+    q: "Are prices tax-free?",
+    a: "Yes. Product prices are tax-free. What you see on the product page is what you pay for the garment (plus any COD courier handling if applicable).",
   },
   {
     q: "What is your exchange policy?",
@@ -152,15 +169,19 @@ export const faqs = [
   },
   {
     q: "Which payment methods are available?",
-    a: "EYVORA accepts Cash on Delivery and bank transfer to United Bank Limited (UBL). Full account details are on the Payments page. Other options such as JazzCash, Easypaisa or cards can be added later via a Pakistan payment app.",
+    a: `EYVORA accepts Cash on Delivery and bank transfer to United Bank Limited (UBL). Bank transfer includes ${BANK_TRANSFER_DISCOUNT_PERCENT}% off with code ${BANK_TRANSFER_DISCOUNT_CODE}. Full account details are on the Payments page.`,
   },
   {
     q: "Do you offer Cash on Delivery?",
-    a: "Yes. Choose Cash on Delivery at checkout and pay the courier in cash when your order arrives.",
+    a: "Yes. Choose Cash on Delivery at checkout and pay the courier in cash when your order arrives. Shipping stays free.",
+  },
+  {
+    q: "How do I get 7% off with bank transfer?",
+    a: `At Shopify checkout choose bank deposit / manual payment, then apply code ${BANK_TRANSFER_DISCOUNT_CODE} for ${BANK_TRANSFER_DISCOUNT_PERCENT}% off. Transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}) and send your order number plus payment screenshot to EYVORA.`,
   },
   {
     q: "How do I pay by bank transfer?",
-    a: `Transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}). Then send your order number and payment screenshot to EYVORA so we can confirm the order.`,
+    a: `Transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}). Apply code ${BANK_TRANSFER_DISCOUNT_CODE} at checkout for ${BANK_TRANSFER_DISCOUNT_PERCENT}% off, then send your order number and payment screenshot to EYVORA so we can confirm the order.`,
   },
   {
     q: "How can I track my order?",
@@ -199,15 +220,15 @@ export const whyPoints = [
   },
   {
     title: "Pakistan-Ready",
-    note: "Priced in PKR and prepared for local checkout configuration.",
+    note: "Free shipping, tax-free PKR pricing, COD and bank transfer with 7% off.",
   },
 ];
 
 export const navLinks = [
   { label: "Home", to: "/" as const },
   { label: "Shop All", to: "/shop" as const, search: {} },
-  { label: "Men", to: "/shop" as const, search: { gender: "men" } },
-  { label: "Women", to: "/shop" as const, search: { gender: "women" } },
+  { label: "Hoodies", to: "/shop" as const, search: { category: "hoodies" } },
+  { label: "Trousers", to: "/shop" as const, search: { category: "trousers" } },
   { label: "Couple", to: "/couple" as const },
   { label: "About Us", to: "/about" as const },
   { label: "Payments", to: "/payments" as const },

@@ -555,22 +555,29 @@ function CouplePage() {
       <section className="border-t border-border py-16">
         <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between lg:px-10">
           <p className="text-sm text-muted-foreground">
-            Shopping for one? Browse Men or Women essentials separately.
+            Shopping for one? Browse Hoodies, Trousers or Shop All.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
               to="/shop"
-              search={{ gender: "men" }}
+              search={{ category: "hoodies" }}
               className="border border-border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase"
             >
-              Shop Men
+              Shop Hoodies
             </Link>
             <Link
               to="/shop"
-              search={{ gender: "women" }}
+              search={{ category: "trousers" }}
               className="border border-border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase"
             >
-              Shop Women
+              Shop Trousers
+            </Link>
+            <Link
+              to="/shop"
+              search={{}}
+              className="border border-border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase"
+            >
+              Shop All
             </Link>
           </div>
         </div>

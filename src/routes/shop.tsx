@@ -3,7 +3,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
 import {
-  expandProductsForBothGenders,
   HOODIE_COLOURS,
   matchesCategory,
   matchesDepartment,
@@ -38,14 +37,15 @@ export const Route = createFileRoute("/shop")({
     availability: str(search["availability"]),
   }),
   head: ({ match }) => {
+    const category = match.search.category;
     const gender = match.search.gender;
     const title =
-      gender === "men"
-        ? "Men — EYVORA"
-        : gender === "women"
-          ? "Women — EYVORA"
-          : gender === "couple"
-            ? "Couple — EYVORA"
+      gender === "couple"
+        ? "Couple — EYVORA"
+        : category === "hoodies"
+          ? "Hoodies — EYVORA"
+          : category === "trousers"
+            ? "Trousers — EYVORA"
             : "Shop All — EYVORA Hoodies & Trousers";
     return {
       meta: [
@@ -53,7 +53,7 @@ export const Route = createFileRoute("/shop")({
         {
           name: "description",
           content:
-            "Browse EYVORA hoodies and trousers for Men, Women and Couple. Filter by size, colour and availability. Pakistan COD available.",
+            "Browse EYVORA hoodies, trousers and couple looks. Free shipping, tax-free prices, COD and 7% off bank transfer. Filter by size and colour.",
         },
         { property: "og:title", content: title },
         { property: "og:url", content: "https://eyvora.pk/shop" },
@@ -67,9 +67,9 @@ export const Route = createFileRoute("/shop")({
 });
 
 const departments = [
-  { key: undefined, label: "All" },
-  { key: "men", label: "Men" },
-  { key: "women", label: "Women" },
+  { key: "all", label: "All" },
+  { key: "hoodies", label: "Hoodies" },
+  { key: "trousers", label: "Trousers" },
   { key: "couple", label: "Couple" },
 ] as const;
 
@@ -91,18 +91,17 @@ function Shop() {
   const navigate = useNavigate({ from: "/shop" });
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
 
-  const modelGender =
-    search.gender === "men" || search.gender === "women" ? search.gender : undefined;
-
   const { data, isLoading } = useQuery({
-    queryKey: ["products", "all", modelGender ?? "all"],
-    queryFn: () => fetchProducts(60, undefined, modelGender),
+    queryKey: ["products", "all"],
+    queryFn: () => fetchProducts(60),
   });
 
   const products = useMemo(() => {
     let list = [...(data ?? [])];
 
-    list = list.filter((p) => matchesDepartment(p, search.gender));
+    if (search.gender === "couple") {
+      list = list.filter((p) => matchesDepartment(p, "couple"));
+    }
     list = list.filter((p) => matchesCategory(p, search.category));
 
     if (search.collection) {
@@ -150,31 +149,24 @@ function Shop() {
     return list;
   }, [data, search, maxPrice]);
 
-  /** Men/Women departments keep one gallery; Hoodies/Trousers/All show both. */
-  const gridItems = useMemo(() => {
-    if (modelGender) {
-      return products.map((product) => ({ product, gender: modelGender }));
-    }
-    return expandProductsForBothGenders(products);
-  }, [products, modelGender]);
+  const gridItems = useMemo(
+    () => products.map((product) => ({ product })),
+    [products],
+  );
 
   const set = (patch: ShopSearch) =>
     navigate({ search: (prev: ShopSearch) => ({ ...prev, ...patch }) });
 
   const title =
-    search.gender === "men"
-      ? "Men"
-      : search.gender === "women"
-        ? "Women"
-        : search.gender === "couple"
-          ? "Couple pieces"
-          : search.collection
-            ? `${search.collection} collection`
-            : search.category === "hoodies"
-              ? "Hoodies"
-              : search.category === "trousers"
-                ? "Trousers"
-                : "All pieces";
+    search.gender === "couple"
+      ? "Couple pieces"
+      : search.collection
+        ? `${search.collection} collection`
+        : search.category === "hoodies"
+          ? "Hoodies"
+          : search.category === "trousers"
+            ? "Trousers"
+            : "All pieces";
 
   const colours =
     search.category === "hoodies"
@@ -182,6 +174,15 @@ function Shop() {
       : search.category === "trousers"
         ? [...TROUSER_COLOURS]
         : Array.from(new Set([...HOODIE_COLOURS, ...TROUSER_COLOURS]));
+
+  const activeDepartment =
+    search.gender === "couple"
+      ? "couple"
+      : search.category === "hoodies"
+        ? "hoodies"
+        : search.category === "trousers"
+          ? "trousers"
+          : "all";
 
   return (
     <div className="pt-32 lg:pt-40">
@@ -194,15 +195,11 @@ function Shop() {
           <p className="mt-4 max-w-xl text-sm text-muted-foreground">
             {search.gender === "couple"
               ? "Couple-ready essentials. For two-person colour & size selection, use the Couple builder."
-              : search.gender === "men"
-                ? "Men’s essentials — hoodies and trousers in S, M and L."
-                : search.gender === "women"
-                  ? "Women’s essentials — hoodies and trousers in S, M and L."
-                  : search.category === "hoodies"
-                    ? "All hoodies for men and women — same pieces, gendered model photos."
-                    : search.category === "trousers"
-                      ? "All trousers for men and women — same pieces, gendered model photos."
-                      : "Shop by Men, Women or Couple — or browse Hoodies and Trousers for both genders."}
+              : search.category === "hoodies"
+                ? "Olive green and black hoodies in S, M, L and XL. Free shipping · tax-free prices."
+                : search.category === "trousers"
+                  ? "Grey and black trousers in S, M, L and XL. Free shipping · tax-free prices."
+                  : "Shop All, Hoodies, Trousers or Couple. Free shipping, tax-free prices, and 7% off with bank transfer."}
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
             {isLoading
@@ -214,8 +211,16 @@ function Shop() {
             {departments.map((d) => (
               <Chip
                 key={d.label}
-                active={(search.gender ?? undefined) === d.key}
-                onClick={() => set({ gender: d.key })}
+                active={activeDepartment === d.key}
+                onClick={() => {
+                  if (d.key === "all") {
+                    set({ gender: undefined, category: undefined });
+                  } else if (d.key === "couple") {
+                    set({ gender: "couple", category: undefined });
+                  } else {
+                    set({ category: d.key, gender: undefined });
+                  }
+                }}
               >
                 {d.label}
               </Chip>

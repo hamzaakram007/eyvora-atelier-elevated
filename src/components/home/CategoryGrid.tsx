@@ -6,18 +6,18 @@ import couple from "@/assets/products/couple/couple-2.webp";
 
 const categories = [
   {
-    title: "Men",
-    note: "Essentials for him",
+    title: "Hoodies",
+    note: "Olive green & black",
     img: hoodies,
     to: "/shop" as const,
-    search: { gender: "men" },
+    search: { category: "hoodies" },
   },
   {
-    title: "Women",
-    note: "Essentials for her",
+    title: "Trousers",
+    note: "Grey & black",
     img: trousers,
     to: "/shop" as const,
-    search: { gender: "women" },
+    search: { category: "trousers" },
   },
   {
     title: "Couple",
@@ -33,9 +33,9 @@ export function CategoryGrid() {
     <section className="mx-auto max-w-[1600px] px-5 py-20 lg:px-10 lg:py-28">
       <Reveal className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow">Shop by department</p>
+          <p className="eyebrow">Shop the collection</p>
           <h2 className="font-display mt-4 text-[clamp(2rem,4vw,3.1rem)] leading-[1.05]">
-            Men. Women.
+            Hoodies. Trousers.
             <br />
             Couples.
           </h2>
