@@ -1,23 +1,33 @@
 # Bank transfer 7% off (Checkout UI Extension)
 
-Applies or removes the `BANK7` discount code on Shopify checkout when the shopper switches between **Bank Deposit** and **Cash on Delivery**.
+Updates the Shopify checkout **total live** when the shopper switches between
+**Bank Deposit** and **Cash on Delivery** by adding/removing the `BANK7` code.
 
-This covers the case: bag = COD → checkout payment = Bank Deposit (and the reverse).
+## Why this is required
 
-## Deploy (requires Shopify CLI login)
+Shopify hosted checkout does not change discount codes when the payment method
+changes unless a Checkout UI Extension (or similar app code) does it.
 
-From the repo root, after `shopify auth login`:
+## Deploy (one-time Shopify login)
+
+From the repo root:
 
 ```bash
-npm install
-cd extensions/bank-transfer-discount && npm install && cd ../..
+# Option A — interactive login
+npx shopify auth login
+npx shopify app deploy --client-id "$SHOPIFY_CLIENT_ID" --allow-updates
+
+# Option B — CI / non-interactive
+# Dev Dashboard → Eyvora cursor → Settings → App Automation Token → Create
+export SHOPIFY_APP_AUTOMATION_TOKEN="shpat_or_token_value"
 npx shopify app deploy --client-id "$SHOPIFY_CLIENT_ID" --allow-updates
 ```
 
-Then in Shopify Admin → Settings → Checkout → Customize → add **Bank transfer 7% off** near the payment methods.
+Then in Shopify Admin → **Settings → Checkout → Customize** → add
+**Bank transfer 7% off** under the payment methods block → Save.
 
-## Backup (already live)
+## Already live without the extension
 
-`ORDERS_CREATE` webhook → `https://eyvora-hamzaakram007s-projects.vercel.app/api/shopify/webhooks/orders-create`
-
-If the extension is not installed, the webhook still adds/removes the 7% via order edit after the order is placed.
+1. Bag: Bank transfer applies `BANK7`; COD removes it before opening checkout.
+2. `ORDERS_CREATE` webhook adjusts the order after placement if the final
+   payment method and discount disagree.
