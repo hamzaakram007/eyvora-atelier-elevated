@@ -1,0 +1,13 @@
+api_version = "2025-07"
+
+[[extensions]]
+type = "ui_extension"
+name = "Bank transfer 7% off"
+handle = "bank-transfer-discount"
+
+  [[extensions.targeting]]
+  module = "./src/Checkout.tsx"
+  target = "purchase.checkout.payment-method-list.render-after"
+
+  [extensions.capabilities]
+  api_access = true

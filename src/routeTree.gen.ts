@@ -18,6 +18,7 @@ import { Route as ShopRouteImport } from './routes/shop'
 import { Route as VisitRouteImport } from './routes/visit'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
+import { Route as ApiShopifyWebhooksOrdersCreateRouteImport } from './routes/api/shopify/webhooks/orders-create'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,12 @@ const ProductHandleRoute = ProductHandleRouteImport.update({
   path: '/product/$handle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiShopifyWebhooksOrdersCreateRoute =
+  ApiShopifyWebhooksOrdersCreateRouteImport.update({
+    id: '/api/shopify/webhooks/orders-create',
+    path: '/api/shopify/webhooks/orders-create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/visit': typeof VisitRoute
   '/wishlist': typeof WishlistRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/api/shopify/webhooks/orders-create': typeof ApiShopifyWebhooksOrdersCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +94,7 @@ export interface FileRoutesByTo {
   '/visit': typeof VisitRoute
   '/wishlist': typeof WishlistRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/api/shopify/webhooks/orders-create': typeof ApiShopifyWebhooksOrdersCreateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +107,7 @@ export interface FileRoutesById {
   '/visit': typeof VisitRoute
   '/wishlist': typeof WishlistRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/api/shopify/webhooks/orders-create': typeof ApiShopifyWebhooksOrdersCreateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/visit'
     | '/wishlist'
     | '/product/$handle'
+    | '/api/shopify/webhooks/orders-create'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/visit'
     | '/wishlist'
     | '/product/$handle'
+    | '/api/shopify/webhooks/orders-create'
   id:
     | '__root__'
     | '/'
@@ -133,6 +145,7 @@ export interface FileRouteTypes {
     | '/visit'
     | '/wishlist'
     | '/product/$handle'
+    | '/api/shopify/webhooks/orders-create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +158,7 @@ export interface RootRouteChildren {
   VisitRoute: typeof VisitRoute
   WishlistRoute: typeof WishlistRoute
   ProductHandleRoute: typeof ProductHandleRoute
+  ApiShopifyWebhooksOrdersCreateRoute: typeof ApiShopifyWebhooksOrdersCreateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +226,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductHandleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/shopify/webhooks/orders-create': {
+      id: '/api/shopify/webhooks/orders-create'
+      path: '/api/shopify/webhooks/orders-create'
+      fullPath: '/api/shopify/webhooks/orders-create'
+      preLoaderRoute: typeof ApiShopifyWebhooksOrdersCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +246,7 @@ const rootRouteChildren: RootRouteChildren = {
   VisitRoute: VisitRoute,
   WishlistRoute: WishlistRoute,
   ProductHandleRoute: ProductHandleRoute,
+  ApiShopifyWebhooksOrdersCreateRoute: ApiShopifyWebhooksOrdersCreateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

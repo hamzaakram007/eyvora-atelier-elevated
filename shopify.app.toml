@@ -1,0 +1,21 @@
+# EYVORA Shopify app config (Dev Dashboard client)
+# Used to deploy the checkout UI extension that syncs BANK7 with payment method.
+
+name = "EYVORA Storefront"
+client_id = "50a749e12e2d8ceae84e488f9506d97a"
+application_url = "https://eyvora.pk"
+embedded = false
+
+[access_scopes]
+scopes = "write_products,read_products,write_orders,read_orders,write_order_edits,read_order_edits,write_discounts,read_discounts,write_shipping,read_shipping"
+
+[auth]
+redirect_urls = [ "https://eyvora.pk/api/shopify/auth" ]
+
+[webhooks]
+api_version = "2025-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "orders/create" ]
+  # Shopify rejects shop primary domains (eyvora.pk) as webhook targets.
+  uri = "https://eyvora-hamzaakram007s-projects.vercel.app/api/shopify/webhooks/orders-create"

@@ -177,7 +177,7 @@ export const faqs = [
   },
   {
     q: "How do I get 7% off with bank transfer?",
-    a: `Open your bag, select Bank transfer, then continue to checkout — the ${BANK_TRANSFER_DISCOUNT_PERCENT}% discount is applied automatically (no code to type). At Shopify checkout choose Bank deposit / manual payment, transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}), and send your order number plus payment screenshot to EYVORA.`,
+    a: `Open your bag, select Bank transfer, then continue to checkout — the ${BANK_TRANSFER_DISCOUNT_PERCENT}% discount is applied automatically (no code to type). If you chose COD in the bag first, switch to Bank deposit on Shopify checkout and the ${BANK_TRANSFER_DISCOUNT_PERCENT}% off still applies. Transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}), and send your order number plus payment screenshot to EYVORA.`,
   },
   {
     q: "How do I pay by bank transfer?",

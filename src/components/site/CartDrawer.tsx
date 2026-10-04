@@ -280,7 +280,7 @@ export function CartDrawer() {
               {paymentMethod !== "bank" && (
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                   {allSynced && !SHOPIFY_CHECKOUT_LOCKED
-                    ? "Free shipping · tax-free prices. Cash on Delivery collected by the courier. "
+                    ? "Free shipping · tax-free prices. Cash on Delivery collected by the courier. Switch to Bank deposit on Shopify checkout and 7% off still applies automatically. "
                     : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}. `}
                   <Link
                     to="/payments"
@@ -293,6 +293,8 @@ export function CartDrawer() {
               )}
               {paymentMethod === "bank" && (
                 <p className="mt-2 text-xs text-muted-foreground">
+                  Keep <strong className="font-medium text-foreground">Bank deposit</strong> selected
+                  at Shopify checkout so the {BANK_TRANSFER_DISCOUNT_PERCENT}% off stays applied.{" "}
                   <Link
                     to="/payments"
                     onClick={() => setOpen(false)}
