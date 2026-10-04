@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ChevronRight } from "lucide-react";
 import { fetchProductByHandle, fetchProducts, formatPrice } from "@/lib/shopify";
@@ -105,6 +105,7 @@ function ProductPage() {
   const { handle } = Route.useParams();
   const search = Route.useSearch();
   const { product: initialProduct } = Route.useLoaderData();
+  const navigate = useNavigate({ from: "/product/$handle" });
   const modelGender = resolveModelGender(search.gender);
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
@@ -331,6 +332,40 @@ function ProductPage() {
                 Color — {color}
               </p>
             )}
+
+            <div className="mt-6">
+              <p className="eyebrow mb-3">Model photos</p>
+              <div className="flex flex-wrap gap-2">
+                {(
+                  [
+                    ["men", "Male model"],
+                    ["women", "Female model"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() =>
+                      navigate({
+                        search: (prev) => ({ ...prev, gender: key }),
+                        replace: true,
+                      })
+                    }
+                    className={cn(
+                      "border px-4 py-2 text-[0.625rem] tracking-[0.18em] uppercase",
+                      modelGender === key
+                        ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
+                        : "border-border hover:border-foreground",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Same piece — switch between male and female model photography.
+              </p>
+            </div>
 
             {node.description && (
               <p className="mt-7 max-w-md text-[0.9rem] leading-[1.85] text-muted-foreground">

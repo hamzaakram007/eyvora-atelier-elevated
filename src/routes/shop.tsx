@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
 import {
+  expandProductsForBothGenders,
   HOODIE_COLOURS,
   matchesCategory,
   matchesDepartment,
@@ -149,8 +150,9 @@ function Shop() {
     return list;
   }, [data, search, maxPrice]);
 
+  /** Keep both male and female model galleries in Shop All / Hoodies / Trousers / Couple. */
   const gridItems = useMemo(
-    () => products.map((product) => ({ product })),
+    () => expandProductsForBothGenders(products),
     [products],
   );
 
@@ -194,12 +196,12 @@ function Shop() {
           </h1>
           <p className="mt-4 max-w-xl text-sm text-muted-foreground">
             {search.gender === "couple"
-              ? "Couple-ready essentials. For two-person colour & size selection, use the Couple builder."
+              ? "Couple-ready essentials with male and female model photos. For two-person colour & size selection, use the Couple builder."
               : search.category === "hoodies"
-                ? "Olive green and black hoodies in S, M, L and XL. Free shipping · tax-free prices."
+                ? "Olive green and black hoodies in S, M, L and XL — shown on male and female models. Free shipping · tax-free prices."
                 : search.category === "trousers"
-                  ? "Grey and black trousers in S, M, L and XL. Free shipping · tax-free prices."
-                  : "Shop All, Hoodies, Trousers or Couple. Free shipping, tax-free prices, and 7% off with bank transfer."}
+                  ? "Grey and black trousers in S, M, L and XL — shown on male and female models. Free shipping · tax-free prices."
+                  : "Shop All, Hoodies, Trousers or Couple. Each piece shows male and female model photos. Free shipping, tax-free prices, and 7% off with bank transfer."}
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
             {isLoading
