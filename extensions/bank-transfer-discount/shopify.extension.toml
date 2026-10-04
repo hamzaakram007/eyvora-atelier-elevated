@@ -1,9 +1,10 @@
-api_version = "2025-07"
+api_version = "2025-10"
 
 [[extensions]]
 type = "ui_extension"
 name = "Bank transfer 7% off"
 handle = "bank-transfer-discount"
+uid = "5d5c500c-2f9b-1f0c-6a96-9a22af6893efd9e94d52"
 
   [[extensions.targeting]]
   module = "./src/Checkout.tsx"
