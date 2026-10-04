@@ -1,33 +1,23 @@
 # Bank transfer 7% off (Checkout UI Extension)
 
+**Status: released** as app version `eyvora-storefront-2` on app **EYVORA Storefront**.
+
 Updates the Shopify checkout **total live** when the shopper switches between
 **Bank Deposit** and **Cash on Delivery** by adding/removing the `BANK7` code.
 
-## Why this is required
+Target: `purchase.checkout.payment-method-list.render-after`
 
-Shopify hosted checkout does not change discount codes when the payment method
-changes unless a Checkout UI Extension (or similar app code) does it.
-
-## Deploy (one-time Shopify login)
-
-From the repo root:
+## Redeploy
 
 ```bash
-# Option A — interactive login
-npx shopify auth login
-npx shopify app deploy --client-id "$SHOPIFY_CLIENT_ID" --allow-updates
-
-# Option B — CI / non-interactive
-# Dev Dashboard → Eyvora cursor → Settings → App Automation Token → Create
-export SHOPIFY_APP_AUTOMATION_TOKEN="shpat_or_token_value"
+export SHOPIFY_APP_AUTOMATION_TOKEN="..."   # optional for CI
 npx shopify app deploy --client-id "$SHOPIFY_CLIENT_ID" --allow-updates
 ```
 
-Then in Shopify Admin → **Settings → Checkout → Customize** → add
-**Bank transfer 7% off** under the payment methods block → Save.
+If the banner does not appear under payment methods, open Shopify Admin →
+**Settings → Checkout → Customize**, confirm the app extension is enabled, Save.
 
-## Already live without the extension
+## Related storefront behaviour
 
 1. Bag: Bank transfer applies `BANK7`; COD removes it before opening checkout.
-2. `ORDERS_CREATE` webhook adjusts the order after placement if the final
-   payment method and discount disagree.
+2. `ORDERS_CREATE` webhook adjusts the order after placement if needed.
