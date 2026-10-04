@@ -79,7 +79,16 @@ export type LaunchProductMeta = {
   tags: string[];
 };
 
-const SIZES = ["S", "M", "L"] as const;
+/** Launch size run — Small, Medium, Large, Extra Large. */
+export const PRODUCT_SIZES = ["S", "M", "L", "XL"] as const;
+
+/** Hoodie colours only. */
+export const HOODIE_COLOURS = ["Olive Green", "Black"] as const;
+
+/** Trouser colours only. */
+export const TROUSER_COLOURS = ["Grey", "Black"] as const;
+
+const SIZES = PRODUCT_SIZES;
 
 export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
   {
@@ -241,7 +250,7 @@ export type CouplePieceOption = {
 
 /** Selectable pieces for the couple builder (Person 1 / Person 2). */
 export const COUPLE_HOODIES: CouplePieceOption[] = [
-  { handle: "olive-green-hoodie", label: "Olive Green Hoodie", color: "Olive", kind: "hoodie" },
+  { handle: "olive-green-hoodie", label: "Olive Green Hoodie", color: "Olive Green", kind: "hoodie" },
   { handle: "black-hoodie", label: "Black Hoodie", color: "Black", kind: "hoodie" },
 ];
 
@@ -541,9 +550,52 @@ export function mergeWithShopifyCatalog(
   const byHandle = new Map(remote.map((p) => [p.node.handle, p]));
   const launchHandles = new Set(LAUNCH_PRODUCTS.map((p) => p.handle));
 
+  const sizeRank = new Map(PRODUCT_SIZES.map((size, i) => [size, i]));
+  const sortSizeValues = (values: string[]) =>
+    [...values].sort((a, b) => {
+      const ai = sizeRank.get(a as (typeof PRODUCT_SIZES)[number]);
+      const bi = sizeRank.get(b as (typeof PRODUCT_SIZES)[number]);
+      if (ai == null && bi == null) return a.localeCompare(b);
+      if (ai == null) return 1;
+      if (bi == null) return -1;
+      return ai - bi;
+    });
+
   const launch = LAUNCH_PRODUCTS.map((meta) => {
     const remoteProduct = byHandle.get(meta.handle);
     if (!remoteProduct) return toShopifyProduct(meta, gender);
+
+    // Prefer sizes from variants — Storefront option.values can lag after Admin adds XL.
+    const sizesFromVariants = remoteProduct.node.variants.edges
+      .map(
+        (edge) =>
+          edge.node.selectedOptions.find((o) => o.name.toLowerCase() === "size")
+            ?.value,
+      )
+      .filter((value): value is string => Boolean(value));
+    const checkoutSafeSizes = sortSizeValues(
+      Array.from(
+        new Set(sizesFromVariants.length ? sizesFromVariants : [...PRODUCT_SIZES]),
+      ),
+    );
+
+    const options = (remoteProduct.node.options ?? []).map((option) => {
+      if (option.name.toLowerCase() === "size") {
+        return { ...option, values: checkoutSafeSizes };
+      }
+      if (
+        option.name.toLowerCase() === "color" ||
+        option.name.toLowerCase() === "colour"
+      ) {
+        return { ...option, values: [meta.color] };
+      }
+      return option;
+    });
+
+    if (!options.some((o) => o.name.toLowerCase() === "size")) {
+      options.unshift({ name: "Size", values: checkoutSafeSizes });
+    }
+
     return applyLaunchImagery(
       {
         node: {
@@ -551,6 +603,7 @@ export function mergeWithShopifyCatalog(
           title: meta.title,
           description: remoteProduct.node.description || meta.description,
           productType: meta.category === "hoodies" ? "Hoodies" : "Trousers",
+          options,
           tags: Array.from(
             new Set([...(remoteProduct.node.tags ?? []), ...meta.tags]),
           ),

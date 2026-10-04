@@ -41,7 +41,7 @@ See [`shopify-seed/README.md`](./shopify-seed/README.md).
 
 | Product | Price | Sizes |
 |---|---|---|
-| Olive Green Hoodie | PKR 4,399 | S / M / L |
-| Black Hoodie | PKR 4,399 | S / M / L |
-| Grey Trousers | PKR 2,499 | S / M / L |
-| Black Trousers | PKR 2,499 | S / M / L |
+| Olive Green Hoodie | PKR 4,399 | S / M / L / XL | Olive Green |
+| Black Hoodie | PKR 4,399 | S / M / L / XL | Black |
+| Grey Trousers | PKR 2,499 | S / M / L / XL | Grey |
+| Black Trousers | PKR 2,499 | S / M / L / XL | Black |

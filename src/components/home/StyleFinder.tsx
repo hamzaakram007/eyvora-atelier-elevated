@@ -29,12 +29,12 @@ const steps: Array<{ key: keyof Answers; label: string; options: string[] }> = [
   {
     key: "size",
     label: "Your size",
-    options: ["S", "M", "L"],
+    options: ["S", "M", "L", "XL"],
   },
   {
     key: "colour",
     label: "Colour preference",
-    options: ["Olive", "Black", "Grey", "No preference"],
+    options: ["Olive Green", "Black", "Grey", "No preference"],
   },
   {
     key: "occasion",

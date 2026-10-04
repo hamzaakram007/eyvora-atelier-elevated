@@ -22,7 +22,7 @@ Shopify plan is active and Online Store password is off.
 No code change needed for a normal new product:
 
 1. Shopify Admin → **Products** → **Add product**
-2. Title, price (PKR), sizes (S/M/L), photos, inventory
+2. Title, price (PKR), sizes (S/M/L/XL), photos, inventory
 3. **Publish** to **Online Store** (and any other channels you use)
 4. Optional: add tags like `hoodies`, `trousers`, `couple`, `new` so filters/collections pick it up
 5. Optional: add to a collection (`hoodies` / `trousers` / `couple`)
@@ -56,7 +56,7 @@ Until DNS is updated, use the Vercel URL above.
 ## 3) Shopify Admin (already done via Dev Dashboard app)
 
 - Demo products archived
-- Launch products created @ PKR 4399 / 2499 with S/M/L
+- Launch products created @ PKR 4399 / 2499 with S/M/L/XL (hoodies: olive green & black; trousers: grey & black)
 - Photos + inventory attached
 - Collections: `hoodies`, `trousers`, `couple`, `frontpage`
 - Domestic shipping set to **PKR 250**, international **PKR 2500**

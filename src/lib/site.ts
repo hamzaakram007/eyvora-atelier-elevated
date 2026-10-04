@@ -136,7 +136,7 @@ export const announcements = [
 export const faqs = [
   {
     q: "How do EYVORA sizes fit?",
-    a: "Hoodies and trousers are offered in S, M and L. Use the size guide on each product page. If measurements are not yet published, they will appear as “coming soon” rather than estimated figures.",
+    a: "Hoodies and trousers are offered in S, M, L and XL. Hoodies come in Olive Green and Black; trousers in Grey and Black. Use the size guide on each product page — measurements appear once EYVORA confirms them.",
   },
   {
     q: "Where do you deliver?",

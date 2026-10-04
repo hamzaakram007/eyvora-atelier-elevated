@@ -127,6 +127,9 @@ const COLLECTIONS = [
   },
 ];
 
+/** Small, Medium, Large, Extra Large */
+const SIZES = ["S", "M", "L", "XL"];
+
 async function admin(query, variables = {}) {
   const token = await resolveAdminToken();
   const res = await fetch(API, {
@@ -165,10 +168,72 @@ async function archiveProduct(id) {
   );
 }
 
+async function productVariantSnapshot(productId) {
+  const data = await admin(
+    `query($id: ID!) {
+      product(id: $id) {
+        id
+        handle
+        options { id name values }
+        variants(first: 50) {
+          edges {
+            node {
+              id
+              title
+              selectedOptions { name value }
+            }
+          }
+        }
+      }
+    }`,
+    { id: productId },
+  );
+  return data.product;
+}
+
+async function ensureMissingSizeVariants(productId, p) {
+  const product = await productVariantSnapshot(productId);
+  const existingSizes = new Set(
+    (product.variants?.edges ?? [])
+      .map((e) =>
+        e.node.selectedOptions.find((o) => o.name.toLowerCase() === "size")?.value,
+      )
+      .filter(Boolean),
+  );
+  const missing = SIZES.filter((size) => !existingSizes.has(size));
+  if (missing.length === 0) {
+    console.log(`✓ sizes complete: ${p.handle} (${SIZES.join("/")})`);
+    return;
+  }
+
+  const variants = missing.map((size) => ({
+    optionValues: [
+      { optionName: "Size", name: size },
+      { optionName: "Color", name: p.color },
+    ],
+    price: p.price,
+    inventoryPolicy: "CONTINUE",
+  }));
+
+  const variantData = await admin(
+    `mutation($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+      productVariantsBulkCreate(productId: $productId, variants: $variants) {
+        productVariants { id title price }
+        userErrors { field message }
+      }
+    }`,
+    { productId, variants },
+  );
+  const vErrors = variantData.productVariantsBulkCreate.userErrors;
+  if (vErrors?.length) throw new Error(JSON.stringify(vErrors, null, 2));
+  console.log(`+ added sizes ${missing.join("/")} on ${p.handle}`);
+}
+
 async function ensureProduct(p) {
   const existing = (await listProducts()).find((x) => x.handle === p.handle);
   if (existing && existing.status === "ACTIVE") {
     console.log(`✓ exists: ${p.handle}`);
+    await ensureMissingSizeVariants(existing.id, p);
     return existing.id;
   }
 
@@ -189,7 +254,7 @@ async function ensureProduct(p) {
         status: "ACTIVE",
         tags: p.tags,
         productOptions: [
-          { name: "Size", values: [{ name: "S" }, { name: "M" }, { name: "L" }] },
+          { name: "Size", values: SIZES.map((name) => ({ name })) },
           { name: "Color", values: [{ name: p.color }] },
         ],
       },
@@ -201,14 +266,13 @@ async function ensureProduct(p) {
   const productId = data.productCreate.product.id;
   console.log(`+ created product: ${p.handle}`);
 
-  // Create variants with prices via productVariantsBulkCreate
-  const variants = ["S", "M", "L"].map((size) => ({
+  const variants = SIZES.map((size) => ({
     optionValues: [
       { optionName: "Size", name: size },
       { optionName: "Color", name: p.color },
     ],
     price: p.price,
-    inventoryPolicy: "DENY",
+    inventoryPolicy: "CONTINUE",
   }));
 
   const variantData = await admin(
@@ -222,7 +286,7 @@ async function ensureProduct(p) {
   );
   const vErrors = variantData.productVariantsBulkCreate.userErrors;
   if (vErrors?.length) throw new Error(JSON.stringify(vErrors, null, 2));
-  console.log(`  variants: S/M/L @ PKR ${p.price}`);
+  console.log(`  variants: ${SIZES.join("/")} @ PKR ${p.price}`);
   return productId;
 }
 

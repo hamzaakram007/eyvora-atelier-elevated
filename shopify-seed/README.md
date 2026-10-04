@@ -6,10 +6,10 @@ The live Shopify Admin currently contains a temporary demo catalogue with incorr
 
 | Product | Handle | Price | Sizes | Color |
 |---|---|---|---|---|
-| EYVORA Olive Green Hoodie | `olive-green-hoodie` | PKR 4,399 | S / M / L | Olive Green |
-| EYVORA Black Hoodie | `black-hoodie` | PKR 4,399 | S / M / L | Black |
-| EYVORA Grey Trousers | `grey-trousers` | PKR 2,499 | S / M / L | Grey |
-| EYVORA Black Trousers | `black-trousers` | PKR 2,499 | S / M / L | Black |
+| EYVORA Olive Green Hoodie | `olive-green-hoodie` | PKR 4,399 | S / M / L / XL | Olive Green |
+| EYVORA Black Hoodie | `black-hoodie` | PKR 4,399 | S / M / L / XL | Black |
+| EYVORA Grey Trousers | `grey-trousers` | PKR 2,499 | S / M / L / XL | Grey |
+| EYVORA Black Trousers | `black-trousers` | PKR 2,499 | S / M / L / XL | Black |
 
 Total: **4 products / 12 variants**
 

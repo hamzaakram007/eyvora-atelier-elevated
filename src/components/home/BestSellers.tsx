@@ -21,7 +21,7 @@ export function BestSellers() {
               Launch collection
             </h2>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-              Four pieces. Twelve sizes. Designed to stand alone or work as coordinated outfits.
+              Four pieces. Sixteen sizes. Hoodies in olive green & black; trousers in grey & black.
             </p>
           </div>
           <Link

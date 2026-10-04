@@ -40,7 +40,7 @@ export const Route = createFileRoute("/product/$handle")({
     const name = node?.title ?? titleFromHandle(params.handle);
     const description =
       node?.description?.slice(0, 155) ||
-      `Shop the ${name} from EYVORA. Sizes S, M, L with Cash on Delivery across Pakistan. Priced in PKR.`;
+      `Shop the ${name} from EYVORA. Sizes S, M, L, XL with Cash on Delivery across Pakistan. Priced in PKR.`;
     const image =
       node?.images.edges[0]?.node.url || "https://eyvora.pk/og.jpg";
     const url = `https://eyvora.pk/product/${params.handle}`;

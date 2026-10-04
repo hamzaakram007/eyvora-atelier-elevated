@@ -4,8 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
 import {
   expandProductsForBothGenders,
+  HOODIE_COLOURS,
   matchesCategory,
   matchesDepartment,
+  PRODUCT_SIZES,
+  TROUSER_COLOURS,
 } from "@/lib/catalog";
 import { ProductGrid } from "@/components/site/ProductGrid";
 import { cn } from "@/lib/utils";
@@ -77,8 +80,7 @@ const sorts = [
   { key: "price-desc", label: "Price high–low" },
 ];
 
-const sizes = ["S", "M", "L"];
-const colours = ["Olive", "Black", "Grey"];
+const sizes = [...PRODUCT_SIZES];
 
 function textOf(p: ShopifyProduct) {
   return `${p.node.title} ${p.node.productType ?? ""} ${(p.node.tags ?? []).join(" ")}`.toLowerCase();
@@ -174,6 +176,13 @@ function Shop() {
                 ? "Trousers"
                 : "All pieces";
 
+  const colours =
+    search.category === "hoodies"
+      ? [...HOODIE_COLOURS]
+      : search.category === "trousers"
+        ? [...TROUSER_COLOURS]
+        : Array.from(new Set([...HOODIE_COLOURS, ...TROUSER_COLOURS]));
+
   return (
     <div className="pt-32 lg:pt-40">
       <div className="mx-auto max-w-[1600px] px-5 lg:px-10">
@@ -229,7 +238,13 @@ function Shop() {
                 <Chip
                   key={c}
                   active={search.category === c}
-                  onClick={() => set({ category: search.category === c ? undefined : c })}
+                  onClick={() =>
+                    set({
+                      category: search.category === c ? undefined : c,
+                      // Reset colour when category changes so hoodie/trouser colours stay accurate.
+                      color: undefined,
+                    })
+                  }
                 >
                   {c}
                 </Chip>

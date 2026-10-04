@@ -136,7 +136,7 @@ function SizePicker({
     <div>
       <p className="eyebrow mb-3">{label}</p>
       <div className="flex flex-wrap gap-2">
-        {["S", "M", "L"].map((size) => (
+        {["S", "M", "L", "XL"].map((size) => (
           <button
             key={size}
             type="button"
