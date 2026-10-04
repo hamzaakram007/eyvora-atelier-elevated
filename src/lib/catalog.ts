@@ -1,4 +1,5 @@
 import type { ShopifyProduct } from "@/lib/shopify";
+import { registerImageVariants } from "@/lib/image-variants";
 
 import olivePrimary from "@/assets/products/olive-hoodie/primary.webp";
 import oliveSecondary from "@/assets/products/olive-hoodie/secondary.webp";
@@ -61,6 +62,13 @@ import coupleContrastTrousersFront from "@/assets/products/couple/contrast/trous
 import coupleContrastTrousersSide from "@/assets/products/couple/contrast/trousers-side.webp";
 
 export type ProductImage = { url: string; altText: string };
+
+
+function pic(url: string, publicBase: string, altText: string): ProductImage {
+  registerImageVariants(url, publicBase);
+  return { url, altText };
+}
+
 export type ModelGender = "men" | "women";
 
 export type LaunchProductMeta = {
@@ -100,24 +108,24 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     description:
       "A relaxed everyday hoodie in muted olive, finished with signature white piping and a clean EYVORA mark.",
     imagesMen: [
-      { url: olivePrimary, altText: "EYVORA Olive Green Hoodie — men front view" },
-      { url: oliveFront, altText: "EYVORA Olive Green Hoodie — men lifestyle" },
-      { url: oliveBack, altText: "EYVORA Olive Green Hoodie — men back view" },
+      pic(olivePrimary, "olive-hoodie/primary", "EYVORA Olive Green Hoodie — men front view"),
+      pic(oliveFront, "olive-hoodie/front", "EYVORA Olive Green Hoodie — men lifestyle"),
+      pic(oliveBack, "olive-hoodie/back", "EYVORA Olive Green Hoodie — men back view"),
     ],
     imagesWomen: [
-      { url: oliveWomenFront, altText: "EYVORA Olive Green Hoodie — women front view" },
-      { url: oliveWomenFrontAlt, altText: "EYVORA Olive Green Hoodie — women portrait" },
-      { url: oliveWomenDetail, altText: "EYVORA Olive Green Hoodie — women detail" },
-      { url: oliveWomenHood, altText: "EYVORA Olive Green Hoodie — women hood up" },
-      { url: oliveWomenBack, altText: "EYVORA Olive Green Hoodie — women back view" },
+      pic(oliveWomenFront, "olive-hoodie/women/front", "EYVORA Olive Green Hoodie — women front view"),
+      pic(oliveWomenFrontAlt, "olive-hoodie/women/front-alt", "EYVORA Olive Green Hoodie — women portrait"),
+      pic(oliveWomenDetail, "olive-hoodie/women/detail", "EYVORA Olive Green Hoodie — women detail"),
+      pic(oliveWomenHood, "olive-hoodie/women/hood", "EYVORA Olive Green Hoodie — women hood up"),
+      pic(oliveWomenBack, "olive-hoodie/women/back", "EYVORA Olive Green Hoodie — women back view"),
     ],
     images: [
-      { url: olivePrimary, altText: "EYVORA Olive Green Hoodie — front view" },
-      { url: oliveSecondary, altText: "EYVORA Olive Green Hoodie — alternate view" },
-      { url: oliveFront, altText: "EYVORA Olive Green Hoodie — front lifestyle" },
-      { url: oliveBack, altText: "EYVORA Olive Green Hoodie — back view" },
-      { url: oliveLifestyle, altText: "EYVORA Olive Green Hoodie — lifestyle" },
-      { url: oliveDetail, altText: "EYVORA Olive Green Hoodie — detail" },
+      pic(olivePrimary, "olive-hoodie/primary", "EYVORA Olive Green Hoodie — front view"),
+      pic(oliveSecondary, "olive-hoodie/secondary", "EYVORA Olive Green Hoodie — alternate view"),
+      pic(oliveFront, "olive-hoodie/front", "EYVORA Olive Green Hoodie — front lifestyle"),
+      pic(oliveBack, "olive-hoodie/back", "EYVORA Olive Green Hoodie — back view"),
+      pic(oliveLifestyle, "olive-hoodie/lifestyle", "EYVORA Olive Green Hoodie — lifestyle"),
+      pic(oliveDetail, "olive-hoodie/detail", "EYVORA Olive Green Hoodie — detail"),
     ],
     tags: ["hoodies", "olive", "couple", "essentials", "new", "men", "women"],
   },
@@ -130,27 +138,27 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     description:
       "A deep charcoal hoodie with white piping and a refined silhouette for everyday wear.",
     imagesMen: [
-      { url: blackHoodiePrimary, altText: "EYVORA Black Hoodie — men front view" },
-      { url: blackHoodieFront, altText: "EYVORA Black Hoodie — men lifestyle" },
-      { url: blackHoodieLifestyle, altText: "EYVORA Black Hoodie — men detail" },
-      { url: blackHoodieBack, altText: "EYVORA Black Hoodie — men back view" },
-      { url: blackHoodieDetail, altText: "EYVORA Black Hoodie — men close-up" },
+      pic(blackHoodiePrimary, "black-hoodie/primary", "EYVORA Black Hoodie — men front view"),
+      pic(blackHoodieFront, "black-hoodie/front", "EYVORA Black Hoodie — men lifestyle"),
+      pic(blackHoodieLifestyle, "black-hoodie/lifestyle", "EYVORA Black Hoodie — men detail"),
+      pic(blackHoodieBack, "black-hoodie/back", "EYVORA Black Hoodie — men back view"),
+      pic(blackHoodieDetail, "black-hoodie/detail", "EYVORA Black Hoodie — men close-up"),
     ],
     imagesWomen: [
-      { url: blackHoodieWomenFront, altText: "EYVORA Black Hoodie — women front view" },
-      { url: blackHoodieWomenFrontAlt, altText: "EYVORA Black Hoodie — women chest detail" },
-      { url: blackHoodieWomenDetail, altText: "EYVORA Black Hoodie — women pocket detail" },
-      { url: blackHoodieWomenBackLook, altText: "EYVORA Black Hoodie — women back look" },
-      { url: blackHoodieWomenBackDetail, altText: "EYVORA Black Hoodie — women back detail" },
-      { url: blackHoodieWomenBack, altText: "EYVORA Black Hoodie — women back view" },
+      pic(blackHoodieWomenFront, "black-hoodie/women/front", "EYVORA Black Hoodie — women front view"),
+      pic(blackHoodieWomenFrontAlt, "black-hoodie/women/front-alt", "EYVORA Black Hoodie — women chest detail"),
+      pic(blackHoodieWomenDetail, "black-hoodie/women/detail", "EYVORA Black Hoodie — women pocket detail"),
+      pic(blackHoodieWomenBackLook, "black-hoodie/women/back-look", "EYVORA Black Hoodie — women back look"),
+      pic(blackHoodieWomenBackDetail, "black-hoodie/women/back-detail", "EYVORA Black Hoodie — women back detail"),
+      pic(blackHoodieWomenBack, "black-hoodie/women/back", "EYVORA Black Hoodie — women back view"),
     ],
     images: [
-      { url: blackHoodiePrimary, altText: "EYVORA Black Hoodie — front view" },
-      { url: blackHoodieSecondary, altText: "EYVORA Black Hoodie — alternate view" },
-      { url: blackHoodieFront, altText: "EYVORA Black Hoodie — front lifestyle" },
-      { url: blackHoodieBack, altText: "EYVORA Black Hoodie — back view" },
-      { url: blackHoodieLifestyle, altText: "EYVORA Black Hoodie — lifestyle" },
-      { url: blackHoodieDetail, altText: "EYVORA Black Hoodie — detail" },
+      pic(blackHoodiePrimary, "black-hoodie/primary", "EYVORA Black Hoodie — front view"),
+      pic(blackHoodieSecondary, "black-hoodie/secondary", "EYVORA Black Hoodie — alternate view"),
+      pic(blackHoodieFront, "black-hoodie/front", "EYVORA Black Hoodie — front lifestyle"),
+      pic(blackHoodieBack, "black-hoodie/back", "EYVORA Black Hoodie — back view"),
+      pic(blackHoodieLifestyle, "black-hoodie/lifestyle", "EYVORA Black Hoodie — lifestyle"),
+      pic(blackHoodieDetail, "black-hoodie/detail", "EYVORA Black Hoodie — detail"),
     ],
     tags: ["hoodies", "black", "couple", "essentials", "new", "men", "women"],
   },
@@ -163,28 +171,28 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     description:
       "Relaxed straight-leg trousers in soft heather grey, designed for comfort with a quiet logo mark.",
     imagesMen: [
-      { url: greyPrimary, altText: "EYVORA Grey Trousers — men front view" },
-      { url: greyFront, altText: "EYVORA Grey Trousers — men lifestyle" },
-      { url: greyBack, altText: "EYVORA Grey Trousers — men back view" },
-      { url: greyDetail, altText: "EYVORA Grey Trousers — detail" },
-      { url: greyCloseup, altText: "EYVORA Grey Trousers — close-up" },
+      pic(greyPrimary, "grey-trousers/primary", "EYVORA Grey Trousers — men front view"),
+      pic(greyFront, "grey-trousers/front", "EYVORA Grey Trousers — men lifestyle"),
+      pic(greyBack, "grey-trousers/back", "EYVORA Grey Trousers — men back view"),
+      pic(greyDetail, "grey-trousers/detail", "EYVORA Grey Trousers — detail"),
+      pic(greyCloseup, "grey-trousers/closeup", "EYVORA Grey Trousers — close-up"),
     ],
     imagesWomen: [
-      { url: greyWomenFront, altText: "EYVORA Grey Trousers — women front view" },
-      { url: greyWomenLifestyle, altText: "EYVORA Grey Trousers — women walking" },
-      { url: greyWomenLogo, altText: "EYVORA Grey Trousers — women logo detail" },
-      { url: greyWomenPocketBack, altText: "EYVORA Grey Trousers — women pocket detail" },
-      { url: greyWomenPocketSide, altText: "EYVORA Grey Trousers — women side pocket" },
-      { url: greyWomenPhonePocket, altText: "EYVORA Grey Trousers — women phone pocket" },
+      pic(greyWomenFront, "grey-trousers/women/front", "EYVORA Grey Trousers — women front view"),
+      pic(greyWomenLifestyle, "grey-trousers/women/lifestyle", "EYVORA Grey Trousers — women walking"),
+      pic(greyWomenLogo, "grey-trousers/women/logo", "EYVORA Grey Trousers — women logo detail"),
+      pic(greyWomenPocketBack, "grey-trousers/women/pocket-back", "EYVORA Grey Trousers — women pocket detail"),
+      pic(greyWomenPocketSide, "grey-trousers/women/pocket-side", "EYVORA Grey Trousers — women side pocket"),
+      pic(greyWomenPhonePocket, "grey-trousers/women/phone-pocket", "EYVORA Grey Trousers — women phone pocket"),
     ],
     images: [
-      { url: greyPrimary, altText: "EYVORA Grey Trousers — front view" },
-      { url: greySecondary, altText: "EYVORA Grey Trousers — alternate view" },
-      { url: greyFront, altText: "EYVORA Grey Trousers — front lifestyle" },
-      { url: greyBack, altText: "EYVORA Grey Trousers — back view" },
-      { url: greyLifestyle, altText: "EYVORA Grey Trousers — lifestyle" },
-      { url: greyDetail, altText: "EYVORA Grey Trousers — detail" },
-      { url: greyCloseup, altText: "EYVORA Grey Trousers — close-up" },
+      pic(greyPrimary, "grey-trousers/primary", "EYVORA Grey Trousers — front view"),
+      pic(greySecondary, "grey-trousers/secondary", "EYVORA Grey Trousers — alternate view"),
+      pic(greyFront, "grey-trousers/front", "EYVORA Grey Trousers — front lifestyle"),
+      pic(greyBack, "grey-trousers/back", "EYVORA Grey Trousers — back view"),
+      pic(greyLifestyle, "grey-trousers/lifestyle", "EYVORA Grey Trousers — lifestyle"),
+      pic(greyDetail, "grey-trousers/detail", "EYVORA Grey Trousers — detail"),
+      pic(greyCloseup, "grey-trousers/closeup", "EYVORA Grey Trousers — close-up"),
     ],
     tags: ["trousers", "grey", "couple", "essentials", "new", "men", "women"],
   },
@@ -197,29 +205,29 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     description:
       "Relaxed straight-leg trousers in deep black, finished with a minimal EYVORA mark on the thigh.",
     imagesMen: [
-      { url: blackTrousersPrimary, altText: "EYVORA Black Trousers — men front view" },
-      { url: blackTrousersFront, altText: "EYVORA Black Trousers — men lifestyle" },
-      { url: blackTrousersBack, altText: "EYVORA Black Trousers — men back view" },
-      { url: blackTrousersDetail, altText: "EYVORA Black Trousers — detail" },
-      { url: blackTrousersCloseup, altText: "EYVORA Black Trousers — close-up" },
+      pic(blackTrousersPrimary, "black-trousers/primary", "EYVORA Black Trousers — men front view"),
+      pic(blackTrousersFront, "black-trousers/front", "EYVORA Black Trousers — men lifestyle"),
+      pic(blackTrousersBack, "black-trousers/back", "EYVORA Black Trousers — men back view"),
+      pic(blackTrousersDetail, "black-trousers/detail", "EYVORA Black Trousers — detail"),
+      pic(blackTrousersCloseup, "black-trousers/closeup", "EYVORA Black Trousers — close-up"),
     ],
     imagesWomen: [
-      { url: blackTrousersWomenFront, altText: "EYVORA Black Trousers — women front view" },
-      { url: blackTrousersWomenLifestyle, altText: "EYVORA Black Trousers — women walking" },
-      { url: blackTrousersWomenLogo, altText: "EYVORA Black Trousers — women logo detail" },
-      { url: blackTrousersWomenPocketBack, altText: "EYVORA Black Trousers — women pocket detail" },
-      { url: blackTrousersWomenPocketSide, altText: "EYVORA Black Trousers — women side pocket" },
-      { url: blackTrousersWomenPhonePocket, altText: "EYVORA Black Trousers — women phone pocket" },
-      { url: blackTrousersWomenBackWalk, altText: "EYVORA Black Trousers — women back walk" },
+      pic(blackTrousersWomenFront, "black-trousers/women/front", "EYVORA Black Trousers — women front view"),
+      pic(blackTrousersWomenLifestyle, "black-trousers/women/lifestyle", "EYVORA Black Trousers — women walking"),
+      pic(blackTrousersWomenLogo, "black-trousers/women/logo", "EYVORA Black Trousers — women logo detail"),
+      pic(blackTrousersWomenPocketBack, "black-trousers/women/pocket-back", "EYVORA Black Trousers — women pocket detail"),
+      pic(blackTrousersWomenPocketSide, "black-trousers/women/pocket-side", "EYVORA Black Trousers — women side pocket"),
+      pic(blackTrousersWomenPhonePocket, "black-trousers/women/phone-pocket", "EYVORA Black Trousers — women phone pocket"),
+      pic(blackTrousersWomenBackWalk, "black-trousers/women/back-walk", "EYVORA Black Trousers — women back walk"),
     ],
     images: [
-      { url: blackTrousersPrimary, altText: "EYVORA Black Trousers — front view" },
-      { url: blackTrousersSecondary, altText: "EYVORA Black Trousers — alternate view" },
-      { url: blackTrousersFront, altText: "EYVORA Black Trousers — front lifestyle" },
-      { url: blackTrousersBack, altText: "EYVORA Black Trousers — back view" },
-      { url: blackTrousersLifestyle, altText: "EYVORA Black Trousers — lifestyle" },
-      { url: blackTrousersDetail, altText: "EYVORA Black Trousers — detail" },
-      { url: blackTrousersCloseup, altText: "EYVORA Black Trousers — close-up" },
+      pic(blackTrousersPrimary, "black-trousers/primary", "EYVORA Black Trousers — front view"),
+      pic(blackTrousersSecondary, "black-trousers/secondary", "EYVORA Black Trousers — alternate view"),
+      pic(blackTrousersFront, "black-trousers/front", "EYVORA Black Trousers — front lifestyle"),
+      pic(blackTrousersBack, "black-trousers/back", "EYVORA Black Trousers — back view"),
+      pic(blackTrousersLifestyle, "black-trousers/lifestyle", "EYVORA Black Trousers — lifestyle"),
+      pic(blackTrousersDetail, "black-trousers/detail", "EYVORA Black Trousers — detail"),
+      pic(blackTrousersCloseup, "black-trousers/closeup", "EYVORA Black Trousers — close-up"),
     ],
     tags: ["trousers", "black", "couple", "essentials", "new", "men", "women"],
   },
