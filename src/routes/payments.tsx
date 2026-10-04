@@ -57,8 +57,8 @@ function PaymentsPage() {
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             Free shipping and tax-free prices on every order. Pay by Cash on Delivery, or choose
-            UBL bank transfer in your bag — {BANK_TRANSFER_DISCOUNT_PERCENT}% off is applied
-            automatically (no discount code to enter).
+            UBL bank transfer in your bag / checkout — {BANK_TRANSFER_DISCOUNT_PERCENT}% off is
+            applied live when you select bank transfer (no discount code to enter).
           </p>
         </header>
 
