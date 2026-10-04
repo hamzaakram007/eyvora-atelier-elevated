@@ -27,16 +27,23 @@ export const Route = createFileRoute("/product/$handle")({
       .join(" ");
     return {
       meta: [
-        { title: `${name} — EYVORA` },
+        { title: `${name} | Buy Online Pakistan — EYVORA` },
         {
           name: "description",
-          content: `${name} by EYVORA. Premium everyday essentials in PKR. Select size S, M or L.`,
+          content: `Shop the ${name} from EYVORA. Sizes S, M, L with Cash on Delivery across Pakistan. Priced in PKR.`,
         },
         { property: "og:title", content: `${name} — EYVORA` },
         {
           property: "og:description",
-          content: `${name} by EYVORA. Everyday essentials, elevated.`,
+          content: `${name} by EYVORA. Everyday essentials with COD and bank transfer.`,
         },
+        { property: "og:url", content: `https://eyvora.pk/product/${params.handle}` },
+        { property: "og:image", content: "https://eyvora.pk/og.jpg" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "robots", content: "index, follow" },
+      ],
+      links: [
+        { rel: "canonical", href: `https://eyvora.pk/product/${params.handle}` },
       ],
     };
   },

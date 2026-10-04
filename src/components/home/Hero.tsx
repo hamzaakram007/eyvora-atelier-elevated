@@ -9,10 +9,12 @@ export function Hero() {
         <source media="(max-width: 768px)" srcSet={heroMobile} />
         <img
           src={heroDesktop}
-          alt="EYVORA models wearing the Essentials Collection"
+          alt="EYVORA models wearing premium olive and black hoodies from the Essentials Collection"
           width={1600}
           height={2000}
           fetchPriority="high"
+          decoding="async"
+          sizes="100vw"
           className="animate-veil absolute inset-0 h-full w-full object-cover object-[50%_20%]"
         />
       </picture>

@@ -78,28 +78,50 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EYVORA — Premium Hoodies & Trousers" },
+      { title: "EYVORA — Premium Hoodies & Trousers in Pakistan" },
       {
         name: "description",
         content:
-          "EYVORA — premium hoodies and trousers for modern everyday wear. Launch essentials in olive, black and grey. Pakistan / PKR.",
+          "Shop EYVORA premium hoodies and trousers online in Pakistan. Olive & black hoodies, grey & black trousers. Cash on Delivery and UBL bank transfer. PKR pricing.",
       },
+      {
+        name: "keywords",
+        content:
+          "EYVORA, hoodies Pakistan, trousers Pakistan, couple hoodies, olive hoodie, black hoodie, cash on delivery",
+      },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
+      { name: "author", content: "EYVORA" },
       { property: "og:site_name", content: "EYVORA" },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://eyvora.pk" },
+      { property: "og:url", content: "https://eyvora.pk/" },
+      {
+        property: "og:title",
+        content: "EYVORA — Premium Hoodies & Trousers in Pakistan",
+      },
+      {
+        property: "og:description",
+        content:
+          "Everyday essentials elevated. Hoodies and trousers with COD and bank transfer checkout.",
+      },
+      { property: "og:image", content: "https://eyvora.pk/og.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:locale", content: "en_PK" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "EYVORA — Premium Hoodies & Trousers" },
+      {
+        name: "twitter:description",
+        content: "Shop olive & black hoodies and grey & black trousers. Pakistan / PKR.",
+      },
+      { name: "twitter:image", content: "https://eyvora.pk/og.jpg" },
       { name: "theme-color", content: "#F7F5F0" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "canonical", href: "https://eyvora.pk/" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@300;400;500;600&display=swap",
-      },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/favicon.png" },
+      { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
     ],
   }),
   shellComponent: RootShell,

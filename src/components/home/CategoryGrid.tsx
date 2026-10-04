@@ -85,8 +85,12 @@ function CategoryVisual({
       <div className="aspect-[4/5]">
         <img
           src={cat.img}
-          alt={`${cat.title} collection`}
+          alt={`${cat.title} collection — EYVORA essentials`}
           loading="lazy"
+          decoding="async"
+          width={900}
+          height={1125}
+          sizes="(max-width: 768px) 100vw, 33vw"
           className="h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
         />
       </div>

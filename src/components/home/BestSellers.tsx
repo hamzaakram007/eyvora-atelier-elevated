@@ -8,6 +8,7 @@ export function BestSellers() {
   const { data, isLoading } = useQuery({
     queryKey: ["products", "essentials"],
     queryFn: () => fetchProducts(8),
+    staleTime: 60_000,
   });
 
   return (
