@@ -198,7 +198,7 @@ export function ProductCard({
             type="button"
             onClick={quickAdd}
             disabled={adding}
-            className="mt-4 w-full border border-border py-3 text-[0.625rem] tracking-[0.28em] uppercase transition-colors hover:bg-[var(--ink)] hover:text-[var(--ivory)] disabled:opacity-40"
+            className="mt-4 w-full border-2 border-[var(--ink)] py-3.5 text-[0.7rem] font-bold tracking-[0.2em] uppercase transition-colors hover:bg-[var(--ink)] hover:text-[var(--ivory)] disabled:opacity-40"
           >
             {adding ? (
               <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin" />

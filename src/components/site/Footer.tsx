@@ -52,7 +52,7 @@ export function Footer() {
       <div className="mx-auto max-w-[1600px] px-5 pt-20 pb-10 lg:px-10">
         <div className="grid gap-14 lg:grid-cols-[1.4fr_2fr]">
           <div className="max-w-md">
-            <p className="font-display text-3xl font-semibold tracking-[0.24em]">EYVORA</p>
+            <p className="font-display text-[2rem] font-bold tracking-[0.2em]">EYVORA</p>
             <p className="mt-6 text-sm leading-relaxed text-[var(--ivory)]/60">
               Premium hoodies and trousers for modern everyday wear. Free shipping, tax-free
               prices, and 7% off with bank transfer.

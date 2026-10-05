@@ -501,7 +501,7 @@ function CoupleBuilder() {
           type="button"
           onClick={addAll}
           disabled={loading || lineItems.length === 0}
-          className="mt-6 bg-[var(--ink)] px-8 py-4 text-[0.625rem] font-bold tracking-[0.28em] text-[var(--ivory)] uppercase disabled:opacity-40 lg:mt-0"
+          className="mt-6 inline-flex min-h-14 min-w-[220px] items-center justify-center bg-[var(--ink)] px-12 py-4 text-[0.75rem] font-bold tracking-[0.2em] text-[var(--ivory)] uppercase disabled:opacity-40 lg:mt-0"
         >
           {loading ? "Adding…" : `Add ${lineItems.length || ""} to bag`}
         </button>
@@ -565,7 +565,7 @@ function CouplePage() {
           </p>
           <a
             href="#couple-builder"
-            className="mt-6 inline-flex w-fit bg-[var(--ivory)] px-7 py-3.5 text-[0.7rem] font-bold tracking-[0.22em] text-[var(--ink)] uppercase"
+            className="mt-6 inline-flex min-h-13 w-fit min-w-[220px] items-center justify-center bg-[var(--ivory)] px-10 py-4 text-[0.75rem] font-bold tracking-[0.2em] text-[var(--ink)] uppercase"
           >
             Open couple builder
           </a>

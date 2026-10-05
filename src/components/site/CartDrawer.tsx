@@ -321,7 +321,7 @@ export function CartDrawer() {
                 onClick={handleCheckout}
                 disabled={isLoading || items.length === 0}
                 className={cn(
-                  "mt-5 flex w-full items-center justify-center py-4 text-[0.625rem] tracking-[0.28em] uppercase disabled:opacity-40",
+                  "mt-5 flex min-h-14 w-full items-center justify-center py-4 text-[0.7rem] font-bold tracking-[0.2em] uppercase disabled:opacity-40",
                   paymentMethod === "bank"
                     ? "bg-emerald-700 text-white hover:bg-emerald-800"
                     : "bg-[var(--ink)] text-[var(--ivory)]",

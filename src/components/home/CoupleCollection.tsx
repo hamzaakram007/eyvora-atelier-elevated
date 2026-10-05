@@ -36,7 +36,7 @@ export function CoupleCollection() {
           </ul>
           <Link
             to="/couple"
-            className="mt-10 inline-block bg-[var(--ink)] px-9 py-3.5 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)] uppercase transition-opacity hover:opacity-85"
+            className="mt-10 inline-flex min-h-13 items-center justify-center bg-[var(--ink)] px-12 py-4 text-[0.75rem] font-bold tracking-[0.2em] text-[var(--ivory)] uppercase transition-opacity hover:opacity-90"
           >
             Build couple order
           </Link>
