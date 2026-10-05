@@ -237,7 +237,7 @@ export function Header() {
             <Link
               to="/"
               className={cn(
-                "font-display text-center text-2xl tracking-[0.34em] transition-colors duration-500 sm:text-[1.7rem]",
+                "font-display text-center text-[1.65rem] font-semibold tracking-[0.28em] transition-colors duration-500 sm:text-[1.9rem] sm:tracking-[0.3em]",
                 solid ? "text-foreground" : "text-[var(--ivory)]",
               )}
             >
@@ -310,7 +310,7 @@ export function Header() {
       >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-[#1E1E1E]/15 px-5 py-5">
-            <span className="font-display text-lg tracking-[0.34em] text-[#1E1E1E]">
+            <span className="font-display text-xl font-semibold tracking-[0.28em] text-[#1E1E1E]">
               EYVORA
             </span>
             <button
