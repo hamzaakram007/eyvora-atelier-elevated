@@ -6,7 +6,7 @@ import { fetchProductByHandle, fetchProducts, formatPrice } from "@/lib/shopify"
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { resolveModelGender } from "@/lib/catalog";
-import { cardImageUrl, productSrcSet, thumbImageUrl } from "@/lib/image-variants";
+import { cardImageUrl, galleryImageUrl, gallerySrcSet, thumbImageUrl } from "@/lib/image-variants";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -300,13 +300,13 @@ function ProductPage() {
               {images[activeImage] ? (
                 <img
                   src={
-                    cardImageUrl(images[activeImage]!.node.url) ||
+                    galleryImageUrl(images[activeImage]!.node.url) ||
                     images[activeImage]!.node.url
                   }
-                  srcSet={productSrcSet(images[activeImage]!.node.url)}
+                  srcSet={gallerySrcSet(images[activeImage]!.node.url)}
                   alt={images[activeImage]!.node.altText ?? node.title}
-                  width={840}
-                  height={1050}
+                  width={1200}
+                  height={1500}
                   sizes="(max-width: 1024px) 92vw, 55vw"
                   fetchPriority={activeImage === 0 ? "high" : "auto"}
                   decoding="async"

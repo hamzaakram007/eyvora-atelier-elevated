@@ -15,7 +15,8 @@
     "shopify:seed": "node --env-file=.env scripts/seed-shopify-launch.mjs",
     "shopify:register-bank7-webhook": "node --env-file=.env scripts/register-bank7-webhook.mjs",
     "optimize:images": "node scripts/optimize-images.mjs",
-    "optimize:image-variants": "node scripts/generate-image-variants.mjs"
+    "optimize:image-variants": "node scripts/generate-image-variants.mjs",
+    "optimize:images-from-shopify": "node --env-file=.env scripts/upgrade-product-images-from-shopify.mjs"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",

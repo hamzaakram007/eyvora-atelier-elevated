@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 /**
- * Emit smaller WebP siblings for product imagery into BOTH:
- *   - src/assets/products/** (optional local siblings)
- *   - public/img/products/** (stable URLs used at runtime — keeps JS lean)
+ * Emit responsive WebP siblings for product imagery into:
+ *   - public/img/products/** (stable runtime URLs — keeps JS lean)
+ *   - src/assets/products/** siblings for local tooling
  *
- *   photo.webp → photo.card.webp (max 420w) + photo.thumb.webp (max 160w)
+ *   photo.webp →
+ *     photo.thumb.webp  (max 240w)  — gallery strip
+ *     photo.card.webp   (max 800w)  — product cards / grids
+ *     photo.gallery.webp(max 1200w) — product page hero
  */
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -13,6 +16,12 @@ import sharp from "sharp";
 const SRC_ROOT = path.resolve("src/assets/products");
 const PUBLIC_ROOT = path.resolve("public/img/products");
 
+const VARIANTS = [
+  { suffix: "thumb", maxWidth: 240, quality: 72 },
+  { suffix: "card", maxWidth: 800, quality: 80 },
+  { suffix: "gallery", maxWidth: 1200, quality: 84 },
+];
+
 async function walk(dir, out = []) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
@@ -20,7 +29,7 @@ async function walk(dir, out = []) {
     if (entry.isDirectory()) await walk(full, out);
     else if (
       /\.webp$/i.test(entry.name) &&
-      !/\.(card|thumb)\.webp$/i.test(entry.name)
+      !/\.(card|thumb|gallery)\.webp$/i.test(entry.name)
     ) {
       out.push(full);
     }
@@ -49,20 +58,24 @@ let written = 0;
 for (const file of files) {
   const rel = path.relative(SRC_ROOT, file); // e.g. olive-hoodie/primary.webp
   const base = rel.replace(/\.webp$/i, "");
-  const cardPublic = path.join(PUBLIC_ROOT, `${base}.card.webp`);
-  const thumbPublic = path.join(PUBLIC_ROOT, `${base}.thumb.webp`);
-  const cardSrc = file.replace(/\.webp$/i, ".card.webp");
-  const thumbSrc = file.replace(/\.webp$/i, ".thumb.webp");
+  const parts = [];
 
-  const cardSize = await writeVariant(file, cardPublic, 420, 62);
-  const thumbSize = await writeVariant(file, thumbPublic, 160, 58);
-  // Keep src siblings in sync for local tooling / optional imports.
-  await fs.copyFile(cardPublic, cardSrc);
-  await fs.copyFile(thumbPublic, thumbSrc);
+  for (const variant of VARIANTS) {
+    const publicPath = path.join(PUBLIC_ROOT, `${base}.${variant.suffix}.webp`);
+    const srcSibling = file.replace(/\.webp$/i, `.${variant.suffix}.webp`);
+    const size = await writeVariant(
+      file,
+      publicPath,
+      variant.maxWidth,
+      variant.quality,
+    );
+    await fs.copyFile(publicPath, srcSibling);
+    parts.push(`${variant.suffix} ${(size / 1024).toFixed(1)}KB`);
+  }
 
   written += 1;
-  console.log(
-    `${rel} → /img/products/${base}.card.webp ${(cardSize / 1024).toFixed(1)}KB · thumb ${(thumbSize / 1024).toFixed(1)}KB`,
-  );
+  console.log(`${rel} → ${parts.join(" · ")}`);
 }
-console.log(`\n✓ ${written} sources → public/img/products card + thumb variants`);
+console.log(
+  `\n✓ ${written} sources → public/img/products thumb + card + gallery variants`,
+);

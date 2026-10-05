@@ -97,8 +97,8 @@ export function ProductCard({
               loading={eager ? "eager" : "lazy"}
               fetchPriority={prioritize && index === 0 ? "high" : "auto"}
               decoding="async"
-              width={420}
-              height={525}
+              width={800}
+              height={1000}
               sizes="(max-width: 768px) 45vw, 22vw"
               className="absolute inset-0 h-full w-full object-cover transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-hover:opacity-0"
             />
@@ -110,8 +110,8 @@ export function ProductCard({
               alt=""
               loading="lazy"
               decoding="async"
-              width={420}
-              height={525}
+              width={800}
+              height={1000}
               sizes="(max-width: 768px) 45vw, 22vw"
               className="absolute inset-0 hidden h-full w-full scale-105 object-cover opacity-0 transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] md:block group-hover:scale-100 group-hover:opacity-100"
             />
