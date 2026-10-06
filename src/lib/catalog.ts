@@ -104,7 +104,7 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     title: "EYVORA Olive Green Hoodie",
     color: "Olive Green",
     category: "hoodies",
-    price: 4399,
+    price: 3749,
     description:
       "A relaxed everyday hoodie in muted olive, finished with signature white piping and a clean EYVORA mark.",
     imagesMen: [
@@ -134,7 +134,7 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     title: "EYVORA Black Hoodie",
     color: "Black",
     category: "hoodies",
-    price: 4399,
+    price: 3749,
     description:
       "A deep charcoal hoodie with white piping and a refined silhouette for everyday wear.",
     imagesMen: [
@@ -610,6 +610,11 @@ export function mergeWithShopifyCatalog(
       options.unshift({ name: "Size", values: checkoutSafeSizes });
     }
 
+    const launchPrice = {
+      amount: meta.price.toFixed(1),
+      currencyCode: remoteProduct.node.priceRange.minVariantPrice.currencyCode || "PKR",
+    };
+
     return applyLaunchImagery(
       {
         node: {
@@ -617,10 +622,19 @@ export function mergeWithShopifyCatalog(
           title: meta.title,
           description: remoteProduct.node.description || meta.description,
           productType: meta.category === "hoodies" ? "Hoodies" : "Trousers",
+          priceRange: { minVariantPrice: launchPrice },
           options,
           tags: Array.from(
             new Set([...(remoteProduct.node.tags ?? []), ...meta.tags]),
           ),
+          variants: {
+            edges: remoteProduct.node.variants.edges.map((edge) => ({
+              node: {
+                ...edge.node,
+                price: launchPrice,
+              },
+            })),
+          },
         },
       },
       gender,

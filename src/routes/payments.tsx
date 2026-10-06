@@ -20,7 +20,7 @@ export const Route = createFileRoute("/payments")({
       {
         name: "description",
         content:
-          "Pay EYVORA with free shipping and tax-free prices. Cash on Delivery or UBL bank transfer with 7% off applied automatically.",
+          "Pay EYVORA with flat PKR 249 shipping and tax-free prices. Cash on Delivery or UBL bank transfer with 7% off applied automatically.",
       },
       { property: "og:title", content: "Payment Methods — EYVORA" },
       { property: "og:url", content: "https://eyvora.pk/payments" },
@@ -56,7 +56,7 @@ function PaymentsPage() {
             How to pay
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Free shipping and tax-free prices on every order. Pay by Cash on Delivery, or choose
+            Flat shipping PKR 249 and tax-free prices on every order. Pay by Cash on Delivery, or choose
             UBL bank transfer in your bag / checkout — {BANK_TRANSFER_DISCOUNT_PERCENT}% off is
             applied live when you select bank transfer (no discount code to enter).
           </p>

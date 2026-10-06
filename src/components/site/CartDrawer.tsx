@@ -13,6 +13,8 @@ import {
   BANK_TRANSFER_DISCOUNT_PERCENT,
   orderChannelLabel,
   orderLink,
+  orderPayableTotal,
+  SHIPPING_PKR,
   SHOPIFY_CHECKOUT_LOCKED,
 } from "@/lib/site";
 import { BankTransferDetails } from "@/components/site/BankTransferDetails";
@@ -46,6 +48,10 @@ export function CartDrawer() {
   );
   const currency = items[0]?.price.currencyCode ?? "PKR";
   const allSynced = items.length > 0 && items.every((i) => isShopifySyncedVariantId(i.variantId));
+  const { bankDiscount, shipping, payable } = orderPayableTotal(
+    subtotal,
+    paymentMethod,
+  );
   const suggestions =
     upsell?.filter(
       (p) => !items.some((i) => i.product.node.handle === p.node.handle),
@@ -54,10 +60,6 @@ export function CartDrawer() {
   useEffect(() => {
     if (isOpen) syncCart();
   }, [isOpen, syncCart]);
-
-  const bankDiscount = (subtotal * BANK_TRANSFER_DISCOUNT_PERCENT) / 100;
-  const payable =
-    paymentMethod === "bank" ? Math.max(0, subtotal - bankDiscount) : subtotal;
 
   const handleCheckout = () => {
     if (items.length === 0) return;
@@ -283,7 +285,7 @@ export function CartDrawer() {
                 )}
                 <div className="flex items-center justify-between">
                   <span className="tracking-[0.16em] uppercase">Shipping</span>
-                  <span>Free</span>
+                  <span>{formatPrice(shipping, currency)}</span>
                 </div>
                 <div className="flex items-center justify-between font-medium">
                   <span className="tracking-[0.16em] uppercase">Total</span>
@@ -305,7 +307,7 @@ export function CartDrawer() {
               {paymentMethod !== "bank" && (
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                   {allSynced && !SHOPIFY_CHECKOUT_LOCKED
-                    ? "Free shipping · tax-free prices. Cash on Delivery is full price. Switch to Bank transfer above and UBL account details appear with 7% off. "
+                    ? `Shipping PKR ${SHIPPING_PKR} · tax-free prices. Cash on Delivery is full price. Switch to Bank transfer above and UBL account details appear with 7% off on products. `
                     : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}. `}
                   <Link
                     to="/payments"

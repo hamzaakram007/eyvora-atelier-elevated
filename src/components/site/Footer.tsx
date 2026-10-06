@@ -54,7 +54,7 @@ export function Footer() {
           <div className="max-w-md">
             <p className="font-display text-[2rem] font-bold tracking-[0.2em]">EYVORA</p>
             <p className="mt-6 text-sm leading-relaxed text-[var(--ivory)]/60">
-              Premium hoodies and trousers for modern everyday wear. Free shipping, tax-free
+              Premium hoodies and trousers for modern everyday wear. Shipping PKR 249, tax-free
               prices, and 7% off with bank transfer.
             </p>
             <form

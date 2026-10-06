@@ -89,7 +89,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Shop EYVORA premium hoodies and trousers online in Pakistan. Free shipping, tax-free prices, COD and 7% off bank transfer. Olive & black hoodies, grey & black trousers.",
+          "Shop EYVORA premium hoodies and trousers online in Pakistan. Shipping PKR 249, tax-free prices, COD and 7% off bank transfer. Olive & black hoodies, grey & black trousers.",
       },
       {
         name: "keywords",

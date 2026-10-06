@@ -17,7 +17,7 @@ export const WHATSAPP_NUMBER =
   (import.meta.env.VITE_WHATSAPP_NUMBER as string | undefined)?.replace(
     /\D/g,
     "",
-  ) || "923161609389";
+  ) || "923497712366";
 
 export const WHATSAPP_MESSAGE =
   (import.meta.env.VITE_WHATSAPP_MESSAGE as string | undefined) ||
@@ -29,7 +29,7 @@ export const CONTACT_EMAIL =
   "eyvorapk@gmail.com";
 
 /** Display-friendly WhatsApp number for Pakistan. */
-export const WHATSAPP_DISPLAY = "0316 1609389";
+export const WHATSAPP_DISPLAY = "0349 7712366";
 
 /**
  * Normalize Pakistan mobile numbers to E.164 (+92##########).
@@ -85,8 +85,10 @@ export const BANK_TRANSFER = {
   iban: "PK02UNIL0109000321342838",
 } as const;
 
-/** Free Pakistan shipping — keep Shopify shipping rates at PKR 0 to match. */
-export const FREE_SHIPPING = true;
+/** Flat Pakistan shipping (PKR). Applied in bag, checkout, and draft orders. */
+export const SHIPPING_PKR = 249;
+/** @deprecated Use SHIPPING_PKR — shipping is no longer free. */
+export const FREE_SHIPPING = false;
 
 /** Listed prices include no tax / GST — products are sold tax-free. */
 export const TAX_FREE = true;
@@ -95,20 +97,37 @@ export const TAX_FREE = true;
 export const BANK_TRANSFER_DISCOUNT_PERCENT = 7;
 export const BANK_TRANSFER_DISCOUNT_CODE = "BANK7";
 
+/** Merchandise + shipping for the selected payment method. Bank % off applies to goods only. */
+export function orderPayableTotal(
+  subtotal: number,
+  paymentMethod: "cod" | "bank",
+) {
+  const bankDiscount =
+    paymentMethod === "bank"
+      ? (subtotal * BANK_TRANSFER_DISCOUNT_PERCENT) / 100
+      : 0;
+  const goods = Math.max(0, subtotal - bankDiscount);
+  return {
+    bankDiscount,
+    shipping: SHIPPING_PKR,
+    payable: goods + SHIPPING_PKR,
+  };
+}
+
 /** Payment methods EYVORA offers (enable matching methods in Shopify Admin too). */
 export const PAYMENT_METHODS = [
   {
     id: "cod",
     title: "Cash on Delivery (COD)",
-    summary: "Pay in cash when your order is delivered in Pakistan. Shipping is free.",
+    summary: "Pay in cash when your order is delivered in Pakistan.",
     details:
-      "Select Cash on Delivery in your bag or on checkout. Keep the exact amount ready for the courier. Prices are tax-free.",
+      `Select Cash on Delivery in your bag or on checkout. Keep the exact amount ready for the courier. Prices are tax-free. Shipping is PKR ${SHIPPING_PKR}.`,
   },
   {
     id: "bank",
     title: "Bank transfer — 7% off",
     summary: `Pay by UBL bank transfer and get ${BANK_TRANSFER_DISCOUNT_PERCENT}% off automatically — no discount code needed.`,
-    details: `In your bag, choose Bank transfer and continue to checkout — the ${BANK_TRANSFER_DISCOUNT_PERCENT}% discount is applied live (switch back to COD anytime and the total updates). Transfer the discounted total to UBL, then email or WhatsApp your order number and payment screenshot so we can confirm and dispatch.`,
+    details: `In your bag, choose Bank transfer and continue to checkout — the ${BANK_TRANSFER_DISCOUNT_PERCENT}% discount is applied live on products (switch back to COD anytime and the total updates). Shipping is PKR ${SHIPPING_PKR}. Transfer the discounted total to UBL, then email or WhatsApp your order number and payment screenshot so we can confirm and dispatch.`,
   },
 ] as const;
 
@@ -137,7 +156,7 @@ export const RECOMMENDED_PAYMENT_OPTIONS = [
 
 export const announcements = [
   {
-    text: `Free shipping · Tax-free prices · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off when you choose bank transfer`,
+    text: `Shipping PKR ${SHIPPING_PKR} · Tax-free prices · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off when you choose bank transfer`,
     href: "/payments",
   },
 ];
@@ -149,15 +168,15 @@ export const faqs = [
   },
   {
     q: "Where do you deliver?",
-    a: "EYVORA delivers across Pakistan with free shipping on every order.",
+    a: `EYVORA delivers across Pakistan. Flat shipping is PKR ${SHIPPING_PKR} on every order.`,
   },
   {
-    q: "Is shipping really free?",
-    a: "Yes. EYVORA offers free shipping on all Pakistan orders — no minimum spend.",
+    q: "How much is shipping?",
+    a: `Shipping is a flat PKR ${SHIPPING_PKR} across Pakistan on every order.`,
   },
   {
     q: "Are prices tax-free?",
-    a: "Yes. Product prices are tax-free. What you see on the product page is what you pay for the garment (plus any COD courier handling if applicable).",
+    a: `Yes. Product prices are tax-free. What you see on the product page is what you pay for the garment, plus PKR ${SHIPPING_PKR} shipping (and any COD courier handling if applicable).`,
   },
   {
     q: "What is your exchange policy?",
@@ -169,15 +188,15 @@ export const faqs = [
   },
   {
     q: "Which payment methods are available?",
-    a: `EYVORA accepts Cash on Delivery and bank transfer to United Bank Limited (UBL). Choose bank transfer in your bag and ${BANK_TRANSFER_DISCOUNT_PERCENT}% off is applied automatically. Full account details are on the Payments page.`,
+    a: `EYVORA accepts Cash on Delivery and bank transfer to United Bank Limited (UBL). Choose bank transfer in your bag and ${BANK_TRANSFER_DISCOUNT_PERCENT}% off is applied automatically on products. Full account details are on the Payments page.`,
   },
   {
     q: "Do you offer Cash on Delivery?",
-    a: "Yes. Choose Cash on Delivery in your bag / at checkout and pay the courier in cash when your order arrives. Shipping stays free.",
+    a: `Yes. Choose Cash on Delivery in your bag / at checkout and pay the courier in cash when your order arrives. Shipping is PKR ${SHIPPING_PKR}.`,
   },
   {
     q: "How do I get 7% off with bank transfer?",
-    a: `Open your bag, select Bank transfer, then continue to checkout — the ${BANK_TRANSFER_DISCOUNT_PERCENT}% discount is applied automatically (no code to type). On checkout you can switch between Cash on Delivery and Bank transfer — the total updates live with or without the ${BANK_TRANSFER_DISCOUNT_PERCENT}% off. Transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}), and send your order number plus payment screenshot to EYVORA.`,
+    a: `Open your bag, select Bank transfer, then continue to checkout — the ${BANK_TRANSFER_DISCOUNT_PERCENT}% discount is applied automatically on products (no code to type). Shipping is PKR ${SHIPPING_PKR}. On checkout you can switch between Cash on Delivery and Bank transfer — the total updates live. Transfer to UBL account ${BANK_TRANSFER.accountNumber} (Title: ${BANK_TRANSFER.accountTitle}, IBAN: ${BANK_TRANSFER.iban}), and send your order number plus payment screenshot to EYVORA.`,
   },
   {
     q: "How do I pay by bank transfer?",
@@ -193,7 +212,7 @@ export const faqs = [
   },
   {
     q: "How do I contact EYVORA?",
-    a: "WhatsApp 03161609389 or email eyvorapk@gmail.com — also linked from the Contact and Payments pages.",
+    a: "WhatsApp 03497712366 or email eyvorapk@gmail.com — also linked from the Contact and Payments pages.",
   },
 ];
 
@@ -220,7 +239,7 @@ export const whyPoints = [
   },
   {
     title: "Pakistan-Ready",
-    note: "Free shipping, tax-free PKR pricing, COD and bank transfer with 7% off.",
+    note: `PKR pricing with PKR ${SHIPPING_PKR} shipping, COD and bank transfer with 7% off.`,
   },
 ];
 

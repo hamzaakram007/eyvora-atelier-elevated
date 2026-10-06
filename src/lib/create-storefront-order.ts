@@ -5,6 +5,7 @@
 import {
   BANK_TRANSFER_DISCOUNT_CODE,
   BANK_TRANSFER_DISCOUNT_PERCENT,
+  SHIPPING_PKR,
 } from "@/lib/site";
 import { adminGraphql } from "@/lib/shopify-admin";
 
@@ -142,8 +143,8 @@ export async function createStorefrontOrder(
     taxExempt: true,
     acceptAutomaticDiscounts: false,
     shippingLine: {
-      title: "Free shipping — Pakistan",
-      price: "0.00",
+      title: `Pakistan shipping — PKR ${SHIPPING_PKR}`,
+      price: SHIPPING_PKR.toFixed(2),
     },
     customAttributes: [
       { key: "payment_method", value: paymentMethod },
