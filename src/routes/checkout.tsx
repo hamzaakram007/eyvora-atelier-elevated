@@ -13,6 +13,8 @@ import {
   normalizePakistanPhone,
   orderChannelLabel,
   orderLink,
+  orderPayableTotal,
+  SHIPPING_PKR,
 } from "@/lib/site";
 import { BankTransferDetails } from "@/components/site/BankTransferDetails";
 import { cn } from "@/lib/utils";
@@ -34,7 +36,7 @@ export const Route = createFileRoute("/checkout")({
       {
         name: "description",
         content:
-          "Complete your EYVORA order with Cash on Delivery or UBL bank transfer (7% off). Free shipping across Pakistan.",
+          "Complete your EYVORA order with Cash on Delivery or UBL bank transfer (7% off). Flat shipping PKR 249 across Pakistan.",
       },
       { property: "og:title", content: "Checkout — EYVORA" },
       { property: "og:url", content: "https://eyvora.pk/checkout" },
@@ -79,9 +81,10 @@ function CheckoutPage() {
     [items],
   );
   const currency = items[0]?.price.currencyCode ?? "PKR";
-  const bankDiscount = (subtotal * BANK_TRANSFER_DISCOUNT_PERCENT) / 100;
-  const payable =
-    paymentMethod === "bank" ? Math.max(0, subtotal - bankDiscount) : subtotal;
+  const { bankDiscount, shipping, payable } = orderPayableTotal(
+    subtotal,
+    paymentMethod,
+  );
   const allSynced =
     items.length > 0 && items.every((i) => isShopifySyncedVariantId(i.variantId));
 
@@ -100,7 +103,7 @@ function CheckoutPage() {
         paymentMethod === "bank"
           ? `Bank transfer (${BANK_TRANSFER_DISCOUNT_PERCENT}% off)`
           : "Cash on Delivery"
-      }\nSubtotal: PKR ${Math.round(subtotal).toLocaleString("en-PK")}\nTotal: PKR ${Math.round(payable).toLocaleString("en-PK")}\n\nName: ${fullName}\nPhone: ${phone}\nCity: ${city}\nAddress: ${address1}`,
+      }\nSubtotal: PKR ${Math.round(subtotal).toLocaleString("en-PK")}\nShipping: PKR ${SHIPPING_PKR}\nTotal: PKR ${Math.round(payable).toLocaleString("en-PK")}\n\nName: ${fullName}\nPhone: ${phone}\nCity: ${city}\nAddress: ${address1}`,
     );
     if (href) window.location.assign(href);
   };
@@ -218,8 +221,8 @@ function CheckoutPage() {
             Place your order
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Free shipping · Tax-free prices. Switch payment below — the total updates
-            instantly. Bank transfer includes {BANK_TRANSFER_DISCOUNT_PERCENT}% off.
+            Shipping PKR {SHIPPING_PKR} · Tax-free prices. Switch payment below — the total updates
+            instantly. Bank transfer includes {BANK_TRANSFER_DISCOUNT_PERCENT}% off on products.
           </p>
         </header>
 
@@ -425,7 +428,7 @@ function CheckoutPage() {
               )}
               <div className="flex justify-between">
                 <span className="tracking-[0.14em] uppercase">Shipping</span>
-                <span>Free</span>
+                <span>{formatPrice(shipping, currency)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-3 text-base font-medium">
                 <span className="tracking-[0.14em] uppercase">Total</span>

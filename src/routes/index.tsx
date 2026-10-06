@@ -41,7 +41,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Buy EYVORA premium hoodies and trousers in Pakistan. Free shipping, tax-free prices, couple looks, COD and 7% off bank transfer.",
+          "Buy EYVORA premium hoodies and trousers in Pakistan. Shipping PKR 249, tax-free prices, couple looks, COD and 7% off bank transfer.",
       },
       {
         property: "og:title",
@@ -74,7 +74,7 @@ export const Route = createFileRoute("/")({
               url: "https://eyvora.pk",
               logo: "https://eyvora.pk/favicon.png",
               email: "eyvorapk@gmail.com",
-              telephone: "+923161609389",
+              telephone: "+923497712366",
               sameAs: [],
             },
             {

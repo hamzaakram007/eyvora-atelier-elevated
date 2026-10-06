@@ -88,7 +88,7 @@ function CheckoutSuccessPage() {
               ? `Bank transfer selected${
                   discountPct > 0 ? ` with ${discountPct}% off` : ""
                 }. Transfer the total below, then send your payment proof.`
-              : "Cash on Delivery selected. Keep the exact amount ready for the courier. Shipping is free."}
+              : "Cash on Delivery selected. Keep the exact amount ready for the courier. Shipping is PKR 249."}
           </p>
         </header>
 

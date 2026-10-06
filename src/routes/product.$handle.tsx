@@ -366,7 +366,7 @@ function ProductPage() {
               <span className="text-lg">{formatPrice(price.amount, price.currencyCode)}</span>
             </div>
             <p className="mt-2 text-[0.7rem] tracking-[0.16em] text-muted-foreground uppercase">
-              Tax-free · Free shipping
+              Tax-free · Shipping PKR 249
             </p>
             {color && (
               <p className="mt-4 text-[0.7rem] tracking-[0.2em] text-muted-foreground uppercase">
@@ -526,7 +526,7 @@ function ProductPage() {
               <details>
                 <summary className="cursor-pointer tracking-[0.08em] uppercase">Delivery</summary>
                 <p className="mt-3 leading-relaxed">
-                  Free shipping across Pakistan. Prices are tax-free. Pay by COD, or choose bank
+                  Flat shipping PKR 249 across Pakistan. Prices are tax-free. Pay by COD, or choose bank
                   transfer in your bag for 7% off applied automatically — details on the Payments
                   page.
                 </p>

@@ -41,7 +41,7 @@ Env vars:
 VITE_SHOPIFY_STORE_DOMAIN=eyvora-premium-essentials-bv3bk-uwdagguc.myshopify.com
 VITE_SHOPIFY_STOREFRONT_TOKEN=YOUR_STOREFRONT_TOKEN
 VITE_CONTACT_EMAIL=eyvorapk@gmail.com
-VITE_WHATSAPP_NUMBER=923161609389
+VITE_WHATSAPP_NUMBER=923497712366
 VITE_WHATSAPP_MESSAGE=Hello EYVORA, I need help with your products.
 ```
 
@@ -56,7 +56,7 @@ Until DNS is updated, use the Vercel URL above.
 ## 3) Shopify Admin (already done via Dev Dashboard app)
 
 - Demo products archived
-- Launch products created @ PKR 4399 / 2499 with S/M/L/XL (hoodies: olive green & black; trousers: grey & black)
+- Launch products created @ PKR 3749 / 2499 with S/M/L/XL (hoodies: olive green & black; trousers: grey & black)
 - Photos + inventory attached
 - Collections: `hoodies`, `trousers`, `couple`, `frontpage`
 - Domestic shipping set to **PKR 250**, international **PKR 2500**
@@ -74,12 +74,12 @@ node scripts/seed-shopify-launch.mjs
 ## 4) Launch checks
 
 - [x] Vercel site loads new EYVORA design
-- [x] Products show PKR 4399 / 2499 via Storefront API
+- [x] Products show PKR 3749 / 2499 via Storefront API
 - [x] Bag → Shopify checkout works (password off, plan active)
 - [x] Domestic shipping PKR 250
 - [ ] `eyvora.pk` Cloudflare DNS → Vercel (still on Shopify `23.227.38.65`)
 - [ ] Enable COD + Bank deposit in Shopify Admin (required for checkout buttons)
-- [x] Contact: `eyvorapk@gmail.com` + WhatsApp `923161609389` (`03161609389`)
+- [x] Contact: `eyvorapk@gmail.com` + WhatsApp `923497712366` (`03497712366`)
 - [ ] Rotate Client secret (shared in chat)
 
 ### Enable Cash on Delivery + UBL bank transfer (Shopify Admin)

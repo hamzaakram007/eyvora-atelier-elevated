@@ -51,7 +51,7 @@ export const Route = createFileRoute("/shop")({
         {
           name: "description",
           content:
-            "Browse EYVORA hoodies, trousers and couple looks. Free shipping, tax-free prices, COD and 7% off bank transfer.",
+            "Browse EYVORA hoodies, trousers and couple looks. Shipping PKR 249, tax-free prices, COD and 7% off bank transfer.",
         },
         { property: "og:title", content: title },
         { property: "og:url", content: "https://eyvora.pk/shop" },

@@ -413,7 +413,7 @@ export const useCartStore = create<CartStore>()(
           );
           return (
             orderLink(
-              `Hello EYVORA, I would like to order:\n${summary}\n\nSubtotal: PKR ${Math.round(subtotal).toLocaleString("en-PK")}\n(Please confirm delivery city, phone & payment method.)`,
+              `Hello EYVORA, I would like to order:\n${summary}\n\nSubtotal: PKR ${Math.round(subtotal).toLocaleString("en-PK")}\nShipping: PKR 249\n(Please confirm delivery city, phone & payment method.)`,
             ) || null
           );
         }

@@ -75,7 +75,7 @@ const LAUNCH = [
     handle: "olive-green-hoodie",
     productType: "Hoodies",
     color: "Olive Green",
-    price: "4399.00",
+    price: "3749.00",
     tags: ["hoodies", "olive", "couple", "essentials", "new", "men", "women"],
     description:
       "A relaxed everyday hoodie in muted olive, finished with signature white piping and a clean EYVORA mark.",
@@ -85,7 +85,7 @@ const LAUNCH = [
     handle: "black-hoodie",
     productType: "Hoodies",
     color: "Black",
-    price: "4399.00",
+    price: "3749.00",
     tags: ["hoodies", "black", "couple", "essentials", "new", "men", "women"],
     description:
       "A deep charcoal hoodie with white piping and a refined silhouette for everyday wear.",
