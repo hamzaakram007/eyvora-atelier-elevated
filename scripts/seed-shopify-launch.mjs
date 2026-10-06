@@ -75,7 +75,7 @@ const LAUNCH = [
     handle: "olive-green-hoodie",
     productType: "Hoodies",
     color: "Olive Green",
-    price: "3749.00",
+    price: "3639.00",
     tags: ["hoodies", "olive", "couple", "essentials", "new", "men", "women"],
     description:
       "A relaxed everyday hoodie in muted olive, finished with signature white piping and a clean EYVORA mark.",
@@ -85,7 +85,7 @@ const LAUNCH = [
     handle: "black-hoodie",
     productType: "Hoodies",
     color: "Black",
-    price: "3749.00",
+    price: "3639.00",
     tags: ["hoodies", "black", "couple", "essentials", "new", "men", "women"],
     description:
       "A deep charcoal hoodie with white piping and a refined silhouette for everyday wear.",
@@ -95,7 +95,7 @@ const LAUNCH = [
     handle: "grey-trousers",
     productType: "Trousers",
     color: "Grey",
-    price: "2499.00",
+    price: "2239.00",
     tags: ["trousers", "grey", "couple", "essentials", "new", "men", "women"],
     description:
       "Relaxed straight-leg trousers in soft heather grey, designed for comfort with a quiet logo mark.",
@@ -105,7 +105,7 @@ const LAUNCH = [
     handle: "black-trousers",
     productType: "Trousers",
     color: "Black",
-    price: "2499.00",
+    price: "2239.00",
     tags: ["trousers", "black", "couple", "essentials", "new", "men", "women"],
     description:
       "Relaxed straight-leg trousers in deep black, finished with a minimal EYVORA mark on the thigh.",

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Push launch catalogue prices to Shopify Admin variants.
- * Hoodies → 3749 · Trousers → 2499
+ * Hoodies list 4549 / sale 3639 (20% off) · Trousers list 2799 / sale 2239 (20% off)
  */
 import { existsSync } from "node:fs";
 if (existsSync(".env")) process.loadEnvFile(".env");
@@ -16,11 +16,12 @@ const DOMAIN = (
 const CLIENT_ID = process.env.SHOPIFY_CLIENT_ID || "";
 const CLIENT_SECRET = process.env.SHOPIFY_CLIENT_SECRET || "";
 
+/** price = sale (what customer pays), compareAt = list before 20% off */
 const PRICES = {
-  "olive-green-hoodie": "3749.00",
-  "black-hoodie": "3749.00",
-  "grey-trousers": "2499.00",
-  "black-trousers": "2499.00",
+  "olive-green-hoodie": { price: "3639.00", compareAt: "4549.00" },
+  "black-hoodie": { price: "3639.00", compareAt: "4549.00" },
+  "grey-trousers": { price: "2239.00", compareAt: "2799.00" },
+  "black-trousers": { price: "2239.00", compareAt: "2799.00" },
 };
 
 async function token() {
@@ -53,7 +54,7 @@ async function admin(accessToken, query, variables) {
 }
 
 const accessToken = await token();
-for (const [handle, price] of Object.entries(PRICES)) {
+for (const [handle, money] of Object.entries(PRICES)) {
   const data = await admin(
     accessToken,
     `{
@@ -61,7 +62,7 @@ for (const [handle, price] of Object.entries(PRICES)) {
         id
         title
         variants(first: 50) {
-          edges { node { id title price } }
+          edges { node { id title price compareAtPrice } }
         }
       }
     }`,
@@ -73,13 +74,14 @@ for (const [handle, price] of Object.entries(PRICES)) {
   }
   const variants = product.variants.edges.map((e) => ({
     id: e.node.id,
-    price,
+    price: money.price,
+    compareAtPrice: money.compareAt,
   }));
   const updated = await admin(
     accessToken,
     `mutation($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
       productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants { id title price }
+        productVariants { id title price compareAtPrice }
         userErrors { field message }
       }
     }`,
@@ -90,9 +92,9 @@ for (const [handle, price] of Object.entries(PRICES)) {
     console.error(handle, errors);
     continue;
   }
-  const prices = updated.productVariantsBulkUpdate.productVariants
-    .map((v) => `${v.title}=${v.price}`)
-    .join(", ");
-  console.log(`✓ ${handle} → PKR ${price} (${prices})`);
+  const sample = updated.productVariantsBulkUpdate.productVariants[0];
+  console.log(
+    `✓ ${handle} → sale PKR ${sample?.price} (was ${sample?.compareAtPrice})`,
+  );
 }
-console.log("\nDone updating Shopify variant prices.");
+console.log("\nDone updating Shopify variant prices + compare-at.");

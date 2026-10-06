@@ -7,6 +7,7 @@ import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { resolveModelGender } from "@/lib/catalog";
 import { cardImageUrl, galleryImageUrl, gallerySrcSet, thumbImageUrl } from "@/lib/image-variants";
+import { ProductPrice } from "@/components/site/ProductPrice";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -208,6 +209,7 @@ function ProductPage() {
   }
 
   const price = variant?.price ?? node.priceRange.minVariantPrice;
+  const compareAt = node.compareAtPriceRange?.minVariantPrice;
   const color =
     node.options.find((o) => ["color", "colour"].includes(o.name.toLowerCase()))
       ?.values[0] ?? "";
@@ -363,7 +365,7 @@ function ProductPage() {
               </button>
             </div>
             <div className="mt-5 flex items-baseline gap-4">
-              <span className="text-lg">{formatPrice(price.amount, price.currencyCode)}</span>
+              <ProductPrice price={price} compareAt={compareAt} size="lg" />
             </div>
             <p className="mt-2 text-[0.7rem] tracking-[0.16em] text-muted-foreground uppercase">
               Tax-free · Shipping PKR 249
@@ -579,7 +581,7 @@ function ProductPage() {
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm">{node.title}</p>
             <p className="text-sm text-muted-foreground">
-              {formatPrice(price.amount, price.currencyCode)}
+              <ProductPrice price={price} compareAt={compareAt} size="sm" showBadge={false} />
             </p>
           </div>
           <button

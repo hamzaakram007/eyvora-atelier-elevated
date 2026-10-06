@@ -156,7 +156,7 @@ export const RECOMMENDED_PAYMENT_OPTIONS = [
 
 export const announcements = [
   {
-    text: `Shipping PKR ${SHIPPING_PKR} · Tax-free prices · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off when you choose bank transfer`,
+    text: `20% off hoodies & trousers · Shipping PKR ${SHIPPING_PKR} · Tax-free · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off bank transfer`,
     href: "/payments",
   },
 ];
