@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
-import hoodies from "@/assets/products/category/hoodies.webp";
-import trousers from "@/assets/products/category/trousers.webp";
-import couple from "@/assets/products/couple/couple-2.webp";
+import { publicVariantBase } from "@/lib/image-variants";
+
+const hoodies = publicVariantBase("category/hoodies");
+const trousers = publicVariantBase("category/trousers");
+const couple = publicVariantBase("couple/couple-2");
 
 const categories = [
   {
@@ -79,20 +81,25 @@ function CategoryVisual({
   cat,
   priority = false,
 }: {
-  cat: { title: string; note: string; img: string };
+  cat: {
+    title: string;
+    note: string;
+    img: ReturnType<typeof publicVariantBase>;
+  };
   priority?: boolean;
 }) {
   return (
     <>
       <div className="aspect-[4/5]">
         <img
-          src={cat.img}
+          src={cat.img.gallery}
+          srcSet={cat.img.srcSet}
           alt={`${cat.title} collection — EYVORA essentials`}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
           decoding="async"
-          width={800}
-          height={1000}
+          width={1000}
+          height={1250}
           sizes="(max-width: 768px) 100vw, 33vw"
           className="h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
         />

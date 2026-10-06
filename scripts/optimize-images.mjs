@@ -2,20 +2,27 @@
 /**
  * Recompress product/marketing images and emit WebP siblings for faster LCP.
  * Keeps JPEG originals (further compressed) and writes matching .webp files.
+ *
+ * IMPORTANT: constrain by WIDTH only (not a square max-edge). Portrait product
+ * shots are ~941×1672 — a 1000px "max edge" previously crushed them to ~563×1000
+ * and made the storefront look blurred on retina displays.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
 const ROOT = path.resolve("src/assets");
-const MAX_EDGE = {
-  hero: 1400,
-  default: 1100,
-  women: 1000,
-  category: 1000,
-  couple: 1200,
-  card: 800,
+/** Max output width by folder — never constrain height to the same value. */
+const MAX_WIDTH = {
+  hero: 1600,
+  default: 1600,
+  women: 1600,
+  category: 1600,
+  couple: 1600,
 };
+
+const JPEG_QUALITY = 88;
+const WEBP_QUALITY = 86;
 
 async function walk(dir, out = []) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -29,11 +36,11 @@ async function walk(dir, out = []) {
 
 function maxFor(file) {
   const p = file.replace(/\\/g, "/");
-  if (p.includes("/hero/")) return MAX_EDGE.hero;
-  if (p.includes("/women/")) return MAX_EDGE.women;
-  if (p.includes("/category/")) return MAX_EDGE.category;
-  if (p.includes("/couple/")) return MAX_EDGE.couple;
-  return MAX_EDGE.default;
+  if (p.includes("/hero/")) return MAX_WIDTH.hero;
+  if (p.includes("/women/")) return MAX_WIDTH.women;
+  if (p.includes("/category/")) return MAX_WIDTH.category;
+  if (p.includes("/couple/")) return MAX_WIDTH.couple;
+  return MAX_WIDTH.default;
 }
 
 async function writeIfSmaller(tmp, dest, before) {
@@ -55,23 +62,20 @@ async function optimize(file) {
   const before = (await fs.stat(file)).size;
   const ext = path.extname(file).toLowerCase();
   const max = maxFor(file);
-  const img = sharp(file, { failOn: "none" }).rotate();
-  const meta = await img.metadata();
-  const width = meta.width || max;
-  const resized = {
-    width: Math.min(width, max),
-    height: Math.min(meta.height || max, max),
+  const meta = await sharp(file, { failOn: "none" }).metadata();
+  const resize = {
+    width: Math.min(meta.width || max, max),
     fit: "inside",
     withoutEnlargement: true,
   };
 
   const jpgTmp = `${file}.tmp`;
-  const pipeline = sharp(file, { failOn: "none" }).rotate().resize(resized);
+  const pipeline = sharp(file, { failOn: "none" }).rotate().resize(resize);
   if (ext === ".png") {
     await pipeline.png({ compressionLevel: 9, palette: true }).toFile(jpgTmp);
   } else {
     await pipeline
-      .jpeg({ quality: 68, mozjpeg: true, progressive: true })
+      .jpeg({ quality: JPEG_QUALITY, mozjpeg: true, progressive: true })
       .toFile(jpgTmp);
   }
   const afterJpg = await writeIfSmaller(jpgTmp, file, before);
@@ -80,8 +84,8 @@ async function optimize(file) {
   const webpTmp = `${webpPath}.tmp`;
   await sharp(file, { failOn: "none" })
     .rotate()
-    .resize(resized)
-    .webp({ quality: 68, effort: 5 })
+    .resize(resize)
+    .webp({ quality: WEBP_QUALITY, effort: 6 })
     .toFile(webpTmp);
   const afterWebp = await writeIfSmaller(webpTmp, webpPath, Number.MAX_SAFE_INTEGER);
 

@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Heart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice, type ShopifyProduct } from "@/lib/shopify";
-import { cardImageUrl, productSrcSet } from "@/lib/image-variants";
+import { galleryImageUrl, productSrcSet } from "@/lib/image-variants";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
@@ -24,8 +24,9 @@ export function ProductCard({
   const images = node.images.edges;
   const primaryFull = images[0]?.node.url;
   const secondaryFull = images[1]?.node.url ?? primaryFull;
-  const primary = cardImageUrl(primaryFull) || primaryFull;
-  const secondary = cardImageUrl(secondaryFull) || secondaryFull;
+  // Default to gallery (not card) so retina / large tiles stay sharp.
+  const primary = galleryImageUrl(primaryFull) || primaryFull;
+  const secondary = galleryImageUrl(secondaryFull) || secondaryFull;
   const primarySrcSet = productSrcSet(primaryFull);
   const secondarySrcSet = productSrcSet(secondaryFull);
   const eager = prioritize && index < 2;
@@ -97,9 +98,9 @@ export function ProductCard({
               loading={eager ? "eager" : "lazy"}
               fetchPriority={prioritize && index === 0 ? "high" : "auto"}
               decoding="async"
-              width={800}
-              height={1000}
-              sizes="(max-width: 768px) 45vw, 22vw"
+              width={1000}
+              height={1250}
+              sizes="(max-width: 768px) 50vw, 28vw"
               className="absolute inset-0 h-full w-full object-cover transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-hover:opacity-0"
             />
           )}
@@ -110,9 +111,9 @@ export function ProductCard({
               alt=""
               loading="lazy"
               decoding="async"
-              width={800}
-              height={1000}
-              sizes="(max-width: 768px) 45vw, 22vw"
+              width={1000}
+              height={1250}
+              sizes="(max-width: 768px) 50vw, 28vw"
               className="absolute inset-0 hidden h-full w-full scale-105 object-cover opacity-0 transition-all duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] md:block group-hover:scale-100 group-hover:opacity-100"
             />
           )}

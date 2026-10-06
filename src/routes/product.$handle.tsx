@@ -305,9 +305,9 @@ function ProductPage() {
                   }
                   srcSet={gallerySrcSet(images[activeImage]!.node.url)}
                   alt={images[activeImage]!.node.altText ?? node.title}
-                  width={1200}
-                  height={1500}
-                  sizes="(max-width: 1024px) 92vw, 55vw"
+                  width={1600}
+                  height={2000}
+                  sizes="(max-width: 1024px) 100vw, 55vw"
                   fetchPriority={activeImage === 0 ? "high" : "auto"}
                   decoding="async"
                   loading={activeImage === 0 ? "eager" : "lazy"}

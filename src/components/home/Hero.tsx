@@ -1,14 +1,21 @@
 import { Link } from "@tanstack/react-router";
-import heroDesktop from "@/assets/products/hero/hero-desktop.webp";
-import heroMobile from "@/assets/products/hero/hero-mobile.webp";
+import { publicVariantBase } from "@/lib/image-variants";
+
+const desktop = publicVariantBase("hero/hero-desktop");
+const mobile = publicVariantBase("hero/hero-mobile");
 
 export function Hero() {
   return (
     <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-[var(--ink)]">
       <picture>
-        <source media="(max-width: 768px)" srcSet={heroMobile} />
+        <source
+          media="(max-width: 768px)"
+          srcSet={mobile.srcSet ?? mobile.gallery}
+          sizes="100vw"
+        />
         <img
-          src={heroDesktop}
+          src={desktop.gallery}
+          srcSet={desktop.srcSet}
           alt="EYVORA models wearing premium olive and black hoodies from the Essentials Collection"
           width={1600}
           height={2000}

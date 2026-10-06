@@ -15,7 +15,9 @@ import {
 import { useCartStore } from "@/stores/cartStore";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
-import coupleHero from "@/assets/products/couple/contrast/olive-black-grey.webp";
+import { galleryImageUrl, publicVariantBase, productSrcSet } from "@/lib/image-variants";
+
+const coupleHero = publicVariantBase("couple/contrast/olive-black-grey");
 
 export const Route = createFileRoute("/couple")({
   head: () => ({
@@ -211,8 +213,10 @@ function PersonCard({
             className="block overflow-hidden bg-[var(--soft-grey)]"
           >
             <img
-              src={hoodieImage.url}
+              src={galleryImageUrl(hoodieImage.url) || hoodieImage.url}
+              srcSet={productSrcSet(hoodieImage.url)}
               alt={hoodieImage.altText || `${hoodie.node.title} — ${gender === "women" ? "women" : "men"}`}
+              sizes="(max-width: 1024px) 100vw, 40vw"
               className="aspect-[5/3] w-full object-cover"
               loading="lazy"
             />
@@ -245,8 +249,10 @@ function PersonCard({
             className="block overflow-hidden bg-[var(--soft-grey)]"
           >
             <img
-              src={trousersImage.url}
+              src={galleryImageUrl(trousersImage.url) || trousersImage.url}
+              srcSet={productSrcSet(trousersImage.url)}
               alt={trousersImage.altText || `${trousers.node.title} — ${gender === "women" ? "women" : "men"}`}
+              sizes="(max-width: 1024px) 100vw, 40vw"
               className="aspect-[5/3] w-full object-cover"
               loading="lazy"
             />
@@ -527,9 +533,11 @@ function ContrastGallery() {
         {COUPLE_CONTRAST_GALLERY.map((shot, i) => (
           <Reveal key={shot.id} delay={i * 70} className="overflow-hidden bg-[var(--soft-grey)]">
             <img
-              src={shot.src}
+              src={galleryImageUrl(shot.src) || shot.src}
+              srcSet={productSrcSet(shot.src)}
               alt={shot.alt}
               loading="lazy"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="aspect-[4/5] w-full object-cover"
             />
             <p className="px-4 py-3 text-[0.6875rem] tracking-[0.14em] text-muted-foreground uppercase">
@@ -547,10 +555,12 @@ function CouplePage() {
     <main>
       <section className="relative">
         <img
-          src={coupleHero}
+          src={coupleHero.gallery}
+          srcSet={coupleHero.srcSet}
           alt="Couple contrast look — olive and black EYVORA hoodies"
           width={1600}
           height={2000}
+          sizes="100vw"
           className="h-[42vh] w-full object-cover object-[50%_18%] lg:h-[52vh]"
         />
         <div className="absolute inset-0 bg-[var(--ink)]/35" />

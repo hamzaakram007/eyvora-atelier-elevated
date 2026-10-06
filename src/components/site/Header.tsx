@@ -6,9 +6,11 @@ import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
 import { SearchOverlay } from "@/components/site/SearchOverlay";
-import hoodies from "@/assets/products/category/hoodies.webp";
-import trousers from "@/assets/products/category/trousers.webp";
-import couple from "@/assets/products/couple/couple-2.webp";
+import { publicVariantBase } from "@/lib/image-variants";
+
+const hoodies = publicVariantBase("category/hoodies");
+const trousers = publicVariantBase("category/trousers");
+const couple = publicVariantBase("couple/couple-2");
 
 function AnnouncementBar() {
   const item = announcements[0];
@@ -99,7 +101,9 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
           "to" in tile && tile.to ? (
             <Link key={tile.label} to={tile.to} onClick={onNavigate} className="group relative overflow-hidden">
               <img
-                src={tile.img}
+                src={tile.img.gallery}
+                srcSet={tile.img.srcSet}
+                sizes="200px"
                 alt={`${tile.label} collection`}
                 loading="lazy"
                 className="h-44 w-full object-cover transition-transform duration-1000 group-hover:scale-105"
@@ -117,7 +121,9 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
               className="group relative overflow-hidden"
             >
               <img
-                src={tile.img}
+                src={tile.img.gallery}
+                srcSet={tile.img.srcSet}
+                sizes="200px"
                 alt={`${tile.label} collection`}
                 loading="lazy"
                 className="h-44 w-full object-cover transition-transform duration-1000 group-hover:scale-105"
