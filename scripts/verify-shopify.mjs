@@ -9,8 +9,8 @@ const TOKEN =
 const EXPECTED = [
   ["olive-green-hoodie", "3599.0"],
   ["black-hoodie", "3599.0"],
-  ["grey-trousers", "2239.0"],
-  ["black-trousers", "2239.0"],
+  ["grey-trousers", "2399.0"],
+  ["black-trousers", "2399.0"],
 ];
 
 async function main() {
