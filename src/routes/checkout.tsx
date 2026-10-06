@@ -47,6 +47,57 @@ export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
 });
 
+const CHECKOUT_FORM_ID = "eyvora-checkout-form";
+
+function CheckoutSubmitButton({
+  submitting,
+  paymentMethod,
+  allSynced,
+  compact = false,
+  className,
+}: {
+  submitting: boolean;
+  paymentMethod: CheckoutPaymentMethod;
+  allSynced: boolean;
+  compact?: boolean;
+  className?: string;
+}) {
+  return (
+    <button
+      type="submit"
+      form={CHECKOUT_FORM_ID}
+      disabled={submitting}
+      className={cn(
+        "flex min-h-[3.25rem] w-full touch-manipulation items-center justify-center py-3.5 text-[0.7rem] font-bold tracking-[0.2em] uppercase disabled:opacity-40",
+        paymentMethod === "bank"
+          ? "bg-emerald-700 text-white hover:bg-emerald-800"
+          : "bg-[var(--ink)] text-[var(--ivory)]",
+        className,
+      )}
+    >
+      {submitting ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : allSynced ? (
+        paymentMethod === "bank" ? (
+          compact ? (
+            `Order · ${BANK_TRANSFER_DISCOUNT_PERCENT}% off`
+          ) : (
+            <span>
+              Place order · {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF
+            </span>
+          )
+        ) : compact ? (
+          "Place order"
+        ) : (
+          "Place order · Cash on Delivery"
+        )
+      ) : (
+        `Continue via ${orderChannelLabel() ?? "WhatsApp"}`
+      )}
+    </button>
+  );
+}
+
 function CheckoutPage() {
   const navigate = useNavigate();
   const { payment: paymentFromSearch } = Route.useSearch();
@@ -214,7 +265,7 @@ function CheckoutPage() {
 
   return (
     <main className="pt-32 lg:pt-40">
-      <div className="mx-auto max-w-[1200px] px-5 pb-24 lg:px-10">
+      <div className="mx-auto max-w-[1200px] px-5 pb-[calc(7.5rem+env(safe-area-inset-bottom))] lg:px-10 lg:pb-24">
         <header className="border-b border-border pb-10">
           <p className="eyebrow">Checkout</p>
           <h1 className="font-display mt-4 text-[clamp(2rem,4vw,3.5rem)]">
@@ -227,11 +278,12 @@ function CheckoutPage() {
         </header>
 
         <form
+          id={CHECKOUT_FORM_ID}
           onSubmit={handleSubmit}
           className="mt-10 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16"
         >
           <div className="space-y-8">
-            <section>
+            <section className="scroll-mt-28">
               <h2 className="text-[0.7rem] tracking-[0.28em] uppercase">
                 Delivery details
               </h2>
@@ -387,7 +439,7 @@ function CheckoutPage() {
             </section>
           </div>
 
-          <aside className="h-fit border border-border p-6 lg:sticky lg:top-28 lg:p-8">
+          <aside className="hidden h-fit border border-border p-6 lg:sticky lg:top-28 lg:block lg:p-8">
             <h2 className="text-[0.7rem] tracking-[0.28em] uppercase">Order summary</h2>
             <ul className="mt-5 space-y-4 border-b border-border pb-5">
               {items.map((item) => {
@@ -446,30 +498,12 @@ function CheckoutPage() {
               />
             )}
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className={cn(
-                "mt-6 flex min-h-14 w-full items-center justify-center py-4 text-[0.7rem] font-bold tracking-[0.2em] uppercase disabled:opacity-40",
-                paymentMethod === "bank"
-                  ? "bg-emerald-700 text-white hover:bg-emerald-800"
-                  : "bg-[var(--ink)] text-[var(--ivory)]",
-              )}
-            >
-              {submitting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : allSynced ? (
-                paymentMethod === "bank" ? (
-                  <span>
-                    Place order · {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF
-                  </span>
-                ) : (
-                  "Place order · Cash on Delivery"
-                )
-              ) : (
-                `Continue via ${orderChannelLabel() ?? "WhatsApp"}`
-              )}
-            </button>
+            <CheckoutSubmitButton
+              submitting={submitting}
+              paymentMethod={paymentMethod}
+              allSynced={allSynced}
+              className="mt-6"
+            />
 
             <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
               {allSynced
@@ -486,6 +520,39 @@ function CheckoutPage() {
             </Link>
           </aside>
         </form>
+
+        {/* Mobile: keep place-order visible above browser chrome / WhatsApp chip */}
+        <div
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-10px_32px_rgba(0,0,0,0.08)] backdrop-blur-sm lg:hidden"
+          aria-label="Checkout total and place order"
+        >
+          <div className="mx-auto flex max-w-[1200px] items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase">
+                Total ·{" "}
+                {paymentMethod === "bank"
+                  ? `Bank (${BANK_TRANSFER_DISCOUNT_PERCENT}% off)`
+                  : "Cash on Delivery"}
+              </p>
+              <p
+                className={cn(
+                  "font-display text-xl leading-tight",
+                  paymentMethod === "bank" && "text-emerald-700",
+                )}
+              >
+                {formatPrice(payable, currency)}
+              </p>
+            </div>
+            <div className="w-[min(58%,13rem)] shrink-0">
+              <CheckoutSubmitButton
+                submitting={submitting}
+                paymentMethod={paymentMethod}
+                allSynced={allSynced}
+                compact
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );
