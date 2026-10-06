@@ -5,7 +5,7 @@ import { Heart, Minus, Plus, ChevronRight } from "lucide-react";
 import { fetchProductByHandle, fetchProducts, formatPrice } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
-import { resolveModelGender, sortProductSizes } from "@/lib/catalog";
+import { displayProductTitle, resolveModelGender, sortProductSizes } from "@/lib/catalog";
 import { cardImageUrl, galleryImageUrl, gallerySrcSet, thumbImageUrl } from "@/lib/image-variants";
 import { ProductPrice } from "@/components/site/ProductPrice";
 import { cn } from "@/lib/utils";
@@ -266,7 +266,7 @@ function ProductPage() {
             Shop
           </Link>
           <ChevronRight className="h-3 w-3" strokeWidth={1} />
-          <span className="text-foreground">{node.title}</span>
+          <span className="text-foreground">{displayProductTitle(node.title)}</span>
         </nav>
 
         <div className="grid gap-10 pb-28 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
@@ -350,7 +350,7 @@ function ProductPage() {
           <div className="lg:sticky lg:top-32 lg:self-start lg:py-4">
             <div className="flex items-start justify-between gap-4">
               <h1 className="font-display text-[clamp(1.85rem,3.4vw,3rem)] leading-[1.08]">
-                {node.title}
+                {displayProductTitle(node.title)}
               </h1>
               <button
                 type="button"
@@ -582,9 +582,9 @@ function ProductPage() {
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 backdrop-blur-xl lg:hidden">
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm">{node.title}</p>
+            <p className="truncate text-sm">{displayProductTitle(node.title)}</p>
             <p className="text-sm text-muted-foreground">
-              <ProductPrice price={price} compareAt={compareAt} size="sm" showBadge={false} />
+              <ProductPrice price={price} compareAt={compareAt} size="sm" />
             </p>
           </div>
           <button

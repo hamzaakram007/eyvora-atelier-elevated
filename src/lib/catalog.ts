@@ -102,6 +102,11 @@ export const PRODUCT_SIZES = ["S", "M", "L", "XL"] as const;
 
 const SIZE_RANK = new Map(PRODUCT_SIZES.map((size, i) => [size.toUpperCase(), i]));
 
+/** Drop leading brand from titles so cards don't read "EYVORA …" under the logo. */
+export function displayProductTitle(title: string): string {
+  return title.replace(/^EYVORA\s+/i, "").trim() || title;
+}
+
 /** Always render sizes as S → M → L → XL (Shopify option order can drift). */
 export function sortProductSizes(values: readonly string[]): string[] {
   return [...values].sort((a, b) => {

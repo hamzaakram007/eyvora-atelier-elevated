@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { type ShopifyProduct } from "@/lib/shopify";
 import { galleryImageUrl, productSrcSet } from "@/lib/image-variants";
 import { ProductPrice } from "@/components/site/ProductPrice";
-import { sortProductSizes } from "@/lib/catalog";
+import { displayProductTitle, sortProductSizes } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
@@ -145,30 +145,29 @@ export function ProductCard({
         />
       </button>
 
-      <div className="pt-5">
-        <div className="flex items-start justify-between gap-4">
+      <div className="pt-4">
+        {/* Stack meta vertically — side-by-side price was overlapping the title on narrow cards */}
+        <div className="min-w-0 space-y-2">
           <div className="min-w-0">
             <Link
               to="/product/$handle"
               params={{ handle: node.handle }}
               search={gender === "men" || gender === "women" ? { gender } : undefined}
-              className="block text-[0.92rem] leading-snug"
+              className="block truncate text-[0.92rem] leading-snug"
             >
-              {node.title}
+              {displayProductTitle(node.title)}
             </Link>
             {colorOption && (
-              <p className="mt-1.5 text-[0.7rem] tracking-[0.14em] text-muted-foreground uppercase">
+              <p className="mt-1 text-[0.7rem] tracking-[0.14em] text-muted-foreground uppercase">
                 {colorOption.values[0]}
               </p>
             )}
           </div>
-          <span className="shrink-0 text-right">
-            <ProductPrice price={price} compareAt={compareAt} size="sm" />
-          </span>
+          <ProductPrice price={price} compareAt={compareAt} size="sm" className="w-full" />
         </div>
 
         {sizeOption && !soldOut && (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 grid grid-cols-4 gap-1.5">
             {sortProductSizes(sizeOption.values).map((value) => {
               const variant = variants.find((v) =>
                 v.node.selectedOptions.some(
@@ -183,7 +182,7 @@ export function ProductCard({
                   disabled={unavailable}
                   onClick={() => setSize(value)}
                   className={cn(
-                    "min-w-10 border px-2.5 py-2 text-[0.625rem] tracking-[0.18em] uppercase transition-colors",
+                    "border px-1 py-2 text-[0.625rem] tracking-[0.14em] uppercase transition-colors",
                     size === value
                       ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
                       : "border-border hover:border-[var(--ink)]",
