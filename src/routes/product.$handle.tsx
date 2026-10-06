@@ -5,7 +5,7 @@ import { Heart, Minus, Plus, ChevronRight } from "lucide-react";
 import { fetchProductByHandle, fetchProducts, formatPrice } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
-import { resolveModelGender } from "@/lib/catalog";
+import { resolveModelGender, sortProductSizes } from "@/lib/catalog";
 import { cardImageUrl, galleryImageUrl, gallerySrcSet, thumbImageUrl } from "@/lib/image-variants";
 import { ProductPrice } from "@/components/site/ProductPrice";
 import { cn } from "@/lib/utils";
@@ -435,7 +435,10 @@ function ProductPage() {
                       )}
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {option.values.map((value) => {
+                      {(option.name.toLowerCase() === "size"
+                        ? sortProductSizes(option.values)
+                        : option.values
+                      ).map((value) => {
                         const optionVariant = variants.find((v) =>
                           v.node.selectedOptions.some(
                             (o) => o.name === option.name && o.value === value,
