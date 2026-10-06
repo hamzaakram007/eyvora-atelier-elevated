@@ -103,7 +103,7 @@ export function CartDrawer() {
     <Sheet open={isOpen} onOpenChange={setOpen}>
       <SheetContent
         side="right"
-        className="flex h-full w-full flex-col gap-0 border-l border-border bg-background p-0 sm:max-w-md"
+        className="flex h-[100dvh] max-h-[100dvh] w-full flex-col gap-0 overflow-hidden border-l border-border bg-background p-0 sm:max-w-md"
       >
         <SheetHeader className="flex-row items-center justify-between border-b border-border px-6 py-5">
           <SheetTitle className="text-[0.7rem] font-normal tracking-[0.3em] uppercase">
@@ -127,7 +127,7 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto px-6 py-6">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6">
               <ul className="space-y-7">
                 {items.map((item) => {
                   const size =
@@ -234,9 +234,18 @@ export function CartDrawer() {
                   </ul>
                 </div>
               )}
+
+              {paymentMethod === "bank" && (
+                <BankTransferDetails
+                  className="mt-6"
+                  compact
+                  amountLabel={formatPrice(payable, currency)}
+                  note={`Transfer this amount after checkout. No discount code needed — ${BANK_TRANSFER_DISCOUNT_PERCENT}% off is already in your total. Send order number + payment screenshot to EYVORA.`}
+                />
+              )}
             </div>
 
-            <div className="border-t border-border px-6 py-5">
+            <div className="shrink-0 border-t border-border bg-background px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.06)]">
               <p className="text-[0.625rem] tracking-[0.22em] uppercase text-muted-foreground">
                 Payment method
               </p>
@@ -295,15 +304,6 @@ export function CartDrawer() {
                 </div>
               </div>
 
-              {paymentMethod === "bank" && (
-                <BankTransferDetails
-                  className="mt-3"
-                  compact
-                  amountLabel={formatPrice(payable, currency)}
-                  note={`Transfer this amount after checkout. No discount code needed — ${BANK_TRANSFER_DISCOUNT_PERCENT}% off is already in your total. Send order number + payment screenshot to EYVORA.`}
-                />
-              )}
-
               {paymentMethod !== "bank" && (
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                   {allSynced && !SHOPIFY_CHECKOUT_LOCKED
@@ -323,7 +323,7 @@ export function CartDrawer() {
                 onClick={handleCheckout}
                 disabled={isLoading || items.length === 0}
                 className={cn(
-                  "mt-5 flex min-h-14 w-full items-center justify-center py-4 text-[0.7rem] font-bold tracking-[0.2em] uppercase disabled:opacity-40",
+                  "mt-4 flex min-h-[3.25rem] w-full touch-manipulation items-center justify-center py-3.5 text-[0.7rem] font-bold tracking-[0.2em] uppercase disabled:opacity-40",
                   paymentMethod === "bank"
                     ? "bg-emerald-700 text-white hover:bg-emerald-800"
                     : "bg-[var(--ink)] text-[var(--ivory)]",
