@@ -5,6 +5,10 @@
  *
  * Width descriptors come from `image-variant-widths.json` (generated) so srcset
  * never overstates pixel width — that previously made browsers pick soft files.
+ *
+ * When card and gallery share the same pixel width (common for ~941px masters),
+ * only the higher-quality gallery encode is advertised so browsers don't settle
+ * on the slightly softer card file.
  */
 
 import variantWidths from "@/lib/image-variant-widths.json";
@@ -19,6 +23,11 @@ type WidthEntry = { full?: number; card?: number; gallery?: number; thumb?: numb
 function widthsFor(base: string | undefined): WidthEntry {
   if (!base) return {};
   return (variantWidths as Record<string, WidthEntry>)[base] ?? {};
+}
+
+/** Gallery is meaningfully sharper/wider than card (worth a second srcset candidate). */
+function galleryAddsResolution(cardW: number, galleryW: number) {
+  return galleryW > cardW + 40;
 }
 
 /** Call from catalog when wiring a local product photo. */
@@ -45,15 +54,17 @@ function publicSrcSet(publicBase: string) {
   const w = widthsFor(publicBase);
   const card = `/img/products/${publicBase}.card.webp`;
   const gallery = `/img/products/${publicBase}.gallery.webp`;
-  const parts: string[] = [];
-  if (w.card) parts.push(`${card} ${w.card}w`);
-  if (w.gallery && w.gallery !== w.card) parts.push(`${gallery} ${w.gallery}w`);
-  else if (!w.gallery && w.card) {
-    /* gallery missing — card only */
-  } else if (w.gallery) {
-    parts.push(`${gallery} ${w.gallery}w`);
+  const cardW = w.card || 0;
+  const galleryW = w.gallery || 0;
+
+  // Prefer the higher-quality gallery encode. Only add card when it is a
+  // smaller bandwidth rung with a real width difference.
+  if (galleryW && cardW && galleryAddsResolution(cardW, galleryW)) {
+    return `${card} ${cardW}w, ${gallery} ${galleryW}w`;
   }
-  return parts.length ? parts.join(", ") : undefined;
+  if (galleryW) return `${gallery} ${galleryW}w`;
+  if (cardW) return `${card} ${cardW}w`;
+  return undefined;
 }
 
 export function cardImageUrl(fullUrl: string | undefined | null) {
@@ -81,43 +92,58 @@ export function productSrcSet(fullUrl: string | undefined | null) {
   const w = widthsFor(base);
   const card = cardImageUrl(fullUrl);
   const gallery = galleryImageUrl(fullUrl);
-  if (!card || card === fullUrl) return undefined;
-
-  const parts: string[] = [];
-  const cardW = w.card || 1000;
-  parts.push(`${card} ${cardW}w`);
-  if (gallery && gallery !== card) {
-    const galleryW = w.gallery || Math.max(cardW, 1200);
-    parts.push(`${gallery} ${galleryW}w`);
+  if ((!card || card === fullUrl) && (!gallery || gallery === fullUrl)) {
+    return undefined;
   }
+
+  const cardW = w.card || 0;
+  const galleryW = w.gallery || 0;
+  const parts: string[] = [];
+
+  if (gallery && galleryW && card && cardW && galleryAddsResolution(cardW, galleryW)) {
+    parts.push(`${card} ${cardW}w`);
+    parts.push(`${gallery} ${galleryW}w`);
+  } else if (gallery && galleryW) {
+    parts.push(`${gallery} ${galleryW}w`);
+  } else if (card && cardW) {
+    parts.push(`${card} ${cardW}w`);
+  } else if (gallery && gallery !== fullUrl) {
+    parts.push(`${gallery} ${galleryW || 1200}w`);
+  } else if (card && card !== fullUrl) {
+    parts.push(`${card} ${cardW || 1000}w`);
+  }
+
   if (fullUrl !== card && fullUrl !== gallery) {
-    const fullW = w.full || Math.max(w.gallery || 0, cardW, 1600);
-    // Only advertise the master when it is actually wider than gallery.
-    if (!w.gallery || (w.full && w.full > (w.gallery || 0) + 20)) {
+    const fullW = w.full || 0;
+    if (fullW && fullW > Math.max(galleryW, cardW) + 20) {
       parts.push(`${fullUrl} ${fullW}w`);
     }
   }
-  return parts.join(", ");
+  return parts.length ? parts.join(", ") : undefined;
 }
 
-/** Product-page hero srcset — prefer gallery, fall back to full. */
+/** Product-page hero srcset — gallery first; card only as a smaller rung. */
 export function gallerySrcSet(fullUrl: string | undefined | null) {
   if (!fullUrl) return undefined;
   const base = baseByFull.get(fullUrl);
   const w = widthsFor(base);
   const card = cardImageUrl(fullUrl);
   const gallery = galleryImageUrl(fullUrl);
+  const cardW = w.card || 0;
+  const galleryW = w.gallery || 0;
 
   if (!gallery || gallery === fullUrl) {
     return card && card !== fullUrl
-      ? `${card} ${w.card || 1000}w, ${fullUrl} ${w.full || 1600}w`
+      ? `${card} ${cardW || 1000}w, ${fullUrl} ${w.full || 1600}w`
       : undefined;
   }
 
   const parts: string[] = [];
-  if (card && card !== gallery) parts.push(`${card} ${w.card || 1000}w`);
-  parts.push(`${gallery} ${w.gallery || 1600}w`);
-  if (fullUrl !== gallery && w.full && w.full > (w.gallery || 0) + 20) {
+  if (card && card !== gallery && cardW && galleryAddsResolution(cardW, galleryW || cardW)) {
+    parts.push(`${card} ${cardW}w`);
+  }
+  parts.push(`${gallery} ${galleryW || 1600}w`);
+  if (fullUrl !== gallery && w.full && w.full > (galleryW || 0) + 20) {
     parts.push(`${fullUrl} ${w.full}w`);
   }
   return parts.join(", ");
