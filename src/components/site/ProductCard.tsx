@@ -2,8 +2,9 @@ import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Heart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { formatPrice, type ShopifyProduct } from "@/lib/shopify";
+import { type ShopifyProduct } from "@/lib/shopify";
 import { galleryImageUrl, productSrcSet } from "@/lib/image-variants";
+import { ProductPrice } from "@/components/site/ProductPrice";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
@@ -44,6 +45,7 @@ export function ProductCard({
   const variants = node.variants.edges;
   const soldOut = variants.length > 0 && !variants.some((v) => v.node.availableForSale);
   const price = node.priceRange.minVariantPrice;
+  const compareAt = node.compareAtPriceRange?.minVariantPrice;
 
   const selectedVariant = useMemo(() => {
     if (!size) return null;
@@ -159,8 +161,8 @@ export function ProductCard({
               </p>
             )}
           </div>
-          <span className="shrink-0 text-[0.88rem] tabular-nums">
-            {formatPrice(price.amount, price.currencyCode)}
+          <span className="shrink-0 text-right">
+            <ProductPrice price={price} compareAt={compareAt} size="sm" />
           </span>
         </div>
 

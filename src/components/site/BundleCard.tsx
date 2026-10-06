@@ -2,12 +2,15 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { formatPrice, type ShopifyProduct } from "@/lib/shopify";
+import { type ShopifyProduct } from "@/lib/shopify";
+import { ProductPrice } from "@/components/site/ProductPrice";
+import { PRODUCT_SALE_PERCENT } from "@/lib/pricing";
 import { useCartStore } from "@/stores/cartStore";
 import { cn } from "@/lib/utils";
 
-export const BUNDLE_DISCOUNT = 0.1;
-export const BUNDLE_CODE = "COUPLE10";
+/** Extra couple-only discount removed — storewide sale already applied on unit prices. */
+export const BUNDLE_DISCOUNT = 0;
+export const BUNDLE_CODE = "";
 
 type Variant = ShopifyProduct["node"]["variants"]["edges"][number]["node"];
 
@@ -106,7 +109,16 @@ export function BundleCard({
   const subtotal =
     parseFloat(menVariant?.price.amount ?? "0") +
     parseFloat(womenVariant?.price.amount ?? "0");
-  const bundlePrice = subtotal * (1 - BUNDLE_DISCOUNT);
+  const menCompare = parseFloat(
+    men?.node.compareAtPriceRange?.minVariantPrice?.amount ?? menVariant?.price.amount ?? "0",
+  );
+  const womenCompare = parseFloat(
+    women?.node.compareAtPriceRange?.minVariantPrice?.amount ??
+      womenVariant?.price.amount ??
+      "0",
+  );
+  const compareSubtotal = menCompare + womenCompare;
+  const bundlePrice = subtotal;
 
   const addBundle = async () => {
     if (!menVariant || !womenVariant) return;
@@ -128,8 +140,8 @@ export function BundleCard({
       selectedOptions: womenVariant.selectedOptions || [],
     });
     setAdding(false);
-    toast.success("Bundle added to your bag", {
-      description: `Use code ${BUNDLE_CODE} at checkout for 10% off the pair.`,
+    toast.success("Couple look added to your bag", {
+      description: `${PRODUCT_SALE_PERCENT}% off already applied on each piece.`,
     });
     setCartOpen(true);
   };
@@ -150,14 +162,15 @@ export function BundleCard({
         </div>
         <div className="shrink-0 sm:text-right">
           <p className="text-[0.625rem] tracking-[0.28em] text-muted-foreground uppercase">
-            Bundle price
+            Couple total · {PRODUCT_SALE_PERCENT}% off
           </p>
-          <p className="font-display mt-2 text-2xl">
-            {formatPrice(bundlePrice, currency)}
-          </p>
-          <p className="mt-1 text-[0.8rem] text-muted-foreground line-through">
-            {formatPrice(subtotal, currency)}
-          </p>
+          <div className="font-display mt-2 text-2xl">
+            <ProductPrice
+              price={{ amount: bundlePrice, currencyCode: currency }}
+              compareAt={{ amount: compareSubtotal, currencyCode: currency }}
+              size="lg"
+            />
+          </div>
         </div>
       </div>
 
@@ -190,11 +203,8 @@ export function BundleCard({
           )}
         </button>
         <p className="text-[0.75rem] text-muted-foreground">
-          Apply code{" "}
-          <span className="tracking-[0.2em] text-foreground uppercase">
-            {BUNDLE_CODE}
-          </span>{" "}
-          at checkout — 10% off the pair.
+          {PRODUCT_SALE_PERCENT}% off already applied on each piece — same as the rest of the
+          store.
         </p>
       </div>
     </article>

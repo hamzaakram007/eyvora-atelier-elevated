@@ -16,6 +16,8 @@ import { useCartStore } from "@/stores/cartStore";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
 import { galleryImageUrl, publicVariantBase, productSrcSet } from "@/lib/image-variants";
+import { ProductPrice } from "@/components/site/ProductPrice";
+import { PRODUCT_SALE_PERCENT } from "@/lib/pricing";
 
 const coupleHero = publicVariantBase("couple/contrast/olive-black-grey");
 
@@ -26,7 +28,7 @@ export const Route = createFileRoute("/couple")({
       {
         name: "description",
         content:
-          "EYVORA couple contrast looks — olive & black hoodies with grey & black trousers. Match or mix colours; each person picks their own size.",
+          "EYVORA couple contrast looks — olive & black hoodies with grey & black trousers. 20% off storewide. Match or mix colours; each person picks their own size.",
       },
       { property: "og:title", content: "Couple Contrast Collection — EYVORA" },
       {
@@ -332,6 +334,10 @@ function CoupleBuilder() {
     (sum, line) => sum + parseFloat(line.variant.price.amount),
     0,
   );
+  const compareAtTotal = lineItems.reduce((sum, line) => {
+    const compare = line.product.node.compareAtPriceRange?.minVariantPrice?.amount;
+    return sum + parseFloat(compare || line.variant.price.amount);
+  }, 0);
 
   const applyPreset = (outfit: (typeof COUPLE_OUTFITS)[number]) => {
     const nextMode = outfit.mode;
@@ -498,9 +504,20 @@ function CoupleBuilder() {
             )}
           </ul>
           {lineItems.length > 0 && (
-            <p className="mt-4 text-sm">
-              Combined {formatPrice(total, "PKR")} — no bundle discount applied.
-            </p>
+            <div className="mt-4 space-y-1 text-sm">
+              <p className="flex flex-wrap items-baseline gap-2">
+                Combined{" "}
+                <ProductPrice
+                  price={{ amount: total, currencyCode: "PKR" }}
+                  compareAt={{ amount: compareAtTotal, currencyCode: "PKR" }}
+                  size="md"
+                />
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {PRODUCT_SALE_PERCENT}% off already applied on hoodies &amp; trousers — same
+                storewide prices.
+              </p>
+            </div>
           )}
         </div>
         <button
@@ -571,7 +588,7 @@ function CouplePage() {
           </h1>
           <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-[var(--ivory)]/85">
             Build Person 1 &amp; Person 2 below — mix olive &amp; black hoodies with grey &amp;
-            black trousers.
+            black trousers. {PRODUCT_SALE_PERCENT}% off already applied on every piece.
           </p>
           <a
             href="#couple-builder"

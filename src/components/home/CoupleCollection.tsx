@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
 import { publicVariantBase } from "@/lib/image-variants";
+import { PRODUCT_SALE_PERCENT } from "@/lib/pricing";
 
 const couple = publicVariantBase("couple/contrast/olive-black-grey");
 
@@ -30,7 +31,8 @@ export function CoupleCollection() {
           </h2>
           <p className="mt-7 max-w-md text-[0.95rem] leading-relaxed text-muted-foreground">
             Signature couple looks — olive with black, black with grey. Matching colours or
-            mix &amp; match, with independent sizes for each person.
+            mix &amp; match, with independent sizes for each person. Storewide {PRODUCT_SALE_PERCENT}% off
+            applies to every piece.
           </p>
           <ul className="mt-8 space-y-3 text-sm text-muted-foreground">
             <li>— Contrast hoodies (Olive + Black)</li>

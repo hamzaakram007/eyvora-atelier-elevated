@@ -1,5 +1,12 @@
 import type { ShopifyProduct } from "@/lib/shopify";
 import { registerImageVariants } from "@/lib/image-variants";
+import {
+  HOODIE_LIST_PRICE,
+  HOODIE_SALE_PRICE,
+  PRODUCT_SALE_PERCENT,
+  TROUSER_LIST_PRICE,
+  TROUSER_SALE_PRICE,
+} from "@/lib/pricing";
 
 import olivePrimary from "@/assets/products/olive-hoodie/primary.webp";
 import oliveSecondary from "@/assets/products/olive-hoodie/secondary.webp";
@@ -76,7 +83,10 @@ export type LaunchProductMeta = {
   title: string;
   color: string;
   category: "hoodies" | "trousers";
+  /** Sale price customers pay (after PRODUCT_SALE_PERCENT off). */
   price: number;
+  /** Pre-discount list / compare-at price shown struck through. */
+  compareAtPrice: number;
   description: string;
   /** Default gallery (men-first for unisex browsing / couple). */
   images: ProductImage[];
@@ -104,7 +114,8 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     title: "EYVORA Olive Green Hoodie",
     color: "Olive Green",
     category: "hoodies",
-    price: 3749,
+    price: HOODIE_SALE_PRICE,
+    compareAtPrice: HOODIE_LIST_PRICE,
     description:
       "A relaxed everyday hoodie in muted olive, finished with signature white piping and a clean EYVORA mark.",
     imagesMen: [
@@ -134,7 +145,8 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     title: "EYVORA Black Hoodie",
     color: "Black",
     category: "hoodies",
-    price: 3749,
+    price: HOODIE_SALE_PRICE,
+    compareAtPrice: HOODIE_LIST_PRICE,
     description:
       "A deep charcoal hoodie with white piping and a refined silhouette for everyday wear.",
     imagesMen: [
@@ -167,7 +179,8 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     title: "EYVORA Grey Trousers",
     color: "Grey",
     category: "trousers",
-    price: 2499,
+    price: TROUSER_SALE_PRICE,
+    compareAtPrice: TROUSER_LIST_PRICE,
     description:
       "Relaxed straight-leg trousers in soft heather grey, designed for comfort with a quiet logo mark.",
     imagesMen: [
@@ -201,7 +214,8 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
     title: "EYVORA Black Trousers",
     color: "Black",
     category: "trousers",
-    price: 2499,
+    price: TROUSER_SALE_PRICE,
+    compareAtPrice: TROUSER_LIST_PRICE,
     description:
       "Relaxed straight-leg trousers in deep black, finished with a minimal EYVORA mark on the thigh.",
     imagesMen: [
@@ -407,6 +421,10 @@ export function toShopifyProduct(
     amount: meta.price.toFixed(1),
     currencyCode: "PKR",
   };
+  const compareAt = {
+    amount: meta.compareAtPrice.toFixed(1),
+    currencyCode: "PKR",
+  };
   const images = imagesForGender(meta, gender);
 
   return {
@@ -419,7 +437,7 @@ export function toShopifyProduct(
       tags: meta.tags,
       availableForSale: true,
       priceRange: { minVariantPrice: price },
-      compareAtPriceRange: undefined,
+      compareAtPriceRange: { minVariantPrice: compareAt },
       images: {
         edges: images.map((img) => ({
           node: { url: img.url, altText: img.altText },
@@ -614,6 +632,10 @@ export function mergeWithShopifyCatalog(
       amount: meta.price.toFixed(1),
       currencyCode: remoteProduct.node.priceRange.minVariantPrice.currencyCode || "PKR",
     };
+    const launchCompareAt = {
+      amount: meta.compareAtPrice.toFixed(1),
+      currencyCode: launchPrice.currencyCode,
+    };
 
     return applyLaunchImagery(
       {
@@ -623,6 +645,7 @@ export function mergeWithShopifyCatalog(
           description: remoteProduct.node.description || meta.description,
           productType: meta.category === "hoodies" ? "Hoodies" : "Trousers",
           priceRange: { minVariantPrice: launchPrice },
+          compareAtPriceRange: { minVariantPrice: launchCompareAt },
           options,
           tags: Array.from(
             new Set([...(remoteProduct.node.tags ?? []), ...meta.tags]),
