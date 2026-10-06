@@ -28,7 +28,7 @@ export function ProductPrice({
 
   return (
     <span className={cn("flex flex-col items-start gap-1.5 tabular-nums", className)}>
-      <span className="inline-flex flex-wrap items-baseline gap-x-3.5 gap-y-1">
+      <span className="inline-flex flex-wrap items-center gap-2">
         <span
           className={cn(
             "font-semibold tracking-tight text-[var(--ink)]",
@@ -39,29 +39,29 @@ export function ProductPrice({
         >
           {formatPrice(sale, currency)}
         </span>
-        {onSale && (
+        {onSale && showBadge && (
           <span
             className={cn(
-              "text-muted-foreground/75 line-through",
-              size === "sm" && "text-[0.75rem]",
-              size === "md" && "text-[0.82rem]",
-              size === "lg" && "text-[0.95rem]",
+              "inline-flex items-center justify-center rounded-sm bg-emerald-700 font-extrabold tracking-[0.14em] text-white uppercase",
+              size === "sm" && "min-h-6 px-2.5 text-[0.6875rem]",
+              size === "md" && "min-h-7 px-3 text-[0.75rem]",
+              size === "lg" && "min-h-8 px-3.5 text-[0.8125rem]",
             )}
           >
-            {formatPrice(list, currency)}
+            {PRODUCT_SALE_PERCENT}% OFF
           </span>
         )}
       </span>
-      {onSale && showBadge && (
+      {onSale && (
         <span
           className={cn(
-            "inline-flex items-center justify-center rounded-sm bg-emerald-700 font-extrabold tracking-[0.14em] text-white uppercase",
-            size === "sm" && "min-h-6 px-2.5 text-[0.6875rem]",
-            size === "md" && "min-h-7 px-3 text-[0.75rem]",
-            size === "lg" && "min-h-8 px-3.5 text-[0.8125rem]",
+            "text-muted-foreground/80 line-through",
+            size === "sm" && "text-[0.75rem] leading-none",
+            size === "md" && "text-[0.82rem] leading-none",
+            size === "lg" && "text-[0.95rem] leading-none",
           )}
         >
-          {PRODUCT_SALE_PERCENT}% OFF
+          {formatPrice(list, currency)}
         </span>
       )}
     </span>
