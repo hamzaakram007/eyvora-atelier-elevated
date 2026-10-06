@@ -267,6 +267,12 @@ export const COUPLE_TROUSERS: CouplePieceOption[] = [
   { handle: "black-trousers", label: "Black Trousers", color: "Black", kind: "trousers" },
 ];
 
+registerImageVariants(coupleContrastHoodiesA, "couple/contrast/olive-black-grey");
+registerImageVariants(coupleContrastHoodiesB, "couple/contrast/black-olive-seated");
+registerImageVariants(coupleContrastTrousersFront, "couple/contrast/trousers-front");
+registerImageVariants(coupleContrastTrousersSide, "couple/contrast/trousers-side");
+registerImageVariants(coupleContrastTrousersBack, "couple/contrast/trousers-back");
+
 export const COUPLE_CONTRAST_GALLERY = [
   {
     id: "hoodies-olive-black",

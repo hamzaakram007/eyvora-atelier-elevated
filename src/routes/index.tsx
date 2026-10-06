@@ -2,7 +2,9 @@ import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "@/components/home/Hero";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
-import heroMobile from "@/assets/products/hero/hero-mobile.webp";
+import { publicVariantBase } from "@/lib/image-variants";
+
+const heroMobile = publicVariantBase("hero/hero-mobile");
 
 const BestSellers = lazy(() =>
   import("@/components/home/BestSellers").then((m) => ({ default: m.BestSellers })),
@@ -58,7 +60,7 @@ export const Route = createFileRoute("/")({
     ],
     links: [
       { rel: "canonical", href: "https://eyvora.pk/" },
-      { rel: "preload", as: "image", href: heroMobile, type: "image/webp" },
+      { rel: "preload", as: "image", href: heroMobile.gallery, type: "image/webp" },
     ],
     scripts: [
       {

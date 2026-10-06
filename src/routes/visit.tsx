@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
 import { whatsappConfigured, whatsappLink } from "@/lib/site";
-import visitImg from "@/assets/products/couple/couple-4.webp";
+import { publicVariantBase } from "@/lib/image-variants";
+
+const visitImg = publicVariantBase("couple/couple-4");
 
 export const Route = createFileRoute("/visit")({
   head: () => ({
@@ -36,9 +38,11 @@ function Visit() {
         <div className="grid gap-12 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
           <Reveal>
             <img
-              src={visitImg}
+              src={visitImg.gallery}
+              srcSet={visitImg.srcSet}
               alt="EYVORA product photography"
               loading="lazy"
+              sizes="(max-width: 1024px) 100vw, 55vw"
               className="aspect-[5/4] w-full object-cover"
             />
           </Reveal>

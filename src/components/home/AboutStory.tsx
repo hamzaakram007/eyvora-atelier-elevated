@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
-import about from "@/assets/products/couple/couple-3.webp";
+import { publicVariantBase } from "@/lib/image-variants";
+
+const about = publicVariantBase("couple/couple-3");
 
 export function AboutStory() {
   return (
@@ -16,7 +18,7 @@ export function AboutStory() {
           <div className="mt-10 max-w-lg space-y-6 text-[0.95rem] leading-[1.85] text-muted-foreground">
             <p>
               EYVORA is a premium clothing brand focused on hoodies, trousers and
-              coordinated outfits. The launch collection keeps the wardrobe small and
+              coordinated outfits. The launch collection keeps thewardrobe small and
               intentional.
             </p>
             <p>
@@ -34,11 +36,13 @@ export function AboutStory() {
         </Reveal>
         <Reveal delay={140}>
           <img
-            src={about}
+            src={about.gallery}
+            srcSet={about.srcSet}
             alt="EYVORA essentials campaign imagery"
             loading="lazy"
             width={1400}
             height={1750}
+            sizes="(max-width: 1024px) 100vw, 45vw"
             className="aspect-[4/5] w-full object-cover"
           />
         </Reveal>

@@ -6,9 +6,11 @@ import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
 import { SearchOverlay } from "@/components/site/SearchOverlay";
-import hoodies from "@/assets/products/category/hoodies.webp";
-import trousers from "@/assets/products/category/trousers.webp";
-import couple from "@/assets/products/couple/couple-2.webp";
+import { publicVariantBase } from "@/lib/image-variants";
+
+const hoodies = publicVariantBase("category/hoodies");
+const trousers = publicVariantBase("category/trousers");
+const couple = publicVariantBase("couple/couple-2");
 
 function AnnouncementBar() {
   const item = announcements[0];
@@ -99,7 +101,9 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
           "to" in tile && tile.to ? (
             <Link key={tile.label} to={tile.to} onClick={onNavigate} className="group relative overflow-hidden">
               <img
-                src={tile.img}
+                src={tile.img.gallery}
+                srcSet={tile.img.srcSet}
+                sizes="200px"
                 alt={`${tile.label} collection`}
                 loading="lazy"
                 className="h-44 w-full object-cover transition-transform duration-1000 group-hover:scale-105"
@@ -117,7 +121,9 @@ function MegaMenu({ onNavigate }: { onNavigate: () => void }) {
               className="group relative overflow-hidden"
             >
               <img
-                src={tile.img}
+                src={tile.img.gallery}
+                srcSet={tile.img.srcSet}
+                sizes="200px"
                 alt={`${tile.label} collection`}
                 loading="lazy"
                 className="h-44 w-full object-cover transition-transform duration-1000 group-hover:scale-105"
@@ -237,7 +243,7 @@ export function Header() {
             <Link
               to="/"
               className={cn(
-                "font-display text-center text-2xl tracking-[0.34em] transition-colors duration-500 sm:text-[1.7rem]",
+                "font-display text-center text-[1.85rem] font-bold tracking-[0.22em] transition-colors duration-500 sm:text-[2.15rem] sm:tracking-[0.24em]",
                 solid ? "text-foreground" : "text-[var(--ivory)]",
               )}
             >
@@ -310,7 +316,7 @@ export function Header() {
       >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-[#1E1E1E]/15 px-5 py-5">
-            <span className="font-display text-lg tracking-[0.34em] text-[#1E1E1E]">
+            <span className="font-display text-2xl font-bold tracking-[0.22em] text-[#1E1E1E]">
               EYVORA
             </span>
             <button

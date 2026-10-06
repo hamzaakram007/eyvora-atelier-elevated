@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Loader2, Minus, Plus, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -12,11 +12,14 @@ import { isShopifySyncedVariantId } from "@/lib/catalog";
 import {
   BANK_TRANSFER_DISCOUNT_PERCENT,
   orderChannelLabel,
+  orderLink,
   SHOPIFY_CHECKOUT_LOCKED,
 } from "@/lib/site";
+import { BankTransferDetails } from "@/components/site/BankTransferDetails";
 import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
+  const navigate = useNavigate();
   const {
     items,
     isOpen,
@@ -25,7 +28,6 @@ export function CartDrawer() {
     updateQuantity,
     removeItem,
     getCheckoutUrl,
-    prepareCheckout,
     syncCart,
   } = useCartStore();
   const [paymentMethod, setPaymentMethod] =
@@ -57,12 +59,42 @@ export function CartDrawer() {
   const payable =
     paymentMethod === "bank" ? Math.max(0, subtotal - bankDiscount) : subtotal;
 
-  const handleCheckout = async () => {
-    const checkoutUrl = await prepareCheckout(paymentMethod);
-    if (!checkoutUrl) return;
-    // Same-tab navigation avoids popup blockers on async checkout.
+  const handleCheckout = () => {
+    if (items.length === 0) return;
     setOpen(false);
-    window.location.assign(checkoutUrl);
+
+    // Synced catalogue → headless checkout with live COD/Bank totals.
+    // Unsynced / contact-only bag → WhatsApp/email order link.
+    if (allSynced && !SHOPIFY_CHECKOUT_LOCKED) {
+      void navigate({
+        to: "/checkout",
+        search: { payment: paymentMethod },
+      });
+      return;
+    }
+
+    const fallback = getCheckoutUrl();
+    if (fallback) {
+      window.location.assign(fallback);
+      return;
+    }
+
+    const summary = items
+      .map((i) => {
+        const size =
+          i.selectedOptions.find((o) => o.name.toLowerCase() === "size")
+            ?.value ?? i.variantTitle;
+        return `• ${i.product.node.title} — Size ${size} × ${i.quantity}`;
+      })
+      .join("\n");
+    const href = orderLink(
+      `Hello EYVORA, I would like to order:\n${summary}\n\nPayment: ${
+        paymentMethod === "bank"
+          ? `Bank transfer (${BANK_TRANSFER_DISCOUNT_PERCENT}% off)`
+          : "Cash on Delivery"
+      }\nTotal: PKR ${Math.round(payable).toLocaleString("en-PK")}`,
+    );
+    if (href) window.location.assign(href);
   };
 
   return (
@@ -225,17 +257,12 @@ export function CartDrawer() {
                   className={cn(
                     "relative border px-3 py-3 text-left text-[0.625rem] leading-snug tracking-[0.12em] uppercase transition-colors",
                     paymentMethod === "bank"
-                      ? "border-red-600 bg-red-50 text-[var(--ink)]"
-                      : "border-border hover:border-red-600",
+                      ? "border-emerald-700 bg-emerald-50 text-[var(--ink)]"
+                      : "border-border hover:border-emerald-700",
                   )}
                 >
                   <span className="block">Bank transfer</span>
-                  <span
-                    className={cn(
-                      "mt-1.5 inline-block text-[0.7rem] font-semibold tracking-[0.18em]",
-                      paymentMethod === "bank" ? "text-red-600" : "text-red-600",
-                    )}
-                  >
+                  <span className="mt-1.5 inline-block text-[0.7rem] font-semibold tracking-[0.18em] text-emerald-700">
                     {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF
                   </span>
                 </button>
@@ -247,7 +274,7 @@ export function CartDrawer() {
                   <span>{formatPrice(subtotal, currency)}</span>
                 </div>
                 {paymentMethod === "bank" && (
-                  <div className="flex items-center justify-between font-semibold text-red-600">
+                  <div className="flex items-center justify-between font-semibold text-emerald-700">
                     <span className="tracking-[0.12em] uppercase">
                       {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF · Bank transfer
                     </span>
@@ -260,27 +287,25 @@ export function CartDrawer() {
                 </div>
                 <div className="flex items-center justify-between font-medium">
                   <span className="tracking-[0.16em] uppercase">Total</span>
-                  <span className={cn(paymentMethod === "bank" && "text-red-600")}>
+                  <span className={cn(paymentMethod === "bank" && "text-emerald-700")}>
                     {formatPrice(payable, currency)}
                   </span>
                 </div>
               </div>
 
               {paymentMethod === "bank" && (
-                <p className="mt-3 border border-red-600/30 bg-red-50 px-3 py-2.5 text-xs font-medium leading-relaxed text-red-700">
-                  <span className="font-semibold tracking-[0.14em] uppercase">
-                    {BANK_TRANSFER_DISCOUNT_PERCENT}% OFF applied
-                  </span>
-                  {" — "}
-                  automatically on bank transfer. No code needed. Choose Bank deposit at Shopify
-                  checkout, then send payment proof.
-                </p>
+                <BankTransferDetails
+                  className="mt-3"
+                  compact
+                  amountLabel={formatPrice(payable, currency)}
+                  note={`Transfer this amount after checkout. No discount code needed — ${BANK_TRANSFER_DISCOUNT_PERCENT}% off is already in your total. Send order number + payment screenshot to EYVORA.`}
+                />
               )}
 
               {paymentMethod !== "bank" && (
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                   {allSynced && !SHOPIFY_CHECKOUT_LOCKED
-                    ? "Free shipping · tax-free prices. Cash on Delivery is full price. On Shopify checkout, switch to Bank deposit and the total updates with 7% off automatically. "
+                    ? "Free shipping · tax-free prices. Cash on Delivery is full price. Switch to Bank transfer above and UBL account details appear with 7% off. "
                     : `Native checkout is syncing. You can still place the order via ${orderChannelLabel() ?? "contact"}. `}
                   <Link
                     to="/payments"
@@ -291,28 +316,14 @@ export function CartDrawer() {
                   </Link>
                 </p>
               )}
-              {paymentMethod === "bank" && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Choose <strong className="font-medium text-foreground">Bank deposit</strong> at
-                  Shopify checkout — if you switch to COD there, the {BANK_TRANSFER_DISCOUNT_PERCENT}%
-                  off is removed and the total updates.{" "}
-                  <Link
-                    to="/payments"
-                    onClick={() => setOpen(false)}
-                    className="underline underline-offset-2"
-                  >
-                    UBL bank details
-                  </Link>
-                </p>
-              )}
               <button
                 type="button"
                 onClick={handleCheckout}
-                disabled={isLoading || items.length === 0 || !getCheckoutUrl()}
+                disabled={isLoading || items.length === 0}
                 className={cn(
-                  "mt-5 flex w-full items-center justify-center py-4 text-[0.625rem] tracking-[0.28em] uppercase disabled:opacity-40",
+                  "mt-5 flex min-h-14 w-full items-center justify-center py-4 text-[0.7rem] font-bold tracking-[0.2em] uppercase disabled:opacity-40",
                   paymentMethod === "bank"
-                    ? "bg-red-600 text-white hover:bg-red-700"
+                    ? "bg-emerald-700 text-white hover:bg-emerald-800"
                     : "bg-[var(--ink)] text-[var(--ivory)]",
                 )}
               >
@@ -327,8 +338,8 @@ export function CartDrawer() {
                   ) : (
                     "Checkout · Cash on Delivery"
                   )
-                ) : getCheckoutUrl() ? (
-                  `Order via ${orderChannelLabel()}`
+                ) : getCheckoutUrl() || orderChannelLabel() ? (
+                  `Order via ${orderChannelLabel() ?? "contact"}`
                 ) : (
                   "Checkout unavailable"
                 )}

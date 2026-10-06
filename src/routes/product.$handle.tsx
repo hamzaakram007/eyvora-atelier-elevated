@@ -6,7 +6,7 @@ import { fetchProductByHandle, fetchProducts, formatPrice } from "@/lib/shopify"
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { resolveModelGender } from "@/lib/catalog";
-import { cardImageUrl, productSrcSet, thumbImageUrl } from "@/lib/image-variants";
+import { cardImageUrl, galleryImageUrl, gallerySrcSet, thumbImageUrl } from "@/lib/image-variants";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -300,14 +300,14 @@ function ProductPage() {
               {images[activeImage] ? (
                 <img
                   src={
-                    cardImageUrl(images[activeImage]!.node.url) ||
+                    galleryImageUrl(images[activeImage]!.node.url) ||
                     images[activeImage]!.node.url
                   }
-                  srcSet={productSrcSet(images[activeImage]!.node.url)}
+                  srcSet={gallerySrcSet(images[activeImage]!.node.url)}
                   alt={images[activeImage]!.node.altText ?? node.title}
-                  width={840}
-                  height={1050}
-                  sizes="(max-width: 1024px) 92vw, 55vw"
+                  width={1600}
+                  height={2000}
+                  sizes="(max-width: 1024px) 100vw, 55vw"
                   fetchPriority={activeImage === 0 ? "high" : "auto"}
                   decoding="async"
                   loading={activeImage === 0 ? "eager" : "lazy"}
@@ -496,7 +496,7 @@ function ProductPage() {
                 type="button"
                 onClick={handleAdd}
                 disabled={isLoading}
-                className="w-full bg-[var(--ink)] px-8 py-4 text-[0.6875rem] tracking-[0.28em] text-[var(--ivory)] uppercase transition-opacity duration-300 hover:opacity-85 disabled:opacity-40"
+                className="w-full min-h-14 bg-[var(--ink)] px-10 py-4 text-[0.75rem] font-bold tracking-[0.2em] text-[var(--ivory)] uppercase transition-opacity duration-300 hover:opacity-90 disabled:opacity-40"
               >
                 Add to bag
               </button>
@@ -504,7 +504,7 @@ function ProductPage() {
                 type="button"
                 onClick={handleBuyNow}
                 disabled={isLoading}
-                className="w-full border border-[var(--ink)] px-8 py-4 text-[0.6875rem] tracking-[0.28em] uppercase transition-colors hover:bg-[var(--ink)] hover:text-[var(--ivory)] disabled:opacity-40"
+                className="w-full min-h-14 border-2 border-[var(--ink)] px-10 py-4 text-[0.75rem] font-bold tracking-[0.2em] uppercase transition-colors hover:bg-[var(--ink)] hover:text-[var(--ivory)] disabled:opacity-40"
               >
                 Buy now
               </button>

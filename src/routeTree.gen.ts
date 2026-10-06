@@ -11,13 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoupleRouteImport } from './routes/couple'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as VisitRouteImport } from './routes/visit'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
+import { Route as ApiCheckoutCreateOrderRouteImport } from './routes/api/checkout/create-order'
 import { Route as ApiShopifyWebhooksOrdersCreateRouteImport } from './routes/api/shopify/webhooks/orders-create'
 
 const IndexRoute = IndexRouteImport.update({
@@ -28,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -60,9 +68,19 @@ const WishlistRoute = WishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
+  id: '/success',
+  path: '/success',
+  getParentRoute: () => CheckoutRoute,
+} as any)
 const ProductHandleRoute = ProductHandleRouteImport.update({
   id: '/product/$handle',
   path: '/product/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCheckoutCreateOrderRoute = ApiCheckoutCreateOrderRouteImport.update({
+  id: '/api/checkout/create-order',
+  path: '/api/checkout/create-order',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiShopifyWebhooksOrdersCreateRoute =
@@ -75,38 +93,47 @@ const ApiShopifyWebhooksOrdersCreateRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/contact': typeof ContactRoute
   '/couple': typeof CoupleRoute
   '/payments': typeof PaymentsRoute
   '/shop': typeof ShopRoute
   '/visit': typeof VisitRoute
   '/wishlist': typeof WishlistRoute
+  '/checkout/success': typeof CheckoutSuccessRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/api/checkout/create-order': typeof ApiCheckoutCreateOrderRoute
   '/api/shopify/webhooks/orders-create': typeof ApiShopifyWebhooksOrdersCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/contact': typeof ContactRoute
   '/couple': typeof CoupleRoute
   '/payments': typeof PaymentsRoute
   '/shop': typeof ShopRoute
   '/visit': typeof VisitRoute
   '/wishlist': typeof WishlistRoute
+  '/checkout/success': typeof CheckoutSuccessRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/api/checkout/create-order': typeof ApiCheckoutCreateOrderRoute
   '/api/shopify/webhooks/orders-create': typeof ApiShopifyWebhooksOrdersCreateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/contact': typeof ContactRoute
   '/couple': typeof CoupleRoute
   '/payments': typeof PaymentsRoute
   '/shop': typeof ShopRoute
   '/visit': typeof VisitRoute
   '/wishlist': typeof WishlistRoute
+  '/checkout/success': typeof CheckoutSuccessRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/api/checkout/create-order': typeof ApiCheckoutCreateOrderRoute
   '/api/shopify/webhooks/orders-create': typeof ApiShopifyWebhooksOrdersCreateRoute
 }
 export interface FileRouteTypes {
@@ -114,43 +141,53 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/checkout'
     | '/contact'
     | '/couple'
     | '/payments'
     | '/shop'
     | '/visit'
     | '/wishlist'
+    | '/checkout/success'
     | '/product/$handle'
+    | '/api/checkout/create-order'
     | '/api/shopify/webhooks/orders-create'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/checkout'
     | '/contact'
     | '/couple'
     | '/payments'
     | '/shop'
     | '/visit'
     | '/wishlist'
+    | '/checkout/success'
     | '/product/$handle'
+    | '/api/checkout/create-order'
     | '/api/shopify/webhooks/orders-create'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/checkout'
     | '/contact'
     | '/couple'
     | '/payments'
     | '/shop'
     | '/visit'
     | '/wishlist'
+    | '/checkout/success'
     | '/product/$handle'
+    | '/api/checkout/create-order'
     | '/api/shopify/webhooks/orders-create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  CheckoutRoute: typeof CheckoutRouteWithChildren
   ContactRoute: typeof ContactRoute
   CoupleRoute: typeof CoupleRoute
   PaymentsRoute: typeof PaymentsRoute
@@ -158,6 +195,7 @@ export interface RootRouteChildren {
   VisitRoute: typeof VisitRoute
   WishlistRoute: typeof WishlistRoute
   ProductHandleRoute: typeof ProductHandleRoute
+  ApiCheckoutCreateOrderRoute: typeof ApiCheckoutCreateOrderRoute
   ApiShopifyWebhooksOrdersCreateRoute: typeof ApiShopifyWebhooksOrdersCreateRoute
 }
 
@@ -175,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -219,11 +264,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WishlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/success': {
+      id: '/checkout/success'
+      path: '/success'
+      fullPath: '/checkout/success'
+      preLoaderRoute: typeof CheckoutSuccessRouteImport
+      parentRoute: typeof CheckoutRoute
+    }
     '/product/$handle': {
       id: '/product/$handle'
       path: '/product/$handle'
       fullPath: '/product/$handle'
       preLoaderRoute: typeof ProductHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/checkout/create-order': {
+      id: '/api/checkout/create-order'
+      path: '/api/checkout/create-order'
+      fullPath: '/api/checkout/create-order'
+      preLoaderRoute: typeof ApiCheckoutCreateOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/shopify/webhooks/orders-create': {
@@ -236,9 +295,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CheckoutRouteChildren {
+  CheckoutSuccessRoute: typeof CheckoutSuccessRoute
+}
+
+const CheckoutRouteChildren: CheckoutRouteChildren = {
+  CheckoutSuccessRoute: CheckoutSuccessRoute,
+}
+
+const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
+  CheckoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  CheckoutRoute: CheckoutRouteWithChildren,
   ContactRoute: ContactRoute,
   CoupleRoute: CoupleRoute,
   PaymentsRoute: PaymentsRoute,
@@ -246,6 +318,7 @@ const rootRouteChildren: RootRouteChildren = {
   VisitRoute: VisitRoute,
   WishlistRoute: WishlistRoute,
   ProductHandleRoute: ProductHandleRoute,
+  ApiCheckoutCreateOrderRoute: ApiCheckoutCreateOrderRoute,
   ApiShopifyWebhooksOrdersCreateRoute: ApiShopifyWebhooksOrdersCreateRoute,
 }
 export const routeTree = rootRouteImport

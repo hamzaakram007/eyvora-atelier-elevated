@@ -1,0 +1,410 @@
+{
+  "black-hoodie/back": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-hoodie/detail": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-hoodie/front": {
+    "full": 576,
+    "thumb": 320,
+    "card": 576,
+    "gallery": 576
+  },
+  "black-hoodie/lifestyle": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-hoodie/primary": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-hoodie/secondary": {
+    "full": 942,
+    "thumb": 320,
+    "card": 942,
+    "gallery": 942
+  },
+  "black-hoodie/women/back-detail": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-hoodie/women/back-look": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-hoodie/women/back": {
+    "full": 942,
+    "thumb": 320,
+    "card": 942,
+    "gallery": 942
+  },
+  "black-hoodie/women/detail": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-hoodie/women/front-alt": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-hoodie/women/front": {
+    "full": 942,
+    "thumb": 320,
+    "card": 942,
+    "gallery": 942
+  },
+  "black-trousers/back": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/closeup": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/detail": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/front": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/lifestyle": {
+    "full": 576,
+    "thumb": 320,
+    "card": 576,
+    "gallery": 576
+  },
+  "black-trousers/primary": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/secondary": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/women/back-walk": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/women/front": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/women/lifestyle": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/women/logo": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/women/phone-pocket": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/women/pocket-back": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "black-trousers/women/pocket-side": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "category/hoodies": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "category/trousers": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "couple/contrast/black-olive-seated": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "couple/contrast/olive-black-grey": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "couple/contrast/trousers-back": {
+    "full": 1600,
+    "thumb": 320,
+    "card": 1000,
+    "gallery": 1600
+  },
+  "couple/contrast/trousers-front": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "couple/contrast/trousers-side": {
+    "full": 940,
+    "thumb": 320,
+    "card": 940,
+    "gallery": 940
+  },
+  "couple/couple-1": {
+    "full": 576,
+    "thumb": 320,
+    "card": 576,
+    "gallery": 576
+  },
+  "couple/couple-2": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "couple/couple-3": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "couple/couple-4": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "couple/couple-5": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "couple/couple-6": {
+    "full": 1600,
+    "thumb": 320,
+    "card": 1000,
+    "gallery": 1600
+  },
+  "couple/couple-7": {
+    "full": 1600,
+    "thumb": 320,
+    "card": 1000,
+    "gallery": 1600
+  },
+  "couple/couple-8": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "couple/couple-9": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/back": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/closeup": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/detail": {
+    "full": 577,
+    "thumb": 320,
+    "card": 577,
+    "gallery": 577
+  },
+  "grey-trousers/front": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/lifestyle": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/primary": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/secondary": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/women/front": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/women/lifestyle": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/women/logo": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/women/phone-pocket": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/women/pocket-back": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "grey-trousers/women/pocket-side": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "hero/hero-desktop": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "hero/hero-mobile": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/back": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/detail": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/front": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/lifestyle": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/primary": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/secondary": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/women/back": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/women/detail": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/women/front-alt": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/women/front": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  },
+  "olive-hoodie/women/hood": {
+    "full": 941,
+    "thumb": 320,
+    "card": 941,
+    "gallery": 941
+  }
+}

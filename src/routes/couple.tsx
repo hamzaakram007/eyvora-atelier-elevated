@@ -15,7 +15,9 @@ import {
 import { useCartStore } from "@/stores/cartStore";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
-import coupleHero from "@/assets/products/couple/contrast/olive-black-grey.webp";
+import { galleryImageUrl, publicVariantBase, productSrcSet } from "@/lib/image-variants";
+
+const coupleHero = publicVariantBase("couple/contrast/olive-black-grey");
 
 export const Route = createFileRoute("/couple")({
   head: () => ({
@@ -73,13 +75,11 @@ function PiecePicker({
   options,
   value,
   onChange,
-  locked,
 }: {
   label: string;
   options: CouplePieceOption[];
   value: string;
   onChange: (handle: string) => void;
-  locked?: boolean;
 }) {
   return (
     <div>
@@ -89,14 +89,12 @@ function PiecePicker({
           <button
             key={opt.handle}
             type="button"
-            disabled={locked}
             onClick={() => onChange(opt.handle)}
             className={cn(
-              "border px-3 py-2 text-[0.625rem] tracking-[0.14em] uppercase transition-colors",
+              "border px-3 py-2 text-[0.625rem] font-semibold tracking-[0.14em] uppercase transition-colors",
               value === opt.handle
                 ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
                 : "border-border hover:border-foreground",
-              locked && "opacity-70",
             )}
           >
             {opt.color}
@@ -104,14 +102,12 @@ function PiecePicker({
         ))}
         <button
           type="button"
-          disabled={locked}
           onClick={() => onChange("")}
           className={cn(
             "border px-3 py-2 text-[0.625rem] tracking-[0.14em] uppercase",
             value === ""
               ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
               : "border-border",
-            locked && "opacity-70",
           )}
         >
           Skip
@@ -164,7 +160,7 @@ function PersonCard({
   selection,
   onChange,
   products,
-  colorLocked,
+  syncHint,
   gender,
 }: {
   title: string;
@@ -172,7 +168,8 @@ function PersonCard({
   selection: PersonSelection;
   onChange: (next: PersonSelection) => void;
   products: ShopifyProduct[];
-  colorLocked?: boolean;
+  /** Shown under colour pickers when colours are synced from Person 1. */
+  syncHint?: string;
   /** Person 1 = male model photos; Person 2 = female model photos. */
   gender: ModelGender;
 }) {
@@ -190,12 +187,14 @@ function PersonCard({
     <div className="border border-border p-6 lg:p-8">
       <p className="eyebrow">{title}</p>
       <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
+      {syncHint ? (
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{syncHint}</p>
+      ) : null}
       <div className="mt-6 grid gap-6">
         <PiecePicker
           label="Hoodie colour"
           options={COUPLE_HOODIES}
           value={selection.hoodieHandle}
-          locked={colorLocked}
           onChange={(hoodieHandle) =>
             onChange({ ...selection, hoodieHandle, hoodieSize: hoodieHandle ? selection.hoodieSize : "" })
           }
@@ -214,8 +213,10 @@ function PersonCard({
             className="block overflow-hidden bg-[var(--soft-grey)]"
           >
             <img
-              src={hoodieImage.url}
+              src={galleryImageUrl(hoodieImage.url) || hoodieImage.url}
+              srcSet={productSrcSet(hoodieImage.url)}
               alt={hoodieImage.altText || `${hoodie.node.title} — ${gender === "women" ? "women" : "men"}`}
+              sizes="(max-width: 1024px) 100vw, 40vw"
               className="aspect-[5/3] w-full object-cover"
               loading="lazy"
             />
@@ -226,7 +227,6 @@ function PersonCard({
           label="Trousers colour"
           options={COUPLE_TROUSERS}
           value={selection.trousersHandle}
-          locked={colorLocked}
           onChange={(trousersHandle) =>
             onChange({
               ...selection,
@@ -249,8 +249,10 @@ function PersonCard({
             className="block overflow-hidden bg-[var(--soft-grey)]"
           >
             <img
-              src={trousersImage.url}
+              src={galleryImageUrl(trousersImage.url) || trousersImage.url}
+              srcSet={productSrcSet(trousersImage.url)}
               alt={trousersImage.altText || `${trousers.node.title} — ${gender === "women" ? "women" : "men"}`}
+              sizes="(max-width: 1024px) 100vw, 40vw"
               className="aspect-[5/3] w-full object-cover"
               loading="lazy"
             />
@@ -270,9 +272,14 @@ function CoupleBuilder() {
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
 
-  const [mode, setMode] = useState<ColorMode>("matching");
+  const [mode, setMode] = useState<ColorMode>("mix");
   const [person1, setPerson1] = useState<PersonSelection>(emptyPerson);
-  const [person2, setPerson2] = useState<PersonSelection>(emptyPerson);
+  const [person2, setPerson2] = useState<PersonSelection>(() => ({
+    ...emptyPerson(),
+    // Start with a contrast look so Person 2 colours are visibly independent.
+    hoodieHandle: COUPLE_HOODIES[1]?.handle ?? COUPLE_HOODIES[0].handle,
+    trousersHandle: COUPLE_TROUSERS[0]?.handle ?? COUPLE_TROUSERS[1].handle,
+  }));
   const [loading, setLoading] = useState(false);
 
   // Matching mode: Person 2 colours follow Person 1; sizes stay independent.
@@ -284,6 +291,16 @@ function CoupleBuilder() {
       trousersHandle: person1.trousersHandle,
     }));
   }, [mode, person1.hoodieHandle, person1.trousersHandle]);
+
+  const updatePerson2 = (next: PersonSelection) => {
+    const diverging =
+      next.hoodieHandle !== person1.hoodieHandle ||
+      next.trousersHandle !== person1.trousersHandle;
+    if (diverging && mode === "matching") {
+      setMode("mix");
+    }
+    setPerson2(next);
+  };
 
   const lineItems = useMemo(() => {
     const people: Array<{ person: PersonSelection; who: string; gender: ModelGender }> = [
@@ -379,20 +396,22 @@ function CoupleBuilder() {
   };
 
   return (
-    <section className="mx-auto max-w-[1600px] px-5 py-16 lg:px-10 lg:py-24">
+    <section
+      id="couple-builder"
+      className="mx-auto max-w-[1600px] scroll-mt-28 px-5 py-12 lg:px-10 lg:py-16"
+    >
       <Reveal>
-        <p className="eyebrow">Build your couple order</p>
+        <p className="eyebrow">Couple builder</p>
         <h2 className="font-display mt-4 text-[clamp(2rem,4vw,3.2rem)]">
-          Two people. Independent sizes.
+          Person 1 &amp; Person 2
         </h2>
         <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          <strong className="font-medium text-foreground">Person 1</strong> shows the male model
-          photos; <strong className="font-medium text-foreground">Person 2</strong> shows the female
-          model photos. Choose{" "}
-          <strong className="font-medium text-foreground">Matching colours</strong> so both wear the
-          same combination, or{" "}
-          <strong className="font-medium text-foreground">Mix &amp; match</strong> so each person
-          picks different colours. Colour and size stay independent for each person.
+          <strong className="font-medium text-foreground">Person 1</strong> shows male model
+          photos; <strong className="font-medium text-foreground">Person 2</strong> shows female
+          model photos. Use{" "}
+          <strong className="font-medium text-foreground">Matching colours</strong> for the same
+          combo, or <strong className="font-medium text-foreground">Mix &amp; match</strong> so
+          each person picks different colours. Sizes are always independent.
         </p>
       </Reveal>
 
@@ -408,7 +427,7 @@ function CoupleBuilder() {
             type="button"
             onClick={() => setMode(key)}
             className={cn(
-              "border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase",
+              "border px-5 py-3 text-[0.625rem] font-semibold tracking-[0.22em] uppercase",
               mode === key
                 ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--ivory)]"
                 : "border-border hover:border-foreground",
@@ -437,10 +456,10 @@ function CoupleBuilder() {
       {isLoading ? (
         <p className="mt-12 text-sm text-muted-foreground">Loading pieces…</p>
       ) : (
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
+        <div className="mt-10 grid gap-6 lg:grid-cols-2">
           <PersonCard
             title="Person 1 — Him"
-            subtitle="Male model photos. Pick any colour and size."
+            subtitle="Male model photos. Pick hoodie & trousers colour and size."
             selection={person1}
             onChange={setPerson1}
             products={products}
@@ -448,12 +467,16 @@ function CoupleBuilder() {
           />
           <PersonCard
             title="Person 2 — Her"
-            subtitle="Female model photos. Pick any colour and size."
+            subtitle="Female model photos. Pick hoodie & trousers colour and size."
             selection={person2}
-            onChange={setPerson2}
+            onChange={updatePerson2}
             products={products}
             gender="women"
-            colorLocked={mode === "matching"}
+            syncHint={
+              mode === "matching"
+                ? "Matching mode: Person 2 colours follow Person 1. Change a Person 2 colour to switch to Mix & match."
+                : undefined
+            }
           />
         </div>
       )}
@@ -484,7 +507,7 @@ function CoupleBuilder() {
           type="button"
           onClick={addAll}
           disabled={loading || lineItems.length === 0}
-          className="mt-6 bg-[var(--ink)] px-8 py-4 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)] uppercase disabled:opacity-40 lg:mt-0"
+          className="mt-6 inline-flex min-h-14 min-w-[220px] items-center justify-center bg-[var(--ink)] px-12 py-4 text-[0.75rem] font-bold tracking-[0.2em] text-[var(--ivory)] uppercase disabled:opacity-40 lg:mt-0"
         >
           {loading ? "Adding…" : `Add ${lineItems.length || ""} to bag`}
         </button>
@@ -510,9 +533,11 @@ function ContrastGallery() {
         {COUPLE_CONTRAST_GALLERY.map((shot, i) => (
           <Reveal key={shot.id} delay={i * 70} className="overflow-hidden bg-[var(--soft-grey)]">
             <img
-              src={shot.src}
+              src={galleryImageUrl(shot.src) || shot.src}
+              srcSet={productSrcSet(shot.src)}
               alt={shot.alt}
               loading="lazy"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="aspect-[4/5] w-full object-cover"
             />
             <p className="px-4 py-3 text-[0.6875rem] tracking-[0.14em] text-muted-foreground uppercase">
@@ -530,27 +555,35 @@ function CouplePage() {
     <main>
       <section className="relative">
         <img
-          src={coupleHero}
+          src={coupleHero.gallery}
+          srcSet={coupleHero.srcSet}
           alt="Couple contrast look — olive and black EYVORA hoodies"
           width={1600}
           height={2000}
-          className="h-[62vh] w-full object-cover object-[50%_18%] lg:h-[74vh]"
+          sizes="100vw"
+          className="h-[42vh] w-full object-cover object-[50%_18%] lg:h-[52vh]"
         />
         <div className="absolute inset-0 bg-[var(--ink)]/35" />
-        <div className="absolute inset-0 mx-auto flex max-w-[1600px] flex-col justify-end px-5 pb-16 text-[var(--ivory)] lg:px-10 lg:pb-24">
-          <p className="eyebrow text-[var(--ivory)]/60">Couple Collection</p>
-          <h1 className="font-display mt-5 max-w-2xl text-[clamp(2.5rem,6vw,5rem)] leading-[1.02]">
+        <div className="absolute inset-0 mx-auto flex max-w-[1600px] flex-col justify-end px-5 pb-10 text-[var(--ivory)] lg:px-10 lg:pb-14">
+          <p className="eyebrow text-[var(--ivory)]/70">Couple Collection</p>
+          <h1 className="font-display mt-4 max-w-2xl text-[clamp(2.25rem,5vw,4rem)] font-semibold leading-[1.02]">
             Contrast, together.
           </h1>
-          <p className="mt-6 max-w-lg text-[0.95rem] leading-relaxed text-[var(--ivory)]/75">
-            Mix olive &amp; black hoodies with grey &amp; black trousers — each person picks
-            their own size.
+          <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-[var(--ivory)]/85">
+            Build Person 1 &amp; Person 2 below — mix olive &amp; black hoodies with grey &amp;
+            black trousers.
           </p>
+          <a
+            href="#couple-builder"
+            className="mt-6 inline-flex min-h-13 w-fit min-w-[220px] items-center justify-center bg-[var(--ivory)] px-10 py-4 text-[0.75rem] font-bold tracking-[0.2em] text-[var(--ink)] uppercase"
+          >
+            Open couple builder
+          </a>
         </div>
       </section>
 
-      <ContrastGallery />
       <CoupleBuilder />
+      <ContrastGallery />
 
       <section className="border-t border-border py-16">
         <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between lg:px-10">
@@ -561,21 +594,21 @@ function CouplePage() {
             <Link
               to="/shop"
               search={{ category: "hoodies" }}
-              className="border border-border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase"
+              className="border border-border px-5 py-3 text-[0.625rem] font-semibold tracking-[0.22em] uppercase"
             >
               Shop Hoodies
             </Link>
             <Link
               to="/shop"
               search={{ category: "trousers" }}
-              className="border border-border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase"
+              className="border border-border px-5 py-3 text-[0.625rem] font-semibold tracking-[0.22em] uppercase"
             >
               Shop Trousers
             </Link>
             <Link
               to="/shop"
               search={{}}
-              className="border border-border px-5 py-3 text-[0.625rem] tracking-[0.22em] uppercase"
+              className="border border-border px-5 py-3 text-[0.625rem] font-semibold tracking-[0.22em] uppercase"
             >
               Shop All
             </Link>

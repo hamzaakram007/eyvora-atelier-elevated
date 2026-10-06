@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AboutStory } from "@/components/home/AboutStory";
 import { WhyEyvora } from "@/components/home/WhyEyvora";
 import { Reveal } from "@/components/site/Reveal";
-import hero from "@/assets/products/hero/hero-mobile.webp";
+import { publicVariantBase } from "@/lib/image-variants";
+
+const hero = publicVariantBase("hero/hero-mobile");
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -49,8 +51,10 @@ function About() {
     <div>
       <section className="relative flex min-h-[58vh] items-end overflow-hidden">
         <img
-          src={hero}
+          src={hero.gallery}
+          srcSet={hero.srcSet}
           alt="EYVORA campaign photography"
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover object-[50%_18%]"
         />
         <div className="absolute inset-0 bg-[var(--ink)]/40" />

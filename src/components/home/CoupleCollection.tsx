@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Reveal } from "@/components/site/Reveal";
-import couple from "@/assets/products/couple/contrast/olive-black-grey.webp";
+import { publicVariantBase } from "@/lib/image-variants";
+
+const couple = publicVariantBase("couple/contrast/olive-black-grey");
 
 export function CoupleCollection() {
   return (
@@ -8,12 +10,13 @@ export function CoupleCollection() {
       <div className="grid items-center gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-20">
         <Reveal className="relative overflow-hidden bg-[var(--soft-grey)]">
           <img
-            src={couple}
+            src={couple.gallery}
+            srcSet={couple.srcSet}
             alt="Couple contrast look — olive and black EYVORA hoodies with grey and black trousers"
             loading="lazy"
             decoding="async"
-            width={1000}
-            height={1250}
+            width={1200}
+            height={1500}
             sizes="(max-width: 1024px) 100vw, 55vw"
             className="aspect-[4/5] w-full object-cover lg:aspect-[5/4]"
           />
@@ -36,7 +39,7 @@ export function CoupleCollection() {
           </ul>
           <Link
             to="/couple"
-            className="mt-10 inline-block bg-[var(--ink)] px-9 py-3.5 text-[0.625rem] tracking-[0.28em] text-[var(--ivory)] uppercase transition-opacity hover:opacity-85"
+            className="mt-10 inline-flex min-h-13 items-center justify-center bg-[var(--ink)] px-12 py-4 text-[0.75rem] font-bold tracking-[0.2em] text-[var(--ivory)] uppercase transition-opacity hover:opacity-90"
           >
             Build couple order
           </Link>
