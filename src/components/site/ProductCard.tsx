@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { type ShopifyProduct } from "@/lib/shopify";
 import { galleryImageUrl, productSrcSet } from "@/lib/image-variants";
 import { ProductPrice } from "@/components/site/ProductPrice";
+import { sortProductSizes } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
@@ -168,7 +169,7 @@ export function ProductCard({
 
         {sizeOption && !soldOut && (
           <div className="mt-4 flex flex-wrap gap-2">
-            {sizeOption.values.map((value) => {
+            {sortProductSizes(sizeOption.values).map((value) => {
               const variant = variants.find((v) =>
                 v.node.selectedOptions.some(
                   (o) => o.name.toLowerCase() === "size" && o.value === value,

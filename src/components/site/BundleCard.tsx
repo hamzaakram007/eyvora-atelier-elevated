@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { type ShopifyProduct } from "@/lib/shopify";
 import { ProductPrice } from "@/components/site/ProductPrice";
 import { PRODUCT_SALE_PERCENT } from "@/lib/pricing";
+import { sortVariantsBySize } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cartStore";
 import { cn } from "@/lib/utils";
 
@@ -60,7 +61,7 @@ function SidePicker({
         {node.title}
       </Link>
       <div className="mt-4 flex flex-wrap gap-2">
-        {node.variants.edges.map(({ node: v }) => (
+        {sortVariantsBySize(node.variants.edges).map(({ node: v }) => (
           <button
             key={v.id}
             type="button"
@@ -74,7 +75,8 @@ function SidePicker({
               !v.availableForSale && "opacity-35",
             )}
           >
-            {v.title}
+            {v.selectedOptions.find((o) => o.name.toLowerCase() === "size")?.value ||
+              v.title}
           </button>
         ))}
       </div>

@@ -100,6 +100,45 @@ export type LaunchProductMeta = {
 /** Launch size run — Small, Medium, Large, Extra Large. */
 export const PRODUCT_SIZES = ["S", "M", "L", "XL"] as const;
 
+const SIZE_RANK = new Map(PRODUCT_SIZES.map((size, i) => [size.toUpperCase(), i]));
+
+/** Always render sizes as S → M → L → XL (Shopify option order can drift). */
+export function sortProductSizes(values: readonly string[]): string[] {
+  return [...values].sort((a, b) => {
+    const ai = SIZE_RANK.get(a.toUpperCase());
+    const bi = SIZE_RANK.get(b.toUpperCase());
+    if (ai == null && bi == null) return a.localeCompare(b);
+    if (ai == null) return 1;
+    if (bi == null) return -1;
+    return ai - bi;
+  });
+}
+
+function sizeLabelFromVariant(
+  variant: ShopifyProduct["node"]["variants"]["edges"][number]["node"],
+) {
+  return (
+    variant.selectedOptions.find((o) => o.name.toLowerCase() === "size")?.value ||
+    variant.title
+  );
+}
+
+/** Sort variant edges so size buttons stay S → M → L → XL. */
+export function sortVariantsBySize<
+  T extends ShopifyProduct["node"]["variants"]["edges"][number],
+>(edges: T[]): T[] {
+  return [...edges].sort((a, b) => {
+    const aLabel = sizeLabelFromVariant(a.node);
+    const bLabel = sizeLabelFromVariant(b.node);
+    const ai = SIZE_RANK.get(aLabel.toUpperCase());
+    const bi = SIZE_RANK.get(bLabel.toUpperCase());
+    if (ai == null && bi == null) return aLabel.localeCompare(bLabel);
+    if (ai == null) return 1;
+    if (bi == null) return -1;
+    return ai - bi;
+  });
+}
+
 /** Hoodie colours only. */
 export const HOODIE_COLOURS = ["Olive Green", "Black"] as const;
 
@@ -582,17 +621,6 @@ export function mergeWithShopifyCatalog(
   const byHandle = new Map(remote.map((p) => [p.node.handle, p]));
   const launchHandles = new Set(LAUNCH_PRODUCTS.map((p) => p.handle));
 
-  const sizeRank = new Map(PRODUCT_SIZES.map((size, i) => [size, i]));
-  const sortSizeValues = (values: string[]) =>
-    [...values].sort((a, b) => {
-      const ai = sizeRank.get(a as (typeof PRODUCT_SIZES)[number]);
-      const bi = sizeRank.get(b as (typeof PRODUCT_SIZES)[number]);
-      if (ai == null && bi == null) return a.localeCompare(b);
-      if (ai == null) return 1;
-      if (bi == null) return -1;
-      return ai - bi;
-    });
-
   const launch = LAUNCH_PRODUCTS.map((meta) => {
     const remoteProduct = byHandle.get(meta.handle);
     if (!remoteProduct) return toShopifyProduct(meta, gender);
@@ -605,7 +633,7 @@ export function mergeWithShopifyCatalog(
             ?.value,
       )
       .filter((value): value is string => Boolean(value));
-    const checkoutSafeSizes = sortSizeValues(
+    const checkoutSafeSizes = sortProductSizes(
       Array.from(
         new Set(sizesFromVariants.length ? sizesFromVariants : [...PRODUCT_SIZES]),
       ),
@@ -637,6 +665,15 @@ export function mergeWithShopifyCatalog(
       currencyCode: launchPrice.currencyCode,
     };
 
+    const sortedVariants = sortVariantsBySize(
+      remoteProduct.node.variants.edges.map((edge) => ({
+        node: {
+          ...edge.node,
+          price: launchPrice,
+        },
+      })),
+    );
+
     return applyLaunchImagery(
       {
         node: {
@@ -651,12 +688,7 @@ export function mergeWithShopifyCatalog(
             new Set([...(remoteProduct.node.tags ?? []), ...meta.tags]),
           ),
           variants: {
-            edges: remoteProduct.node.variants.edges.map((edge) => ({
-              node: {
-                ...edge.node,
-                price: launchPrice,
-              },
-            })),
+            edges: sortedVariants,
           },
         },
       },
@@ -667,7 +699,22 @@ export function mergeWithShopifyCatalog(
   const extras = remote
     .filter((p) => !launchHandles.has(p.node.handle))
     .filter((p) => p.node.availableForSale !== false)
-    .map((p) => applyLaunchImagery(p, gender));
+    .map((p) => {
+      const imaged = applyLaunchImagery(p, gender);
+      return {
+        node: {
+          ...imaged.node,
+          options: (imaged.node.options ?? []).map((option) =>
+            option.name.toLowerCase() === "size"
+              ? { ...option, values: sortProductSizes(option.values) }
+              : option,
+          ),
+          variants: {
+            edges: sortVariantsBySize(imaged.node.variants.edges),
+          },
+        },
+      };
+    });
 
   return [...launch, ...extras];
 }
