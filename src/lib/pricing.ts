@@ -8,8 +8,8 @@ export function salePriceFromList(listPrice: number, percent = PRODUCT_SALE_PERC
   return Math.round(listPrice * (1 - percent / 100));
 }
 
-export const HOODIE_LIST_PRICE = 4549;
-export const HOODIE_SALE_PRICE = salePriceFromList(HOODIE_LIST_PRICE); // 3639
+export const HOODIE_LIST_PRICE = 4499;
+export const HOODIE_SALE_PRICE = salePriceFromList(HOODIE_LIST_PRICE); // 3599
 
 export const TROUSER_LIST_PRICE = 2799;
 export const TROUSER_SALE_PRICE = salePriceFromList(TROUSER_LIST_PRICE); // 2239

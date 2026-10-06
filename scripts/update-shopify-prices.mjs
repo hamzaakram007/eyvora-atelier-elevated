@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Push launch catalogue prices to Shopify Admin variants.
- * Hoodies list 4549 / sale 3639 (20% off) · Trousers list 2799 / sale 2239 (20% off)
+ * Hoodies list 4499 / sale 3599 (20% off) · Trousers list 2799 / sale 2239 (20% off)
  */
 import { existsSync } from "node:fs";
 if (existsSync(".env")) process.loadEnvFile(".env");
@@ -18,8 +18,8 @@ const CLIENT_SECRET = process.env.SHOPIFY_CLIENT_SECRET || "";
 
 /** price = sale (what customer pays), compareAt = list before 20% off */
 const PRICES = {
-  "olive-green-hoodie": { price: "3639.00", compareAt: "4549.00" },
-  "black-hoodie": { price: "3639.00", compareAt: "4549.00" },
+  "olive-green-hoodie": { price: "3599.00", compareAt: "4499.00" },
+  "black-hoodie": { price: "3599.00", compareAt: "4499.00" },
   "grey-trousers": { price: "2239.00", compareAt: "2799.00" },
   "black-trousers": { price: "2239.00", compareAt: "2799.00" },
 };

@@ -7,8 +7,8 @@ const TOKEN =
   "f0b3a9c2276107f0a76757ebf0cd2e98";
 
 const EXPECTED = [
-  ["olive-green-hoodie", "3639.0"],
-  ["black-hoodie", "3639.0"],
+  ["olive-green-hoodie", "3599.0"],
+  ["black-hoodie", "3599.0"],
   ["grey-trousers", "2239.0"],
   ["black-trousers", "2239.0"],
 ];
