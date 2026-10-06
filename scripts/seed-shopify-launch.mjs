@@ -95,7 +95,7 @@ const LAUNCH = [
     handle: "grey-trousers",
     productType: "Trousers",
     color: "Grey",
-    price: "2239.00",
+    price: "2399.00",
     tags: ["trousers", "grey", "couple", "essentials", "new", "men", "women"],
     description:
       "Relaxed straight-leg trousers in soft heather grey, designed for comfort with a quiet logo mark.",
@@ -105,7 +105,7 @@ const LAUNCH = [
     handle: "black-trousers",
     productType: "Trousers",
     color: "Black",
-    price: "2239.00",
+    price: "2399.00",
     tags: ["trousers", "black", "couple", "essentials", "new", "men", "women"],
     description:
       "Relaxed straight-leg trousers in deep black, finished with a minimal EYVORA mark on the thigh.",
