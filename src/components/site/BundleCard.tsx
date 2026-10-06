@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { type ShopifyProduct } from "@/lib/shopify";
 import { ProductPrice } from "@/components/site/ProductPrice";
 import { PRODUCT_SALE_PERCENT } from "@/lib/pricing";
-import { sortVariantsBySize } from "@/lib/catalog";
+import { sortVariantsBySize, displayProductTitle } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cartStore";
 import { cn } from "@/lib/utils";
 
@@ -58,7 +58,7 @@ function SidePicker({
         params={{ handle: node.handle }}
         className="mt-2 block text-[0.9rem] leading-snug"
       >
-        {node.title}
+        {displayProductTitle(node.title)}
       </Link>
       <div className="mt-4 flex flex-wrap gap-2">
         {sortVariantsBySize(node.variants.edges).map(({ node: v }) => (
