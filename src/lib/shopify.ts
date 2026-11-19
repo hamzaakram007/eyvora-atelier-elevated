@@ -2,8 +2,10 @@ import { toast } from "sonner";
 import {
   getLaunchCatalog,
   getLaunchProductByHandle,
+  LAUNCH_PRODUCTS,
   mergeWithShopifyCatalog,
   applyLaunchImagery,
+  shopifyHandleCandidates,
 } from "@/lib/catalog";
 
 export const SHOPIFY_API_VERSION = "2025-07";
@@ -182,10 +184,24 @@ export async function fetchProductByHandle(
   handle: string,
   gender?: string | null,
 ): Promise<ShopifyProduct | null> {
+  const meta = LAUNCH_PRODUCTS.find((p) => p.handle === handle);
+  const candidates = meta ? shopifyHandleCandidates(meta) : [handle];
+
   try {
-    const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, { handle });
-    const product = data?.data?.product;
-    if (product) {
+    for (const candidate of candidates) {
+      const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, {
+        handle: candidate,
+      });
+      const product = data?.data?.product;
+      if (!product) continue;
+
+      // Remap Admin gender-prefixed handles onto stable website URLs.
+      if (meta) {
+        const merged = mergeWithShopifyCatalog([{ node: product }], gender);
+        const match = merged.find((p) => p.node.handle === meta.handle);
+        if (match) return match;
+      }
+
       return applyLaunchImagery({ node: product }, gender);
     }
   } catch (error) {

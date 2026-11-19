@@ -80,12 +80,17 @@ export type ModelGender = "men" | "women";
 
 export type LaunchProductMeta = {
   handle: string;
+  /**
+   * Alternate Shopify Admin handles that map to this launch product.
+   * Prefer male/unisex first — used for real Storefront variant GIDs (checkout).
+   */
+  shopifyHandles?: readonly string[];
   title: string;
   color: string;
   category: "hoodies" | "trousers";
-  /** Sale price customers pay (after PRODUCT_SALE_PERCENT off). */
+  /** Offline fallback sale price (live prices come from Shopify). */
   price: number;
-  /** Pre-discount list / compare-at price shown struck through. */
+  /** Offline fallback compare-at price. */
   compareAtPrice: number;
   description: string;
   /** Default gallery (men-first for unisex browsing / couple). */
@@ -96,6 +101,11 @@ export type LaunchProductMeta = {
   imagesWomen: ProductImage[];
   tags: string[];
 };
+
+/** Website handle + Shopify Admin aliases (Admin renamed products with gender prefixes). */
+export function shopifyHandleCandidates(meta: LaunchProductMeta): string[] {
+  return [meta.handle, ...(meta.shopifyHandles ?? [])];
+}
 
 /** Launch size run — Small, Medium, Large, Extra Large. */
 export const PRODUCT_SIZES = ["S", "M", "L", "XL"] as const;
@@ -155,6 +165,10 @@ const SIZES = PRODUCT_SIZES;
 export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
   {
     handle: "olive-green-hoodie",
+    shopifyHandles: [
+      "eyvora-male-olive-green-hoodie",
+      "eyvora-female-olive-green-hoodie",
+    ],
     title: "EYVORA Olive Green Hoodie",
     color: "Olive Green",
     category: "hoodies",
@@ -186,6 +200,7 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
   },
   {
     handle: "black-hoodie",
+    shopifyHandles: ["eyvora-male-black-hoodie", "eyvora-female-black-hoodie"],
     title: "EYVORA Black Hoodie",
     color: "Black",
     category: "hoodies",
@@ -220,6 +235,10 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
   },
   {
     handle: "grey-trousers",
+    shopifyHandles: [
+      "eyvora-male-grey-trousers",
+      "eyvora-female-grey-trousers-copy",
+    ],
     title: "EYVORA Grey Trousers",
     color: "Grey",
     category: "trousers",
@@ -255,6 +274,8 @@ export const LAUNCH_PRODUCTS: LaunchProductMeta[] = [
   },
   {
     handle: "black-trousers",
+    // Admin handle eyvora-grey-trousers is misnamed — product is Male Black Trousers.
+    shopifyHandles: ["eyvora-grey-trousers", "eyvora-women-black-trousers"],
     title: "EYVORA Black Trousers",
     color: "Black",
     category: "trousers",
@@ -609,13 +630,42 @@ export function looksLikeDemoCatalog(products: ShopifyProduct[]) {
   return demoSignals.length >= Math.max(1, Math.floor(products.length / 2));
 }
 
+/** Resolve a Shopify remote product for a launch meta (exact handle, alias, or fuzzy). */
+export function resolveRemoteLaunchProduct(
+  meta: LaunchProductMeta,
+  remote: ShopifyProduct[],
+): ShopifyProduct | null {
+  const byHandle = new Map(remote.map((p) => [p.node.handle, p]));
+  for (const handle of shopifyHandleCandidates(meta)) {
+    const hit = byHandle.get(handle);
+    if (hit) return hit;
+  }
+
+  const color = meta.color.toLowerCase();
+  const kind = meta.category === "hoodies" ? "hoodie" : "trouser";
+  const fuzzy = remote.find((p) => {
+    const hay =
+      `${p.node.handle} ${p.node.title} ${p.node.productType ?? ""}`.toLowerCase();
+    return hay.includes(color) && hay.includes(kind);
+  });
+  return fuzzy ?? null;
+}
+
+export function mappedShopifyHandles(): Set<string> {
+  const handles = new Set<string>();
+  for (const meta of LAUNCH_PRODUCTS) {
+    for (const handle of shopifyHandleCandidates(meta)) handles.add(handle);
+  }
+  return handles;
+}
+
 /**
  * Merge Shopify Admin catalogue with launch overrides.
  * - Launch handles keep curated titles/tags/photography when present remotely.
+ * - Maps renamed Admin handles (eyvora-male-…) onto stable website URLs.
  * - Prices always come from Shopify (Price + Compare-at). Edit them in Admin.
- * - Hardcoded `pricing.ts` values are only used when Storefront is offline
- *   (local fallback catalogue).
- * - Extra active Shopify products are appended automatically.
+ * - Hardcoded `pricing.ts` values are only used when Storefront is offline.
+ * - Extra active Shopify products are appended automatically (not launch aliases).
  */
 export function mergeWithShopifyCatalog(
   remote: ShopifyProduct[],
@@ -625,11 +675,10 @@ export function mergeWithShopifyCatalog(
     return getLaunchCatalog(gender);
   }
 
-  const byHandle = new Map(remote.map((p) => [p.node.handle, p]));
-  const launchHandles = new Set(LAUNCH_PRODUCTS.map((p) => p.handle));
+  const claimed = mappedShopifyHandles();
 
   const launch = LAUNCH_PRODUCTS.map((meta) => {
-    const remoteProduct = byHandle.get(meta.handle);
+    const remoteProduct = resolveRemoteLaunchProduct(meta, remote);
     if (!remoteProduct) return toShopifyProduct(meta, gender);
 
     // Prefer sizes from variants — Storefront option.values can lag after Admin adds XL.
@@ -663,13 +712,15 @@ export function mergeWithShopifyCatalog(
       options.unshift({ name: "Size", values: checkoutSafeSizes });
     }
 
-    // Keep Shopify Price + Compare-at (do not overwrite with pricing.ts).
+    // Keep Shopify Price + Compare-at + real variant GIDs (required for checkout).
     const sortedVariants = sortVariantsBySize(remoteProduct.node.variants.edges);
 
     return applyLaunchImagery(
       {
         node: {
           ...remoteProduct.node,
+          // Stable website URL handle (not the Admin gender-prefixed handle).
+          handle: meta.handle,
           title: meta.title,
           description: remoteProduct.node.description || meta.description,
           productType: meta.category === "hoodies" ? "Hoodies" : "Trousers",
@@ -687,7 +738,7 @@ export function mergeWithShopifyCatalog(
   });
 
   const extras = remote
-    .filter((p) => !launchHandles.has(p.node.handle))
+    .filter((p) => !claimed.has(p.node.handle))
     .filter((p) => p.node.availableForSale !== false)
     .map((p) => {
       const imaged = applyLaunchImagery(p, gender);
