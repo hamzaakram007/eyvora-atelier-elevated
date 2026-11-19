@@ -612,8 +612,10 @@ export function looksLikeDemoCatalog(products: ShopifyProduct[]) {
 /**
  * Merge Shopify Admin catalogue with launch overrides.
  * - Launch handles keep curated titles/tags/photography when present remotely.
- * - Any additional active Shopify products are appended automatically
- *   (add in Admin → they appear on the Vercel storefront after publish).
+ * - Prices always come from Shopify (Price + Compare-at). Edit them in Admin.
+ * - Hardcoded `pricing.ts` values are only used when Storefront is offline
+ *   (local fallback catalogue).
+ * - Extra active Shopify products are appended automatically.
  */
 export function mergeWithShopifyCatalog(
   remote: ShopifyProduct[],
@@ -661,23 +663,8 @@ export function mergeWithShopifyCatalog(
       options.unshift({ name: "Size", values: checkoutSafeSizes });
     }
 
-    const launchPrice = {
-      amount: meta.price.toFixed(1),
-      currencyCode: remoteProduct.node.priceRange.minVariantPrice.currencyCode || "PKR",
-    };
-    const launchCompareAt = {
-      amount: meta.compareAtPrice.toFixed(1),
-      currencyCode: launchPrice.currencyCode,
-    };
-
-    const sortedVariants = sortVariantsBySize(
-      remoteProduct.node.variants.edges.map((edge) => ({
-        node: {
-          ...edge.node,
-          price: launchPrice,
-        },
-      })),
-    );
+    // Keep Shopify Price + Compare-at (do not overwrite with pricing.ts).
+    const sortedVariants = sortVariantsBySize(remoteProduct.node.variants.edges);
 
     return applyLaunchImagery(
       {
@@ -686,8 +673,6 @@ export function mergeWithShopifyCatalog(
           title: meta.title,
           description: remoteProduct.node.description || meta.description,
           productType: meta.category === "hoodies" ? "Hoodies" : "Trousers",
-          priceRange: { minVariantPrice: launchPrice },
-          compareAtPriceRange: { minVariantPrice: launchCompareAt },
           options,
           tags: Array.from(
             new Set([...(remoteProduct.node.tags ?? []), ...meta.tags]),

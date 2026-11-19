@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Push launch catalogue prices to Shopify Admin variants.
- * Hoodies list 4499 / sale 3599 (20% off) · Trousers list 2999 / sale 2399 (20% off)
+ * Optional: push prices INTO Shopify Admin (website already reads Admin prices).
+ * Hoodies list 4499 / sale 3599 · Trousers list 2999 / sale 2399
+ * Prefer editing Price + Compare-at in Shopify Admin for day-to-day changes.
  */
 import { existsSync } from "node:fs";
 if (existsSync(".env")) process.loadEnvFile(".env");
