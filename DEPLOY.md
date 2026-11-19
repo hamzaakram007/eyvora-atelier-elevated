@@ -29,6 +29,19 @@ No code change needed for a normal new product:
 
 The Vercel site reads the Storefront API — new published products show on `/shop` automatically (usually within a minute; hard-refresh if cached).
 
+## Changing prices (Shopify Admin)
+
+**Live prices on eyvora.pk come from Shopify Admin** — not from code.
+
+1. Shopify Admin → **Products** → open the product
+2. Set **Price** = what the customer pays (sale price)
+3. Set **Compare-at price** = original list price (shown struck through + “% OFF” badge)
+4. Save → hard-refresh eyvora.pk (clear bag if an old price was already added)
+
+Example: list 2999, 20% off → Price `2399`, Compare-at `2999`.
+
+`src/lib/pricing.ts` is only an offline fallback if Storefront API is unavailable (e.g. unpaid Shopify bill).
+
 ## 1) Vercel deploy
 
 Live project URL:

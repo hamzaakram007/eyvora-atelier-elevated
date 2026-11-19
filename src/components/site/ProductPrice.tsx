@@ -1,8 +1,17 @@
 import { formatPrice } from "@/lib/shopify";
-import { PRODUCT_SALE_PERCENT } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 type Money = { amount: string | number; currencyCode?: string };
+
+function moneyAmount(value: Money["amount"]) {
+  return typeof value === "number" ? value : parseFloat(value);
+}
+
+/** Badge % from Shopify sale vs compare-at (falls back to rounded math). */
+export function discountPercentFromPrices(sale: number, list: number) {
+  if (!Number.isFinite(sale) || !Number.isFinite(list) || list <= sale) return 0;
+  return Math.max(1, Math.round((1 - sale / list) * 100));
+}
 
 export function ProductPrice({
   price,
@@ -17,14 +26,11 @@ export function ProductPrice({
   size?: "sm" | "md" | "lg";
   showBadge?: boolean;
 }) {
-  const sale = typeof price.amount === "number" ? price.amount : parseFloat(price.amount);
-  const list = compareAt
-    ? typeof compareAt.amount === "number"
-      ? compareAt.amount
-      : parseFloat(compareAt.amount)
-    : NaN;
+  const sale = moneyAmount(price.amount);
+  const list = compareAt ? moneyAmount(compareAt.amount) : NaN;
   const currency = price.currencyCode || compareAt?.currencyCode || "PKR";
   const onSale = Number.isFinite(list) && list > sale + 0.5;
+  const percentOff = onSale ? discountPercentFromPrices(sale, list) : 0;
 
   return (
     <span className={cn("flex flex-col items-start gap-1.5 tabular-nums", className)}>
@@ -39,7 +45,7 @@ export function ProductPrice({
         >
           {formatPrice(sale, currency)}
         </span>
-        {onSale && showBadge && (
+        {onSale && showBadge && percentOff > 0 && (
           <span
             className={cn(
               "inline-flex items-center justify-center rounded-sm bg-emerald-700 font-extrabold tracking-[0.14em] text-white uppercase",
@@ -48,7 +54,7 @@ export function ProductPrice({
               size === "lg" && "min-h-8 px-3.5 text-[0.8125rem]",
             )}
           >
-            {PRODUCT_SALE_PERCENT}% OFF
+            {percentOff}% OFF
           </span>
         )}
       </span>
