@@ -112,18 +112,18 @@ export function shopifyHandleCandidates(
   gender?: ModelGender | string | null,
 ): string[] {
   const aliases = [...(meta.shopifyHandles ?? [])];
-  const isWomen = gender === "women";
-  const isMen = gender === "men";
+  // "female" contains "male" — test women before men.
   const womenFirst = (h: string) => /female|women/i.test(h);
-  const menFirst = (h: string) => /male|\bmen\b/i.test(h) && !womenFirst(h);
+  const menFirst = (h: string) =>
+    !womenFirst(h) && /male|\bmen\b/i.test(h);
 
   let ordered = aliases;
-  if (isWomen) {
+  if (gender === "women") {
     ordered = [
       ...aliases.filter(womenFirst),
       ...aliases.filter((h) => !womenFirst(h)),
     ];
-  } else if (isMen) {
+  } else if (gender === "men") {
     ordered = [
       ...aliases.filter(menFirst),
       ...aliases.filter((h) => !menFirst(h)),
@@ -607,23 +607,21 @@ export function productCardForGender(
  * Expand unisex launch pieces into Men + Women cards so category / Shop All
  * views show both model galleries (Hoodies & Trousers menu links).
  *
- * When Shopify Admin has separate male/female products, each card binds to
- * that gender's live Price / variants — so editing "Female …" updates Women.
+ * Uses per-handle bindings captured during a full Storefront merge — never a
+ * shared "last remote" list that single-product fetches can corrupt.
  */
 export function expandProductsForBothGenders(
   products: ShopifyProduct[],
 ): Array<{ product: ShopifyProduct; gender: ModelGender }> {
-  const remote = lastRemoteCatalog;
   const items: Array<{ product: ShopifyProduct; gender: ModelGender }> = [];
   for (const product of products) {
     const meta = LAUNCH_PRODUCTS.find((p) => p.handle === product.node.handle);
+    const bound = launchGenderBindings.get(product.node.handle);
     const hasMen = Boolean(meta?.imagesMen.length);
     const hasWomen = Boolean(meta?.imagesWomen.length);
     if (meta && hasMen && hasWomen) {
-      const menBound =
-        remote.length > 0 ? bindLaunchProduct(meta, remote, "men") : product;
-      const womenBound =
-        remote.length > 0 ? bindLaunchProduct(meta, remote, "women") : product;
+      const menBound = bound?.men ?? product;
+      const womenBound = bound?.women ?? product;
       items.push({ product: productCardForGender(menBound, "men"), gender: "men" });
       items.push({
         product: productCardForGender(womenBound, "women"),
@@ -632,18 +630,16 @@ export function expandProductsForBothGenders(
       continue;
     }
     if (hasWomen) {
-      const womenBound =
-        meta && remote.length > 0
-          ? bindLaunchProduct(meta, remote, "women")
-          : product;
       items.push({
-        product: productCardForGender(womenBound, "women"),
+        product: productCardForGender(bound?.women ?? product, "women"),
         gender: "women",
       });
       continue;
     }
     items.push({
-      product: hasMen ? productCardForGender(product, "men") : product,
+      product: hasMen
+        ? productCardForGender(bound?.men ?? product, "men")
+        : product,
       gender: "men",
     });
   }
@@ -675,6 +671,23 @@ export function looksLikeDemoCatalog(products: ShopifyProduct[]) {
   return demoSignals.length >= Math.max(1, Math.floor(products.length / 2));
 }
 
+function isWomenHandle(handleOrTitle: string) {
+  return /female|women/i.test(handleOrTitle);
+}
+
+function isMenHandle(handleOrTitle: string) {
+  // "female" contains "male" — always exclude women handles first.
+  return !isWomenHandle(handleOrTitle) && /male|\bmen\b/i.test(handleOrTitle);
+}
+
+function colorMatches(hay: string, color: string) {
+  const tokens = color
+    .toLowerCase()
+    .split(/[\s/-]+/)
+    .filter(Boolean);
+  return tokens.every((token) => hay.includes(token));
+}
+
 /** Resolve a Shopify remote product for a launch meta (exact handle, alias, or fuzzy). */
 export function resolveRemoteLaunchProduct(
   meta: LaunchProductMeta,
@@ -687,18 +700,23 @@ export function resolveRemoteLaunchProduct(
     if (hit) return hit;
   }
 
-  const color = meta.color.toLowerCase();
   const kind = meta.category === "hoodies" ? "hoodie" : "trouser";
-  const genderHint =
-    gender === "women" ? /female|women/i : gender === "men" ? /male|\bmen\b/i : null;
-
   const ranked = remote
     .map((p, index) => {
       const hay =
         `${p.node.handle} ${p.node.title} ${p.node.productType ?? ""}`.toLowerCase();
-      if (!hay.includes(color) || !hay.includes(kind)) return null;
+      if (!colorMatches(hay, meta.color) || !hay.includes(kind)) return null;
+
+      const women = isWomenHandle(hay);
+      const men = isMenHandle(hay);
       let score = 1;
-      if (genderHint && genderHint.test(hay)) score += 5;
+      if (gender === "women") {
+        if (!women) return null; // never attach a male/black product to a women card via fuzzy
+        score += 5;
+      } else if (gender === "men") {
+        if (!men) return null;
+        score += 5;
+      }
       return { p, score, index };
     })
     .filter(Boolean) as Array<{ p: ShopifyProduct; score: number; index: number }>;
@@ -715,11 +733,29 @@ export function mappedShopifyHandles(): Set<string> {
   return handles;
 }
 
-/** Last Storefront payload — used so Men/Women shop cards bind to matching Admin products. */
-let lastRemoteCatalog: ShopifyProduct[] = [];
+/** Per launch-handle Men/Women Shopify bindings from the last *full* catalogue merge. */
+type LaunchGenderBindings = { men: ShopifyProduct; women: ShopifyProduct };
+const launchGenderBindings = new Map<string, LaunchGenderBindings>();
 
-export function getLastRemoteCatalog() {
-  return lastRemoteCatalog;
+function isFullRemoteCatalog(remote: ShopifyProduct[]) {
+  const claimed = mappedShopifyHandles();
+  const hits = remote.filter((p) => claimed.has(p.node.handle)).length;
+  // Require multiple launch aliases so a 1-product PDP fetch cannot poison bindings.
+  return hits >= 2 || remote.length >= 6;
+}
+
+function refreshLaunchGenderBindings(remote: ShopifyProduct[]) {
+  if (!isFullRemoteCatalog(remote)) return;
+  for (const meta of LAUNCH_PRODUCTS) {
+    launchGenderBindings.set(meta.handle, {
+      men: bindLaunchProduct(meta, remote, "men"),
+      women: bindLaunchProduct(meta, remote, "women"),
+    });
+  }
+}
+
+export function getLaunchGenderBinding(handle: string) {
+  return launchGenderBindings.get(handle) ?? null;
 }
 
 /**
@@ -799,16 +835,22 @@ export function mergeWithShopifyCatalog(
   remote: ShopifyProduct[],
   gender?: ModelGender | string | null,
 ): ShopifyProduct[] {
-  lastRemoteCatalog = remote;
+  // Only refresh Men/Women bindings from a full catalogue — never from a
+  // 1-product PDP fetch (that previously made black prices appear on olive).
+  refreshLaunchGenderBindings(remote);
 
   if (looksLikeDemoCatalog(remote)) {
     return getLaunchCatalog(gender);
   }
 
   const claimed = mappedShopifyHandles();
-  const launch = LAUNCH_PRODUCTS.map((meta) =>
-    bindLaunchProduct(meta, remote, gender ?? "men"),
-  );
+  const launch = LAUNCH_PRODUCTS.map((meta) => {
+    const bound = launchGenderBindings.get(meta.handle);
+    if (bound) {
+      return gender === "women" ? bound.women : bound.men;
+    }
+    return bindLaunchProduct(meta, remote, gender ?? "men");
+  });
 
   const extras = remote
     .filter((p) => !claimed.has(p.node.handle))
@@ -838,9 +880,9 @@ export function findCatalogProduct(
   handle: string,
   gender?: ModelGender | string | null,
 ): ShopifyProduct | null {
-  const meta = LAUNCH_PRODUCTS.find((p) => p.handle === handle);
-  if (meta && lastRemoteCatalog.length > 0) {
-    return bindLaunchProduct(meta, lastRemoteCatalog, gender ?? "men");
+  const bound = launchGenderBindings.get(handle);
+  if (bound) {
+    return gender === "women" ? bound.women : bound.men;
   }
   const found = products.find((p) => p.node.handle === handle);
   if (found) return applyLaunchImagery(found, gender);
