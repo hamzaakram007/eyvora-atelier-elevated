@@ -42,6 +42,12 @@ Example: list 2999, 20% off → Price `2399`, Compare-at `2999`.
 
 `src/lib/pricing.ts` is only an offline fallback if Storefront API is unavailable (e.g. unpaid Shopify bill).
 
+## Product handles (important for checkout)
+
+Website URLs stay stable (`/product/olive-green-hoodie`, etc.).
+
+If Shopify Admin renames products (e.g. `eyvora-male-olive-green-hoodie`), keep those Admin handles listed under `shopifyHandles` on the matching entry in `src/lib/catalog.ts` (`LAUNCH_PRODUCTS`). Otherwise the site falls back to local placeholder variants and the bag shows **Order via WhatsApp** instead of checkout.
+
 ## 1) Vercel deploy
 
 Live project URL:
