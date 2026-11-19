@@ -2,6 +2,8 @@ import { toast } from "sonner";
 import {
   getLaunchCatalog,
   getLaunchProductByHandle,
+  getLaunchGenderBinding,
+  bindLaunchProduct,
   LAUNCH_PRODUCTS,
   mergeWithShopifyCatalog,
   applyLaunchImagery,
@@ -190,11 +192,16 @@ export async function fetchProductByHandle(
     : [handle];
 
   try {
-    // Prefer fetching the full catalogue once so male/female aliases stay available.
+    // Full catalogue refresh keeps Men/Women bindings correct for every colour.
     if (meta) {
       const list = await storefrontApiRequest(STOREFRONT_QUERY, { first: 50 });
       const remote: ShopifyProduct[] = list?.data?.products?.edges ?? [];
       if (remote.length) {
+        mergeWithShopifyCatalog(remote, gender);
+        const bound = getLaunchGenderBinding(meta.handle);
+        if (bound) {
+          return gender === "women" ? bound.women : bound.men;
+        }
         const merged = mergeWithShopifyCatalog(remote, gender);
         const match = merged.find((p) => p.node.handle === meta.handle);
         if (match) return match;
@@ -208,10 +215,9 @@ export async function fetchProductByHandle(
       const product = data?.data?.product;
       if (!product) continue;
 
+      // Never merge a 1-product payload into global bindings — bind locally only.
       if (meta) {
-        const merged = mergeWithShopifyCatalog([{ node: product }], gender);
-        const match = merged.find((p) => p.node.handle === meta.handle);
-        if (match) return match;
+        return bindLaunchProduct(meta, [{ node: product }], gender);
       }
 
       return applyLaunchImagery({ node: product }, gender);
