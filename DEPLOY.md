@@ -35,12 +35,23 @@ The Vercel site reads the Storefront API — new published products show on `/sh
 
 1. Shopify Admin → **Products** → open the product
 2. Set **Price** = what the customer pays (sale price)
-3. Set **Compare-at price** = original list price (shown struck through + “% OFF” badge)
+3. Set **Compare-at price** = original list price (shown struck through + “% OFF” badge). Use a real list price — **Compare-at `0` means no sale badge**.
 4. Save → hard-refresh eyvora.pk (clear bag if an old price was already added)
 
 Example: list 2999, 20% off → Price `2399`, Compare-at `2999`.
 
-`src/lib/pricing.ts` is only an offline fallback if Storefront API is unavailable (e.g. unpaid Shopify bill).
+### Male / female split products (current Admin setup)
+
+You currently have separate Shopify products (e.g. *Male Olive Green Hoodie* and *Female Olive Green Hoodie*).
+
+- **Women** cards / PDPs use the **Female** Admin product price  
+- **Men** cards / PDPs use the **Male** Admin product price  
+
+So if you change only *Female Olive Green Hoodie* to Rs 4100, the **Women** card updates — the **Men** card still shows the male product’s price until you edit that one too (or set both the same).
+
+Long-term simplest setup: **one Shopify product per colour** (not male/female duplicates), and keep Men/Women photos on the website only.
+
+`src/lib/pricing.ts` is only an offline fallback if Storefront API is unavailable.
 
 ## Product handles (important for checkout)
 
