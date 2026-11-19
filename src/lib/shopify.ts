@@ -185,9 +185,22 @@ export async function fetchProductByHandle(
   gender?: string | null,
 ): Promise<ShopifyProduct | null> {
   const meta = LAUNCH_PRODUCTS.find((p) => p.handle === handle);
-  const candidates = meta ? shopifyHandleCandidates(meta) : [handle];
+  const candidates = meta
+    ? shopifyHandleCandidates(meta, gender)
+    : [handle];
 
   try {
+    // Prefer fetching the full catalogue once so male/female aliases stay available.
+    if (meta) {
+      const list = await storefrontApiRequest(STOREFRONT_QUERY, { first: 50 });
+      const remote: ShopifyProduct[] = list?.data?.products?.edges ?? [];
+      if (remote.length) {
+        const merged = mergeWithShopifyCatalog(remote, gender);
+        const match = merged.find((p) => p.node.handle === meta.handle);
+        if (match) return match;
+      }
+    }
+
     for (const candidate of candidates) {
       const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, {
         handle: candidate,
@@ -195,7 +208,6 @@ export async function fetchProductByHandle(
       const product = data?.data?.product;
       if (!product) continue;
 
-      // Remap Admin gender-prefixed handles onto stable website URLs.
       if (meta) {
         const merged = mergeWithShopifyCatalog([{ node: product }], gender);
         const match = merged.find((p) => p.node.handle === meta.handle);

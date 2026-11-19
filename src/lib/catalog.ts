@@ -102,9 +102,35 @@ export type LaunchProductMeta = {
   tags: string[];
 };
 
-/** Website handle + Shopify Admin aliases (Admin renamed products with gender prefixes). */
-export function shopifyHandleCandidates(meta: LaunchProductMeta): string[] {
-  return [meta.handle, ...(meta.shopifyHandles ?? [])];
+/**
+ * Website handle + Shopify Admin aliases.
+ * When Admin splits male/female products, prefer the matching gender first so
+ * Price edits on "Female Olive Green Hoodie" show on Women cards/PDPs.
+ */
+export function shopifyHandleCandidates(
+  meta: LaunchProductMeta,
+  gender?: ModelGender | string | null,
+): string[] {
+  const aliases = [...(meta.shopifyHandles ?? [])];
+  const isWomen = gender === "women";
+  const isMen = gender === "men";
+  const womenFirst = (h: string) => /female|women/i.test(h);
+  const menFirst = (h: string) => /male|\bmen\b/i.test(h) && !womenFirst(h);
+
+  let ordered = aliases;
+  if (isWomen) {
+    ordered = [
+      ...aliases.filter(womenFirst),
+      ...aliases.filter((h) => !womenFirst(h)),
+    ];
+  } else if (isMen) {
+    ordered = [
+      ...aliases.filter(menFirst),
+      ...aliases.filter((h) => !menFirst(h)),
+    ];
+  }
+
+  return [meta.handle, ...ordered];
 }
 
 /** Launch size run — Small, Medium, Large, Extra Large. */
@@ -580,22 +606,40 @@ export function productCardForGender(
 /**
  * Expand unisex launch pieces into Men + Women cards so category / Shop All
  * views show both model galleries (Hoodies & Trousers menu links).
+ *
+ * When Shopify Admin has separate male/female products, each card binds to
+ * that gender's live Price / variants — so editing "Female …" updates Women.
  */
 export function expandProductsForBothGenders(
   products: ShopifyProduct[],
 ): Array<{ product: ShopifyProduct; gender: ModelGender }> {
+  const remote = lastRemoteCatalog;
   const items: Array<{ product: ShopifyProduct; gender: ModelGender }> = [];
   for (const product of products) {
     const meta = LAUNCH_PRODUCTS.find((p) => p.handle === product.node.handle);
     const hasMen = Boolean(meta?.imagesMen.length);
     const hasWomen = Boolean(meta?.imagesWomen.length);
-    if (hasMen && hasWomen) {
-      items.push({ product: productCardForGender(product, "men"), gender: "men" });
-      items.push({ product: productCardForGender(product, "women"), gender: "women" });
+    if (meta && hasMen && hasWomen) {
+      const menBound =
+        remote.length > 0 ? bindLaunchProduct(meta, remote, "men") : product;
+      const womenBound =
+        remote.length > 0 ? bindLaunchProduct(meta, remote, "women") : product;
+      items.push({ product: productCardForGender(menBound, "men"), gender: "men" });
+      items.push({
+        product: productCardForGender(womenBound, "women"),
+        gender: "women",
+      });
       continue;
     }
     if (hasWomen) {
-      items.push({ product: productCardForGender(product, "women"), gender: "women" });
+      const womenBound =
+        meta && remote.length > 0
+          ? bindLaunchProduct(meta, remote, "women")
+          : product;
+      items.push({
+        product: productCardForGender(womenBound, "women"),
+        gender: "women",
+      });
       continue;
     }
     items.push({
@@ -612,8 +656,9 @@ export function expandProductsForBothGenders(
  */
 export function looksLikeDemoCatalog(products: ShopifyProduct[]) {
   if (products.length === 0) return true;
-  const launchHandles = new Set(LAUNCH_PRODUCTS.map((p) => p.handle));
-  const hasLaunch = products.some((p) => launchHandles.has(p.node.handle));
+  const launchOrAlias = mappedShopifyHandles();
+  for (const meta of LAUNCH_PRODUCTS) launchOrAlias.add(meta.handle);
+  const hasLaunch = products.some((p) => launchOrAlias.has(p.node.handle));
   if (hasLaunch) return false;
 
   const demoSignals = products.filter((p) => {
@@ -634,21 +679,32 @@ export function looksLikeDemoCatalog(products: ShopifyProduct[]) {
 export function resolveRemoteLaunchProduct(
   meta: LaunchProductMeta,
   remote: ShopifyProduct[],
+  gender?: ModelGender | string | null,
 ): ShopifyProduct | null {
   const byHandle = new Map(remote.map((p) => [p.node.handle, p]));
-  for (const handle of shopifyHandleCandidates(meta)) {
+  for (const handle of shopifyHandleCandidates(meta, gender)) {
     const hit = byHandle.get(handle);
     if (hit) return hit;
   }
 
   const color = meta.color.toLowerCase();
   const kind = meta.category === "hoodies" ? "hoodie" : "trouser";
-  const fuzzy = remote.find((p) => {
-    const hay =
-      `${p.node.handle} ${p.node.title} ${p.node.productType ?? ""}`.toLowerCase();
-    return hay.includes(color) && hay.includes(kind);
-  });
-  return fuzzy ?? null;
+  const genderHint =
+    gender === "women" ? /female|women/i : gender === "men" ? /male|\bmen\b/i : null;
+
+  const ranked = remote
+    .map((p, index) => {
+      const hay =
+        `${p.node.handle} ${p.node.title} ${p.node.productType ?? ""}`.toLowerCase();
+      if (!hay.includes(color) || !hay.includes(kind)) return null;
+      let score = 1;
+      if (genderHint && genderHint.test(hay)) score += 5;
+      return { p, score, index };
+    })
+    .filter(Boolean) as Array<{ p: ShopifyProduct; score: number; index: number }>;
+
+  ranked.sort((a, b) => b.score - a.score || a.index - b.index);
+  return ranked[0]?.p ?? null;
 }
 
 export function mappedShopifyHandles(): Set<string> {
@@ -657,6 +713,78 @@ export function mappedShopifyHandles(): Set<string> {
     for (const handle of shopifyHandleCandidates(meta)) handles.add(handle);
   }
   return handles;
+}
+
+/** Last Storefront payload — used so Men/Women shop cards bind to matching Admin products. */
+let lastRemoteCatalog: ShopifyProduct[] = [];
+
+export function getLastRemoteCatalog() {
+  return lastRemoteCatalog;
+}
+
+/**
+ * Bind one launch product to a live Shopify product (prices + variant GIDs).
+ * Gender picks male vs female Admin products when the catalogue is split.
+ */
+export function bindLaunchProduct(
+  meta: LaunchProductMeta,
+  remote: ShopifyProduct[],
+  gender?: ModelGender | string | null,
+): ShopifyProduct {
+  const remoteProduct = resolveRemoteLaunchProduct(meta, remote, gender);
+  if (!remoteProduct) return toShopifyProduct(meta, gender);
+
+  const sizesFromVariants = remoteProduct.node.variants.edges
+    .map(
+      (edge) =>
+        edge.node.selectedOptions.find((o) => o.name.toLowerCase() === "size")
+          ?.value,
+    )
+    .filter((value): value is string => Boolean(value));
+  const checkoutSafeSizes = sortProductSizes(
+    Array.from(
+      new Set(sizesFromVariants.length ? sizesFromVariants : [...PRODUCT_SIZES]),
+    ),
+  );
+
+  const options = (remoteProduct.node.options ?? []).map((option) => {
+    if (option.name.toLowerCase() === "size") {
+      return { ...option, values: checkoutSafeSizes };
+    }
+    if (
+      option.name.toLowerCase() === "color" ||
+      option.name.toLowerCase() === "colour"
+    ) {
+      return { ...option, values: [meta.color] };
+    }
+    return option;
+  });
+
+  if (!options.some((o) => o.name.toLowerCase() === "size")) {
+    options.unshift({ name: "Size", values: checkoutSafeSizes });
+  }
+
+  const sortedVariants = sortVariantsBySize(remoteProduct.node.variants.edges);
+
+  return applyLaunchImagery(
+    {
+      node: {
+        ...remoteProduct.node,
+        handle: meta.handle,
+        title: meta.title,
+        description: remoteProduct.node.description || meta.description,
+        productType: meta.category === "hoodies" ? "Hoodies" : "Trousers",
+        options,
+        tags: Array.from(
+          new Set([...(remoteProduct.node.tags ?? []), ...meta.tags]),
+        ),
+        variants: {
+          edges: sortedVariants,
+        },
+      },
+    },
+    gender,
+  );
 }
 
 /**
@@ -671,71 +799,16 @@ export function mergeWithShopifyCatalog(
   remote: ShopifyProduct[],
   gender?: ModelGender | string | null,
 ): ShopifyProduct[] {
+  lastRemoteCatalog = remote;
+
   if (looksLikeDemoCatalog(remote)) {
     return getLaunchCatalog(gender);
   }
 
   const claimed = mappedShopifyHandles();
-
-  const launch = LAUNCH_PRODUCTS.map((meta) => {
-    const remoteProduct = resolveRemoteLaunchProduct(meta, remote);
-    if (!remoteProduct) return toShopifyProduct(meta, gender);
-
-    // Prefer sizes from variants — Storefront option.values can lag after Admin adds XL.
-    const sizesFromVariants = remoteProduct.node.variants.edges
-      .map(
-        (edge) =>
-          edge.node.selectedOptions.find((o) => o.name.toLowerCase() === "size")
-            ?.value,
-      )
-      .filter((value): value is string => Boolean(value));
-    const checkoutSafeSizes = sortProductSizes(
-      Array.from(
-        new Set(sizesFromVariants.length ? sizesFromVariants : [...PRODUCT_SIZES]),
-      ),
-    );
-
-    const options = (remoteProduct.node.options ?? []).map((option) => {
-      if (option.name.toLowerCase() === "size") {
-        return { ...option, values: checkoutSafeSizes };
-      }
-      if (
-        option.name.toLowerCase() === "color" ||
-        option.name.toLowerCase() === "colour"
-      ) {
-        return { ...option, values: [meta.color] };
-      }
-      return option;
-    });
-
-    if (!options.some((o) => o.name.toLowerCase() === "size")) {
-      options.unshift({ name: "Size", values: checkoutSafeSizes });
-    }
-
-    // Keep Shopify Price + Compare-at + real variant GIDs (required for checkout).
-    const sortedVariants = sortVariantsBySize(remoteProduct.node.variants.edges);
-
-    return applyLaunchImagery(
-      {
-        node: {
-          ...remoteProduct.node,
-          // Stable website URL handle (not the Admin gender-prefixed handle).
-          handle: meta.handle,
-          title: meta.title,
-          description: remoteProduct.node.description || meta.description,
-          productType: meta.category === "hoodies" ? "Hoodies" : "Trousers",
-          options,
-          tags: Array.from(
-            new Set([...(remoteProduct.node.tags ?? []), ...meta.tags]),
-          ),
-          variants: {
-            edges: sortedVariants,
-          },
-        },
-      },
-      gender,
-    );
-  });
+  const launch = LAUNCH_PRODUCTS.map((meta) =>
+    bindLaunchProduct(meta, remote, gender ?? "men"),
+  );
 
   const extras = remote
     .filter((p) => !claimed.has(p.node.handle))
@@ -765,6 +838,10 @@ export function findCatalogProduct(
   handle: string,
   gender?: ModelGender | string | null,
 ): ShopifyProduct | null {
+  const meta = LAUNCH_PRODUCTS.find((p) => p.handle === handle);
+  if (meta && lastRemoteCatalog.length > 0) {
+    return bindLaunchProduct(meta, lastRemoteCatalog, gender ?? "men");
+  }
   const found = products.find((p) => p.node.handle === handle);
   if (found) return applyLaunchImagery(found, gender);
   return getLaunchProductByHandle(handle, gender);
